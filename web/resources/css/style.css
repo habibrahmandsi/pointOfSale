@@ -1,0 +1,24 @@
+/*
+@Author: Md. Habibur Rahman
+Write custom css here
+*/
+.navbar{
+    /*min-height: 70px;*/
+}
+#userForm div.form-group{
+    margin-bottom: 2px;
+}
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td{
+    padding: 2px;
+    font-size: 13px;
+}
+.table td:last-child img{
+    width: 15px;
+}
+table.dataTable thead > tr > th{
+    padding-left: 3px;
+}
+.iconInsideTable{
+    width: 20px;
+}
+

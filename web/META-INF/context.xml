@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Context path="/pointOfSale/">
+</Context>
+
+<!--
+<Context path="/pointOfSale" docBase="/home/habib/PersonalProject/pointOfSale/out/artifacts/test_app_war_exploded">
+</Context>-->
