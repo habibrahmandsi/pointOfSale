@@ -20,4 +20,9 @@ public interface AdminJdbcService {
     List getProductTypeList(String name) throws Exception;
     List getProductGroupList(String name) throws Exception;
     List getUnitOfMeasureList(String name) throws Exception;
+
+    void deleteEntityByAnyColValue(String tableName,String colName, String colValue) throws Exception;
+
+    Map<String, Object> getPurchases(Integer start, Integer length, String sortColName, String sortType, String searchKey, int purchaseReturn) throws Exception ;
+
 }

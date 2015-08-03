@@ -1,5 +1,7 @@
 package com.dsoft.util;
 
+import com.dsoft.entity.User;
+import com.dsoft.service.AdminService;
 import com.sun.mail.util.BASE64DecoderStream;
 import com.sun.mail.util.BASE64EncoderStream;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -9,9 +11,11 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -47,6 +51,8 @@ public class Utils {
 	private static Logger logger = Logger.getLogger(Utils.class);
     private static Cipher ecipher;
     private static Cipher dcipher;
+    public static Integer globalCounter=0;
+
     private static final SecretKey key = getSecretKey();
 //    key = KeyGenerator.getInstance("DES").generateKey();
 	@SuppressWarnings("unchecked")
@@ -1754,6 +1760,20 @@ public class Utils {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readValue(clientResponseStr,
                 new TypeReference<HashMap<String,Object>>(){});
+    }
+
+    public static String generateUniqueId(String startsWith) {
+        UUID idOne = UUID.randomUUID();
+        String str=""+idOne;
+        int uid=str.hashCode();
+        String filterStr=""+uid;
+        str=filterStr.replaceAll("-", "");
+        return startsWith+""+str;
+    }
+
+     public static String generateUniqueNo(String startsWith) {
+        Date dt = new Date();
+        return startsWith+""+dt.getYear()+""+dt.getMonth()+""+dt.getDate()+""+(Utils.globalCounter++);
     }
 
 }

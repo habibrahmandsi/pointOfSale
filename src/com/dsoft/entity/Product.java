@@ -35,6 +35,13 @@ public class Product extends AbstractBaseEntity{
     @JoinColumn(name="unit_of_measure_id")
     private UnitOfMeasure unitOfMeasure;
 
+    @Column(name = "total_quantity")
+    private Double totalQuantity;
+
+    @Transient
+    private Boolean saved;
+
+
     public String getName() {
         return name;
     }
@@ -91,6 +98,22 @@ public class Product extends AbstractBaseEntity{
         this.unitOfMeasure = unitOfMeasure;
     }
 
+    public Double getTotalQuantity() {
+        return totalQuantity;
+    }
+
+    public void setTotalQuantity(Double totalQuantity) {
+        this.totalQuantity = totalQuantity;
+    }
+
+    public Boolean getSaved() {
+        return saved;
+    }
+
+    public void setSaved(Boolean saved) {
+        this.saved = saved;
+    }
+
     @Override
     public String toString() {
         return "Product{" +
@@ -101,6 +124,7 @@ public class Product extends AbstractBaseEntity{
                 ", productGroup=" + productGroup +
                 ", productType=" + productType +
                 ", unitOfMeasure=" + unitOfMeasure +
+                ", totalQuantity=" + totalQuantity +
                 '}';
     }
 }

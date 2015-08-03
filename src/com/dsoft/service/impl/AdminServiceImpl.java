@@ -115,4 +115,44 @@ public class AdminServiceImpl implements AdminService {
         adminDao.deleteProductType(productType);
     }
 
+
+    @Override
+    public AbstractBaseEntity getAbstractBaseEntityByString(String className, String anyColumn, String columnValue) {
+        return adminDao.getAbstractBaseEntityByString(className, anyColumn, columnValue);
+    }
+
+    public void saveOrUpdatePurchase(Purchase purchase) throws Exception{
+        adminDao.saveOrUpdatePurchase(purchase);
+
+    }
+
+    public Purchase getPurchase(Long purchaseId, int purchaseReturn) throws Exception {
+        return adminDao.getPurchase(purchaseId,purchaseReturn);
+    }
+
+    public void deletePurchase(Purchase purchase) throws Exception {
+        adminDao.deletePurchase(purchase);
+    }
+
+   public List<PurchaseItem> getPurchaseItemListByPurchaseId(Long purchaseId) throws Exception {
+        return adminDao.getPurchaseItemListByPurchaseId(purchaseId);
+    }
+
+    public void deleteObject(Object object) throws Exception {
+        adminDao.deleteObject(object);
+    }
+
+    public boolean saveOrUpdatePurchaseReturn(Purchase purchase) throws Exception {
+        return adminDao.saveOrUpdatePurchaseReturn(purchase);
+    }
+
+   public Company getCompanyByName(String companyName) throws Exception{
+        return adminDao.getCompanyByName(companyName);
+    }
+
+    public ProductGroup getProductGroupByName(String name) throws Exception{
+        return adminDao.getProductGroupByName(name);
+    }
+
+
 }

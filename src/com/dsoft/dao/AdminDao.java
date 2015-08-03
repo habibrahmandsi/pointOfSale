@@ -34,4 +34,18 @@ public interface AdminDao {
     void saveOrUpdateProductType(ProductType productType) throws Exception;
     ProductType getProductType(Long productTypeId) throws Exception;
     void deleteProductType(ProductType productType) throws Exception;
+
+    AbstractBaseEntity getAbstractBaseEntityByString(String className,String anyColumn,String columnValue);
+
+    void saveOrUpdatePurchase(Purchase purchase) throws Exception;
+    Purchase getPurchase(Long purchaseId, int purchaseReturn) throws Exception;
+    void deletePurchase(Purchase purchase) throws Exception;
+
+    List<PurchaseItem> getPurchaseItemListByPurchaseId(Long purchaseId) throws Exception;
+
+    void deleteObject(Object object) throws Exception ;
+    boolean saveOrUpdatePurchaseReturn(Purchase purchase) throws Exception;
+
+    Company getCompanyByName(String companyName) throws Exception;
+    ProductGroup getProductGroupByName(String name) throws Exception;
 }

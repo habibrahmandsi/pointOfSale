@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.nio.DoubleBuffer;
 import java.util.*;
 
 
@@ -69,8 +70,19 @@ public class AdminDaoImpl implements AdminDao {
 
     public User getUser(Long userId) throws Exception {
         Session session = getSession();
-        Query query = session.createQuery("FROM User WHERE id = :id");
+        String sql = "FROM User WHERE id = :id ";
+        if (!Utils.isInRole(Role.SUPER_ADMIN.getLabel())) {
+            logger.debug("SMNLOG:This is super Admin");
+            sql = "FROM User WHERE role != :roleName AND id = :id ";
+        }
+
+        Query query = session.createQuery(sql);
+
+        if (!Utils.isInRole(Role.SUPER_ADMIN.getLabel()))
+            query.setParameter("roleName", Role.SUPER_ADMIN.getLabel());
+
         query.setParameter("id", userId);
+
         Object object = query.uniqueResult();
         if (object != null)
             return (User) object;
@@ -176,4 +188,142 @@ public class AdminDaoImpl implements AdminDao {
     public void deleteProductType(ProductType productType) throws Exception {
         hibernateTemplate.delete(productType);
     }
+
+    public AbstractBaseEntity getAbstractBaseEntityByString(String className, String anyColumn, String columnValue) {
+
+        List<AbstractBaseEntity> entityList = hibernateTemplate.find("From " + className + " where " + anyColumn + " = ?", columnValue);
+        if (entityList != null && entityList.size() > 0)
+            return entityList.get(0);
+        return null;
+    }
+
+    public void saveOrUpdatePurchase(Purchase purchase) throws Exception {
+        hibernateTemplate.saveOrUpdate(purchase);
+        Product product;
+        List<PurchaseItem> purchaseItemList = purchase.getPurchaseItemList() != null ? purchase.getPurchaseItemList() : new ArrayList<PurchaseItem>();
+        if (!Utils.isEmpty(purchaseItemList)) {
+            for (PurchaseItem purchaseItem : purchaseItemList) {
+                if (purchaseItem != null && purchaseItem.getId() != null) {
+                    updateObject(purchaseItem);
+                } else {
+                    purchaseItem.setPurchase(purchase);
+                    saveObject(purchaseItem);
+                }
+                product = purchaseItem.getProduct();
+                logger.debug("SMNLOG:PrevQuantity" + purchaseItem.getPrevQuantity() + " current Qty:" + purchaseItem.getQuantity());
+                if (purchaseItem.getPrevQuantity() > purchaseItem.getQuantity() || purchaseItem.getPrevQuantity() < purchaseItem.getQuantity()) {
+                    this.updateProductQuantity(product.getId(), purchaseItem.getQuantity() - purchaseItem.getPrevQuantity());
+                } else {
+                    logger.debug("######## No nedd to update product quantity ##########");
+                }
+            }
+        }
+
+    }
+
+    public Purchase getPurchase(Long purchaseId, int purchaseReturn) throws Exception {
+        Session session = getSession();
+        Query query = session.createQuery("FROM Purchase WHERE id = :id");
+        query.setParameter("id", purchaseId);
+        Object object = query.uniqueResult();
+        if (object != null)
+            return (Purchase) object;
+        return null;
+    }
+
+    public void deletePurchase(Purchase purchase) throws Exception {
+        hibernateTemplate.delete(purchase);
+    }
+
+    public void saveObject(Object object) {
+        hibernateTemplate.save(object);
+    }
+
+    public void updateObject(Object object) {
+        hibernateTemplate.update(object);
+    }
+
+    public List<PurchaseItem> getPurchaseItemListByPurchaseId(Long purchaseId) throws Exception {
+        return hibernateTemplate.find("FROM PurchaseItem where purchase.id = ?", purchaseId);
+    }
+
+    public void deleteObject(Object object) throws Exception {
+        hibernateTemplate.delete(object);
+    }
+
+    public void updateProductQuantity(Long productId, Double quantity) throws Exception {
+        logger.debug("::****************** Update Product quantity ******************");
+        logger.debug("::productId:" + productId + " to add:" + quantity);
+        Product product = null;
+        Session session = getSession();
+        Query query = session.createQuery("FROM Product WHERE id = :id");
+        query.setParameter("id", productId);
+        Object object = query.uniqueResult();
+        if (object != null)
+            product = (Product) object;
+
+        if (product != null) {
+            Double oldQty = product.getTotalQuantity() != null ? product.getTotalQuantity() : 0;
+            product.setTotalQuantity(oldQty + quantity);
+            hibernateTemplate.update(product);
+        }
+    }
+
+    public boolean saveOrUpdatePurchaseReturn(Purchase purchase) throws Exception {
+        hibernateTemplate.save(purchase);
+        Product product;
+        List<PurchaseItem> purchaseItemList = purchase.getPurchaseItemList();
+        int count = 0;
+        if (!Utils.isEmpty(purchaseItemList)) {
+            for (PurchaseItem purchaseItem : purchaseItemList) {
+                if (purchaseItem != null && purchaseItem.getId() != null && (purchaseItem.getPrevQuantity() > purchaseItem.getQuantity() || purchaseItem.getPrevQuantity() < purchaseItem.getQuantity())) {
+                    logger.debug("SMNLOG:Purchase return item should be saved");
+                    purchaseItem.setId(null);// to add as a purchase return
+                    purchaseItem.setPurchase(purchase);
+                    saveObject(purchaseItem);
+                } else {
+                    // purchaseItem.setPurchase(purchase);
+                    // saveObject(purchaseItem);
+                }
+                product = purchaseItem.getProduct();
+                logger.debug("SMNLOG:PrevQuantity" + purchaseItem.getPrevQuantity() + " current Qty:" + purchaseItem.getQuantity());
+                if (purchaseItem.getPrevQuantity() > purchaseItem.getQuantity() || purchaseItem.getPrevQuantity() < purchaseItem.getQuantity()) {
+                    purchaseItem.setQuantity(purchaseItem.getQuantity() * (-1));
+                    this.updateProductQuantity(product.getId(), purchaseItem.getQuantity()); // negative for return
+                    count = count+1;
+                } else {
+                    logger.debug("######## (purchase return) No need to update product quantity ##########");
+                }
+            }
+        }
+        if(count == 0){
+            logger.debug("######## (purchase return) Nothing to save: ROLL backing ##########");
+            hibernateTemplate.delete(purchase);
+            return false;
+        }
+        return true;
+    }
+
+
+    public Company getCompanyByName(String companyName) throws Exception{
+        Session session = getSession();
+        Query query = session.createQuery("FROM Company WHERE name = :name");
+        query.setParameter("name", companyName);
+        Object object = query.uniqueResult();
+        if (object != null)
+            return (Company) object;
+        return null;
+    }
+
+  public ProductGroup getProductGroupByName(String name) throws Exception{
+        Session session = getSession();
+        Query query = session.createQuery("FROM ProductGroup WHERE name = :name");
+        query.setParameter("name", name);
+        Object object = query.uniqueResult();
+        if (object != null)
+            return (ProductGroup) object;
+        return null;
+    }
+
+
 }

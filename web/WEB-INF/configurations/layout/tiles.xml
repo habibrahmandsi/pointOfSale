@@ -42,7 +42,7 @@
         <put-attribute name="body" value="/WEB-INF/views/{1}/{2}.jsp" />
     </definition>
 
-    <definition name="accessDenied" extends="base.definition">
+    <definition name="accessDenied" template="/WEB-INF/views/layout/layoutWithoutHeaderFooter.jsp">
         <put-attribute name="body" value="/WEB-INF/views/accessDenied.jsp" />
     </definition>
 

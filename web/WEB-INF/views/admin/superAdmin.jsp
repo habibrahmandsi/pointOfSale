@@ -34,6 +34,8 @@
                                     code="button.productGroup.upload"/></button>
                              <button class="btn btn-success companyUpload"><spring:message
                                     code="button.company.upload"/></button>
+                            <button class="btn btn-success productWithCnameUpload"><spring:message
+                                    code="button.product.company.upload"/></button>
                             <br/>
 
                         </form:form>
@@ -144,6 +146,11 @@
 
         $(".companyUpload").click(function () {
             $("#superAdminForm").attr("action", "./superAdmin.do?opt=3");
+            $("#superAdminForm").submit()
+
+        });
+       $(".productWithCnameUpload").click(function () {
+            $("#superAdminForm").attr("action", "./superAdmin.do?opt=4");
             $("#superAdminForm").submit()
 
         });

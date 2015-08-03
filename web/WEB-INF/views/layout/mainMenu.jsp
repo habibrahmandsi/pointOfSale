@@ -20,11 +20,18 @@
                         <a href="flot.html"><i class="fa fa-upload fa-fw"></i>&nbsp;<spring:message code="menu.sales.return"/></a>
                     </li>
                     <li>
-                        <a href="morris.html"><i class="fa fa-table fa-fw"></i>&nbsp;<spring:message code="menu.purchase"/></a>
+                        <a href="./upsertPurchase.do"><i class="fa fa-table fa-fw"></i>&nbsp;<spring:message code="menu.purchase"/></a>
+                    </li>
+
+                    <li>
+                        <a href="./purchaseList.do"><i class="fa fa-table fa-fw"></i>&nbsp;<spring:message code="purchase.list.header"/></a>
                     </li>
 
                     <li>
                         <a href="morris.html"><i class="fa fa-upload fa-fw"></i>&nbsp;<spring:message code="menu.purchase.return"/></a>
+                    </li>
+                      <li>
+                        <a href="./purchaseReturnList.do?opt=1"><i class="fa fa-upload fa-fw"></i>&nbsp;<spring:message code="menu.purchase.return.list"/></a>
                     </li>
                 </ul>
                 <!-- /.nav-second-level -->

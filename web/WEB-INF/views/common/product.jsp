@@ -17,6 +17,7 @@
 <div class="row">
     <form:form method="post" id="productForm" commandName="product">
         <form:hidden path="id"/>
+        <form:hidden path="totalQuantity"/>
     <div class="col-lg-12">
         <div class="panel panel-default">
             <div class="panel-heading">

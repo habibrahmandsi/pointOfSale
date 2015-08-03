@@ -4,6 +4,7 @@ import com.dsoft.entity.Role;
 import com.dsoft.entity.User;
 import com.dsoft.service.AdminJdbcService;
 import com.dsoft.service.AdminService;
+import com.dsoft.util.Constants;
 import com.dsoft.util.Utils;
 import com.dsoft.validation.UserValidation;
 import org.apache.log4j.Logger;
@@ -14,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.lang.invoke.ConstantCallSite;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +54,7 @@ public class LoginController {  // to handle login related task
     */
     @RequestMapping(value = "/*/landingPage.do", method = RequestMethod.GET)
     public String landingPageView(HttpServletRequest request, Model model) {
+        logger.debug("SMNLOG:Landing page controller");
         return "admin/landingPage";
     }
 
@@ -63,36 +66,28 @@ public class LoginController {  // to handle login related task
     */
     @RequestMapping(value = "/forward.do", method = RequestMethod.GET)
     public String forwardOnRole(HttpServletRequest request, Model model) {
-        logger.debug("Forward Controller Start.");
+        logger.debug("Forward Controller Start 11111111.");
+        Boolean isLoggedInSuccess = false;
         if (Utils.isInRole(Role.SUPER_ADMIN.getLabel())) {
             logger.debug("Forward Controller Redirect AS " + Role.SUPER_ADMIN.getLabel());
+            isLoggedInSuccess = true;
+            if(isLoggedInSuccess)
+                this.setLoggedUserInfoInSession(request,adminService);
             return "redirect:./superAdmin/superAdmin.do";
         }else if(Utils.isInRole(Role.ROLE_ADMIN.getLabel())){
-            logger.debug("Forward Controller Redirect AS " + Role.ROLE_EMPLOYEE.getLabel());
+            logger.debug("Forward Controller Redirect AS " + Role.ROLE_ADMIN.getLabel());
+            isLoggedInSuccess = true;
+            if(isLoggedInSuccess)
+                this.setLoggedUserInfoInSession(request,adminService);
             return "redirect:./admin/landingPage.do";
+        }else if(Utils.isInRole(Role.ROLE_EMPLOYEE.getLabel())){
+            logger.debug("Forward Controller Redirect AS " + Role.ROLE_EMPLOYEE.getLabel());
+            isLoggedInSuccess = true;
+            if(isLoggedInSuccess)
+                this.setLoggedUserInfoInSession(request,adminService);
+            return "redirect:./employee/landingPage.do";
         }
 
-/*        if (Utils.isInRole(Role.ADMIN.getLabel())) {
-            logger.debug("Forward Controller Redirect AS " + Role.ADMIN.getLabel());
-            return "redirect:/admin/landingPage.do";
-        }else if(Utils.isInRole(Role.EMPLOYEE.getLabel())){
-            logger.debug("Forward Controller Redirect AS " + Role.EMPLOYEE.getLabel());
-            return "redirect:/common/landingPage.do";
-        } else if(Utils.isInRole(Role.LEGAL.getLabel())){
-            logger.debug("Forward Controller Redirect AS " + Role.LEGAL.getLabel());
-            return "redirect:/legal/landingPage.do";
-        }else if(Utils.isInRole(Role.IA_ANALYST.getLabel())){
-            logger.debug("Forward Controller Redirect AS " + Role.IA_ANALYST.getLabel());
-            return "redirect:/iaanalyst/landingPage.do";
-        }else if(Utils.isInRole(Role.IA_MANAGER.getLabel())){
-            logger.debug("Forward Controller Redirect AS " + Role.IA_MANAGER.getLabel());
-            return "redirect:/iamanager/landingPage.do";
-        }else if(Utils.isInRole(Role.COMPLIANCE.getLabel())){
-            logger.debug("Forward Controller Redirect AS " + Role.COMPLIANCE.getLabel());
-            return "redirect:/compliance/landingPage.do";
-        } else {
-            return "redirect:/login.do";
-        }*/
         return "redirect:./login.do";
     }
 
@@ -219,6 +214,19 @@ public class LoginController {  // to handle login related task
     public String getFeature(HttpServletRequest request, Model model) {
         logger.debug("Feature page Controller:");
         return "common/feature";
+    }
+
+    public void setLoggedUserInfoInSession(HttpServletRequest request, AdminService adminService){
+        String loggedUserName = (String)request.getSession().getAttribute("loggedUserName");
+        logger.debug(":: setLoggedUserInfoInSession method :: loggedUserName:"+loggedUserName);
+        if(loggedUserName == null && Utils.isEmpty(loggedUserName)){
+            logger.debug(":: Setting user info in session :: ");
+            User user = (User)adminService.getAbstractBaseEntityByString(Constants.USER,"userName",Utils.getLoggedUserName());
+            logger.debug("SMNLOG:user:"+user);
+            request.getSession().setAttribute("loggUserId", user != null ? user.getId() : 0);
+            request.getSession().setAttribute("loggedUserEmail",user!= null ? user.getEmail():"");
+            request.getSession().setAttribute("loggedUserName", user!= null ? user.getName():"");
+        }
     }
 }
 

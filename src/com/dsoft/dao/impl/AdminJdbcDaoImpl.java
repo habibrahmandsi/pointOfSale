@@ -143,7 +143,8 @@ public List<Object> getPartialDataList(int page, int rp,  String qtype, String q
     public Map<String, Object> getUsers(Integer start, Integer length, String sortColName, String sortType, String searchKey) throws Exception{
         Map<String, Object> result = new HashMap();
         String sql = "SELECT *  FROM user";
-        logger.debug("SMNLOG: searchKey:"+searchKey);
+
+        logger.debug("SMNLOG: searchKey:"+searchKey+" length:"+length);
 
         if(!Utils.isEmpty(searchKey)){
             sql = sql+" WHERE name LIKE ? "
@@ -155,6 +156,12 @@ public List<Object> getPartialDataList(int page, int rp,  String qtype, String q
                     +"OR max_discount_percent LIKE ? "
                     +"OR age LIKE ? "
                     +"OR email LIKE ?";
+        }
+        logger.debug("SMNLOG:-----_>"+Utils.isInRole(Role.SUPER_ADMIN.getLabel()));
+        if(!Utils.isEmpty(searchKey) && !Utils.isInRole(Role.SUPER_ADMIN.getLabel())){
+            sql += " AND role != ? ";
+        }else if(Utils.isEmpty(searchKey) && !Utils.isInRole(Role.SUPER_ADMIN.getLabel())){
+            sql += " WHERE role != ? ";
         }
 
         sql = sql+" ORDER BY " + sortColName + " "+ sortType +" LIMIT ?, ? ";
@@ -171,6 +178,10 @@ public List<Object> getPartialDataList(int page, int rp,  String qtype, String q
             paramList.add(searchKey+"%");
             paramList.add(searchKey+"%");
         }
+        if(!Utils.isInRole(Role.SUPER_ADMIN.getLabel())){
+            paramList.add(Role.SUPER_ADMIN.getLabel());
+        }
+
         paramList.add(start);
         paramList.add(length);
         logger.debug("SMNLOG:sql:"+sql);
@@ -191,7 +202,7 @@ public List<Object> getPartialDataList(int page, int rp,  String qtype, String q
     public Map<String, Object> getProductGroups(Integer start, Integer length, String sortColName, String sortType, String searchKey) throws Exception{
         Map<String, Object> result = new HashMap();
         String sql = "SELECT *  FROM product_group";
-        logger.debug("SMNLOG: searchKey:"+searchKey);
+       logger.debug("SMNLOG: searchKey:"+searchKey+" length:"+length);
 
         if(!Utils.isEmpty(searchKey)){
             sql = sql+" WHERE name LIKE ? ";
@@ -208,12 +219,12 @@ public List<Object> getPartialDataList(int page, int rp,  String qtype, String q
         logger.debug("SMNLOG:sql:"+sql);
 
         List list = jdbcTemplate.queryForList(sql, paramList.toArray());
-//        logger.debug("SMNLOG:list:"+list);
 
         result.put("data", list);
-        if (list != null && list.size() > 0)
-        result.put("total" ,list.size());
-        else
+        if (list != null && list.size() > 0){
+            logger.debug("SMNLOG:list Size:"+list.size());
+            result.put("total" ,list.size());
+        }else
             result.put("total" ,0);
 
 
@@ -223,7 +234,7 @@ public List<Object> getPartialDataList(int page, int rp,  String qtype, String q
     public Map<String, Object> getProducts(Integer start, Integer length, String sortColName, String sortType, String searchKey) throws Exception{
         Map<String, Object> result = new HashMap();
         String sql = "SELECT "
-                     +"p.id productId,p.name productName, p.sale_rate, p.purchase_rate, "
+                     +"p.id productId,p.name productName, p.sale_rate, p.purchase_rate,p.total_quantity, "
                      +"pg.name groupName, pt.name typeName, uom.name uomName,cm.name companyName "
                      +"FROM product p "
                      +"LEFT JOIN company cm ON(cm.id = p.company_id) "
@@ -231,7 +242,7 @@ public List<Object> getPartialDataList(int page, int rp,  String qtype, String q
                      +"LEFT JOIN product_type pt ON(pt.id = p.product_type_id) "
                      +"LEFT JOIN unit_of_measure uom ON(uom.id = p.unit_of_measure_id) ";
 
-        logger.debug("SMNLOG: searchKey:"+searchKey);
+       logger.debug("SMNLOG: searchKey:"+searchKey+" length:"+length);
 
         if(!Utils.isEmpty(searchKey)){
             sql = sql+" WHERE p.name LIKE ? "
@@ -241,6 +252,7 @@ public List<Object> getPartialDataList(int page, int rp,  String qtype, String q
                     +"OR cm.name LIKE ? "
                     +"OR p.sale_rate LIKE ? "
                     +"OR p.purchase_rate LIKE ? "
+                    +"OR p.total_quantity LIKE ? "
             ;
         }
 
@@ -248,6 +260,7 @@ public List<Object> getPartialDataList(int page, int rp,  String qtype, String q
 
         List paramList = new ArrayList();
         if(!Utils.isEmpty(searchKey)) {
+            paramList.add(searchKey+"%");
             paramList.add(searchKey+"%");
             paramList.add(searchKey+"%");
             paramList.add(searchKey+"%");
@@ -274,7 +287,7 @@ public List<Object> getPartialDataList(int page, int rp,  String qtype, String q
     public Map<String, Object> getCompanies(Integer start, Integer length, String sortColName, String sortType, String searchKey) throws Exception{
         Map<String, Object> result = new HashMap();
         String sql = "SELECT *  FROM company";
-        logger.debug("SMNLOG: searchKey:"+searchKey);
+       logger.debug("SMNLOG: searchKey:"+searchKey+" length:"+length);
 
         if(!Utils.isEmpty(searchKey)){
             sql = sql+" WHERE name LIKE ? "
@@ -312,7 +325,7 @@ public List<Object> getPartialDataList(int page, int rp,  String qtype, String q
     public Map<String, Object> getUnitOfMeasure(Integer start, Integer length, String sortColName, String sortType, String searchKey) throws Exception{
         Map<String, Object> result = new HashMap();
         String sql = "SELECT *  FROM unit_of_measure";
-        logger.debug("SMNLOG: searchKey:"+searchKey);
+       logger.debug("SMNLOG: searchKey:"+searchKey+" length:"+length);
 
         if(!Utils.isEmpty(searchKey)){
             sql = sql+" WHERE name LIKE ? ";
@@ -344,7 +357,7 @@ public List<Object> getPartialDataList(int page, int rp,  String qtype, String q
     public Map<String, Object> getProductType(Integer start, Integer length, String sortColName, String sortType, String searchKey) throws Exception{
         Map<String, Object> result = new HashMap();
         String sql = "SELECT *  FROM product_type";
-        logger.debug("SMNLOG: searchKey:"+searchKey);
+       logger.debug("SMNLOG: searchKey:"+searchKey+" length:"+length);
 
         if(!Utils.isEmpty(searchKey)){
             sql = sql+" WHERE name LIKE ? ";
@@ -445,6 +458,58 @@ public List<Object> getPartialDataList(int page, int rp,  String qtype, String q
         if (list != null && list.size() > 0)
             return list;
         return null;
+    }
+
+
+    public void deleteEntityByAnyColValue(String tableName,String colName, String colValue) throws Exception{
+        String sql = "DELETE FROM "+tableName+" WHERE "+colName+" = ?";
+        List paramList = new ArrayList();
+        paramList.add(colValue);
+        jdbcTemplate.update(sql,paramList.toArray());
+
+    }
+
+    @Override
+    public Map<String, Object> getPurchases(Integer start, Integer length, String sortColName, String sortType, String searchKey, int purchaseReturn) throws Exception {
+        Map<String, Object> result = new HashMap();
+        String sql = "SELECT p.*, u.name userName "
+                +"FROM purchase p "
+                +"LEFT JOIN user u ON(u.id = p.purchase_by_id) WHERE p.purchase_return = ?";
+
+        logger.debug("SMNLOG: searchKey:"+searchKey+" length:"+length);
+
+        if(!Utils.isEmpty(searchKey)){
+            sql = sql + " AND purchase_token_no LIKE ? "
+                      + " OR purchase_date LIKE ? "
+                      + " OR total_amount LIKE ? "
+                      + " OR u.name LIKE ? ";
+        }
+
+        sql = sql+" ORDER BY " + sortColName + " "+ sortType +" LIMIT ?, ? ";
+
+        List paramList = new ArrayList();
+        paramList.add(purchaseReturn);
+        if(!Utils.isEmpty(searchKey)) {
+            paramList.add(searchKey+"%");
+            paramList.add(searchKey+"%");
+            paramList.add(searchKey+"%");
+            paramList.add(searchKey+"%");
+        }
+        paramList.add(start);
+        paramList.add(length);
+        logger.debug("SMNLOG:sql:"+sql);
+
+        List list = jdbcTemplate.queryForList(sql, paramList.toArray());
+//        logger.debug("SMNLOG:list:"+list);
+
+        result.put("data", list);
+        if (list != null && list.size() > 0)
+            result.put("total" ,list.size());
+        else
+            result.put("total" ,0);
+
+
+        return result;
     }
 
 }

@@ -138,3 +138,84 @@ function fnDataTablesPipeline ( sSource, aoData, fnCallback ) {
         return;
     }
 }
+
+function commonDataTableInit(tableIdOrCss,url,columns){
+
+    oTable = $(tableIdOrCss).dataTable({
+        "aLengthMenu": [[5,10,20,60], [5,10,20,60]],
+        "iDisplayLength": rowDisplayGlobal,
+        "bProcessing": true,
+        "bServerSide": true,
+        "bJQueryUI": true,
+        "bAutoWidth": true,
+        "sPaginationType": "simple_numbers", // you can also give here 'simple','simple_numbers','full','full_numbers'
+        "oLanguage": {
+            "sSearch": "Search:"
+        },
+        "sAjaxSource": url,
+        "fnServerData": fnDataTablesPipeline,
+        "aoColumns":columns
+    });
+}
+
+function makeAjaxUrlForTypeAhead(url, colIndex, txtToSearch,length){
+    return url+"?iSortCOL="+colIndex+"&sSearch="+txtToSearch+"&iDisplayLength="+length;
+}
+
+
+function makeAutoComplete(inputIdOrClass,dataList, matchingColName, displayKey) {
+
+    $(inputIdOrClass).typeahead({
+            hint: false,
+            highlight: true,
+            limitTo:3,
+            minLength: 1
+
+        },
+        {
+            displayKey:  function(data){
+                if("1" == displayKey){
+                    //return data.productName+""+data.uomName+" "+data.typeName;
+                    return data.productName;
+                 }else{
+                    return data[displayKey];
+                 }
+            },
+            //source: substringMatcher(dataList)
+            source:  function findMatches(q, cb) {
+                var matches, substringRegex;
+
+                // an array that will be populated with substring matches
+                matches = [];
+
+                // regex used to determine if a string contains the substring `q`
+                substrRegex = new RegExp("^"+q, 'i');
+
+                // iterate through the pool of strings and for any string that
+                // contains the substring `q`, add it to the `matches` array
+                $.each(dataList, function (i, str) {
+                    if (substrRegex.test(str[matchingColName])) {
+                        matches.push(str);
+                    }
+                });
+                //console.log("SMNLOG:matches:"+matches);
+                cb(matches);
+            }
+        });
+}
+
+/*
+function calculateTotal(table, calculateFrom) {
+    var total = 0;
+    //$(".purchaseLineItemsDiv").find("table").find("tbody").find("tr").each(function(){
+    $(table).each(function () {
+        console.log("SMNLOG:row::"+$(this).find(calculateFrom).find("label").text());
+        total += (+$(this).find(calculateFrom).find("label").text());
+        console.log("SMNLOG:" + total);
+    });
+    return total;
+
+}*/
+function getDateForTableView(date){
+    return  date.getDate() + "/" +(date.getMonth()+1) + "/" + date.getFullYear()
+}

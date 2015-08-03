@@ -70,4 +70,15 @@ public class AdminJdbcServiceImpl implements AdminJdbcService {
     public List getUnitOfMeasureList( String name) throws Exception{
         return  adminJdbcDao.getUnitOfMeasureList(name);
     }
+
+    public void deleteEntityByAnyColValue(String tableName,String colName, String colValue) throws Exception{
+        adminJdbcDao.deleteEntityByAnyColValue(tableName, colName, colValue);
+    }
+
+    @Override
+    public Map<String, Object> getPurchases(Integer start, Integer length, String sortColName, String sortType, String searchKey, int purchaseReturn) throws Exception {
+        return adminJdbcDao.getPurchases(start, length, sortColName, sortType, searchKey, purchaseReturn);
+    }
+
+
 }

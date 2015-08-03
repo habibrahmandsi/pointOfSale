@@ -3,13 +3,16 @@
 <%@ page import="com.dsoft.util.Utils" %>
 <%@ page import="com.dsoft.util.Constants" %>
 <%@ page import="com.dsoft.entity.Role" %>
+<%@ page import="com.dsoft.service.AdminService" %>
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib prefix="security" uri="http://www.springframework.org/security/tags" %>
 <%
     final String contextPath = request.getContextPath();
+    final String loggedUserName = (String)request.getSession().getAttribute("loggedUserName");
 %>
 
+<c:set var="loggedUserName" value="<%=loggedUserName%>" scope="session"/>
 <c:set var="dateFormateForJstlTag" value="<%=Constants.DATE_FORMAT%>" scope="session"/>
 <c:set var="dateFormateForJs" value="<%=Constants.DATE_FORMAT_JS%>" scope="session"/>
 <c:set var="now" value="<fmt:formatDate value='<%=new java.util.Date()%>' pattern='${dateFormateForJstlTag}'/>" scope="session"/>
@@ -71,6 +74,8 @@
 
 <script>
     contextPath = "<%=request.getContextPath()%>"
+    globalUserName = '<%=loggedUserName%>';
+    console.log("SMNLOG:globalUserName:"+globalUserName);
 </script>
 
 </body>
