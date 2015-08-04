@@ -23,5 +23,6 @@ public class Constants {
     public static final String sSearch= "sSearch";
     public static final String sortType= "sSortDir_0";
     public static final String FILE_PATH= "tmp/";
+    public static final String P_KEY_SEPARATOR= "-";
 
 }

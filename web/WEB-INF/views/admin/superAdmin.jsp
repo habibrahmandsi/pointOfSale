@@ -113,6 +113,33 @@
                     </div>
                     <!-- /.col-lg-6 (nested) -->
                 </div>
+                <br>
+                <div class="row">
+                    <div class="col-lg-5">
+                    <form:form action="../superAdmin/generateKey" method="post" id="userForm" commandName="key">
+                    <form:hidden path="id"/>
+
+                        <div class="form-group">
+                            <label><spring:message code="user.form.userName"/></label>
+                            <form:input path="userName" cssClass="form-control"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label><spring:message code="superAdmin.form.privateKey"/></label>
+                            <form:input path="privateKey" cssClass="form-control"/>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label><spring:message code="superAdmin.form.valid.day"/></label>
+                            <form:input path="validUpTo" cssClass="form-control"/>
+                        </div>
+
+                        <button class="btn btn-success" type="submit"><spring:message
+                                code="button.submit"/></button>
+                    </form:form>
+                </div>
+                </div>
                 <!-- /.panel-body -->
             </div>
             <!-- /.panel -->

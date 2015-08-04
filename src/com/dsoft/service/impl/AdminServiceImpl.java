@@ -154,5 +154,9 @@ public class AdminServiceImpl implements AdminService {
         return adminDao.getProductGroupByName(name);
     }
 
+   public void saveOrUpdateObject(Object object) throws Exception{
+        adminDao.saveOrUpdateObject(object);
+    }
+
 
 }

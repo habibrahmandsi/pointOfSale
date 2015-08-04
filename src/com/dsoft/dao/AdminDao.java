@@ -48,4 +48,6 @@ public interface AdminDao {
 
     Company getCompanyByName(String companyName) throws Exception;
     ProductGroup getProductGroupByName(String name) throws Exception;
+
+    void saveOrUpdateObject(Object object) throws Exception;
 }

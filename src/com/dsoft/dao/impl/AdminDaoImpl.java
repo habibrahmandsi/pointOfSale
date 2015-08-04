@@ -324,6 +324,8 @@ public class AdminDaoImpl implements AdminDao {
             return (ProductGroup) object;
         return null;
     }
-
+    public void saveOrUpdateObject(Object object) throws Exception{
+        hibernateTemplate.saveOrUpdate(object);
+    }
 
 }

@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
-import javax.persistence.Query;
-import javax.rmi.CORBA.Util;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileInputStream;
@@ -172,9 +170,9 @@ public class AdminController {
 
         try {
             int totalRecords = adminService.getEntitySize(Constants.USER_CLASS);
-            if(length < 0){
-                userDataMap = adminJdbcService.getUsers(start, totalRecords+1, sortColName, sortType, searchKey);
-            }else{
+            if (length < 0) {
+                userDataMap = adminJdbcService.getUsers(start, totalRecords + 1, sortColName, sortType, searchKey);
+            } else {
                 userDataMap = adminJdbcService.getUsers(start, length, sortColName, sortType, searchKey);
             }
 
@@ -320,9 +318,9 @@ public class AdminController {
 
         try {
             int totalRecords = adminService.getEntitySize(Constants.PRODUCT_GROUP_CLASS);
-            if(length < 0){
+            if (length < 0) {
                 userDataMap = adminJdbcService.getProductGroups(start, totalRecords, sortColName, sortType, searchKey);
-            }else{
+            } else {
                 userDataMap = adminJdbcService.getProductGroups(start, length, sortColName, sortType, searchKey);
             }
             logger.debug("SMNLOG:Product Group totalRecords:" + totalRecords + " start:" + start + " length:" + length);
@@ -491,9 +489,9 @@ public class AdminController {
 
         try {
             int totalRecords = adminService.getEntitySize(Constants.PRODUCT_CLASS);
-            if(length < 0){
+            if (length < 0) {
                 userDataMap = adminJdbcService.getProducts(start, totalRecords, sortColName, sortType, searchKey);
-            }else{
+            } else {
                 userDataMap = adminJdbcService.getProducts(start, length, sortColName, sortType, searchKey);
             }
 
@@ -638,9 +636,9 @@ public class AdminController {
 
         try {
             int totalRecords = adminService.getEntitySize(Constants.COMPANY_CLASS);
-            if(length < 0){
+            if (length < 0) {
                 userDataMap = adminJdbcService.getCompanies(start, totalRecords, sortColName, sortType, searchKey);
-            }else{
+            } else {
                 userDataMap = adminJdbcService.getCompanies(start, length, sortColName, sortType, searchKey);
             }
 
@@ -650,9 +648,9 @@ public class AdminController {
                 * handle data Table search, paginatin operation very simply
                 */
             dataModelBean.setAaData((List) userDataMap.get("data"));
-            if(!Utils.isEmpty(searchKey)) {
+            if (!Utils.isEmpty(searchKey)) {
                 dataModelBean.setiTotalDisplayRecords((Integer) userDataMap.get("total"));
-            }else{
+            } else {
                 dataModelBean.setiTotalDisplayRecords(totalRecords);
             }
             dataModelBean.setiTotalRecords(totalRecords);
@@ -786,9 +784,9 @@ public class AdminController {
 
         try {
             int totalRecords = adminService.getEntitySize(Constants.UNIT_OF_MEASURE_CLASS);
-            if(length < 0){
+            if (length < 0) {
                 userDataMap = adminJdbcService.getUnitOfMeasure(start, totalRecords, sortColName, sortType, searchKey);
-            }else{
+            } else {
                 userDataMap = adminJdbcService.getUnitOfMeasure(start, length, sortColName, sortType, searchKey);
             }
 
@@ -798,9 +796,9 @@ public class AdminController {
                 * handle data Table search, paginatin operation very simply
                 */
             dataModelBean.setAaData((List) userDataMap.get("data"));
-            if(!Utils.isEmpty(searchKey)) {
+            if (!Utils.isEmpty(searchKey)) {
                 dataModelBean.setiTotalDisplayRecords((Integer) userDataMap.get("total"));
-            }else{
+            } else {
                 dataModelBean.setiTotalDisplayRecords(totalRecords);
             }
             dataModelBean.setiTotalRecords(totalRecords);
@@ -934,9 +932,9 @@ public class AdminController {
 
         try {
             int totalRecords = adminService.getEntitySize(Constants.PRODUCT_TYPE_CLASS);
-            if(length < 0){
+            if (length < 0) {
                 userDataMap = adminJdbcService.getProductType(start, totalRecords, sortColName, sortType, searchKey);
-            }else{
+            } else {
                 userDataMap = adminJdbcService.getProductType(start, length, sortColName, sortType, searchKey);
             }
 
@@ -946,9 +944,9 @@ public class AdminController {
                 * handle data Table search, paginatin operation very simply
                 */
             dataModelBean.setAaData((List) userDataMap.get("data"));
-            if(!Utils.isEmpty(searchKey)) {
+            if (!Utils.isEmpty(searchKey)) {
                 dataModelBean.setiTotalDisplayRecords((Integer) userDataMap.get("total"));
-            }else{
+            } else {
                 dataModelBean.setiTotalDisplayRecords(totalRecords);
             }
             dataModelBean.setiTotalRecords(totalRecords);
@@ -967,7 +965,9 @@ public class AdminController {
     public String getsuperAdminViewPage(HttpServletRequest request, Model model) {
         logger.error("SMNLOG: :: super Admin view controller :: ");
         AdminBean adminBean = new AdminBean();
+        ProductKey key = new ProductKey();
         model.addAttribute("adminBean", adminBean);
+        model.addAttribute("productKey", key);
         return "admin/superAdmin";
     }
 
@@ -1060,14 +1060,14 @@ public class AdminController {
 
                         }
                         model.addAttribute("companyList", companyList);
-                    }else if (opt > 0 && opt == 4) { // product upload with company name
+                    } else if (opt > 0 && opt == 4) { // product upload with company name
                         logger.debug("SMNLOG :: Inside Product bulk upload ::");
                         productList = this.getDataObjectFromXlFile(new File(filePlacedPath));
 
                         for (int i = 0; i < productList.size(); i++) {
                             product = productList.get(i);
 
-                            logger.debug("SMNLOG:NOW SERVING:"+i+" OUT OF :"+productList.size());
+                            logger.debug("SMNLOG:NOW SERVING:" + i + " OUT OF :" + productList.size());
                             if (product != null) {
                                 company = product.getCompany();
                                 productGroup = product.getProductGroup();
@@ -1075,24 +1075,24 @@ public class AdminController {
                                 product.setProductGroup(null);
 
                                 try {
-                                    logger.debug("SMNLOG:Company-- 11---->:"+company.getName());
-                                    if(company != null && !Utils.isEmpty(company.getName())){
+                                    logger.debug("SMNLOG:Company-- 11---->:" + company.getName());
+                                    if (company != null && !Utils.isEmpty(company.getName())) {
                                         company = adminService.getCompanyByName(company.getName());
                                         product.setCompany(null);
-                                        if(company != null){
-                                            logger.debug("SMNLOG:Company-- 222---company.getId->:"+company.getId());
+                                        if (company != null) {
+                                            logger.debug("SMNLOG:Company-- 222---company.getId->:" + company.getId());
                                             product.setCompany(company);
                                         }
 
 
                                     }
-                                    if(productGroup != null && !Utils.isEmpty(productGroup.getName())){
-                                        logger.debug("SMNLOG:Company-- 333---->:"+productGroup.getName());
+                                    if (productGroup != null && !Utils.isEmpty(productGroup.getName())) {
+                                        logger.debug("SMNLOG:Company-- 333---->:" + productGroup.getName());
 
-                                          productGroup = adminService.getProductGroupByName(productGroup.getName());
+                                        productGroup = adminService.getProductGroupByName(productGroup.getName());
 
-                                        if(productGroup != null){
-                                            logger.debug("SMNLOG:Company-- 44----productGroup.getId>:"+productGroup.getId());
+                                        if (productGroup != null) {
+                                            logger.debug("SMNLOG:Company-- 44----productGroup.getId>:" + productGroup.getId());
                                             product.setProductGroup(productGroup);
                                         }
                                     }
@@ -1208,12 +1208,12 @@ public class AdminController {
                     if (cell.getRowIndex() > 0 && cell.getColumnIndex() == 0) {// product name
                         product.setName(cell.getStringCellValue());
                     }
-                    if(cell.getRowIndex() > 0 && cell.getColumnIndex() == 1) { // company name
-                        logger.debug("SMNLOG:C name-->:"+cell.getStringCellValue());
+                    if (cell.getRowIndex() > 0 && cell.getColumnIndex() == 1) { // company name
+                        logger.debug("SMNLOG:C name-->:" + cell.getStringCellValue());
                         company.setName(cell.getStringCellValue());
 
                     }
-                    if(cell.getRowIndex() > 0 && cell.getColumnIndex() == 2) {// group name
+                    if (cell.getRowIndex() > 0 && cell.getColumnIndex() == 2) {// group name
                         logger.debug("SMNLOG:p group name---->:" + cell.getStringCellValue());
                         productGroup.setName(cell.getStringCellValue());
 
@@ -1222,7 +1222,7 @@ public class AdminController {
                 System.out.println();
                 product.setCompany(company);
                 product.setProductGroup(productGroup);
-                logger.debug("SMNLOG:###### product:"+product);
+                logger.debug("SMNLOG:###### product:" + product);
                 productList.add(product);
                 product = new Product();
                 company = new Company();
@@ -1291,28 +1291,28 @@ public class AdminController {
         Purchase purchase = new Purchase();
         List<PurchaseItem> purchaseItemList = null;
         Long purchaseId = request.getParameter("purchaseId") != null ? Long.parseLong(request.getParameter("purchaseId")) : 0;
-        logger.debug("SMNLOG:purchaseId:"+purchaseId);
+        logger.debug("SMNLOG:purchaseId:" + purchaseId);
         int purchaseReturn = 0; // for purchase
         try {
             if (purchaseId > 0) {
-                purchase = adminService.getPurchase(purchaseId,purchaseReturn);
+                purchase = adminService.getPurchase(purchaseId, purchaseReturn);
                 if (purchase == null) {
                     logger.debug("ERROR:Failed to load purchase");
                     Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("purchase.load.failed.msg"));
                     return "redirect:./purchaseList.do";
                 }
                 purchaseItemList = adminService.getPurchaseItemListByPurchaseId(purchaseId);
-                logger.debug("SMNLOG:purchaseItemList size:"+purchaseItemList.size());
+                logger.debug("SMNLOG:purchaseItemList size:" + purchaseItemList.size());
 
-                if(purchaseItemList != null && purchaseItemList.size() > 0){
-                    for(PurchaseItem purchaseItem : purchaseItemList) {
-                        if(purchaseItem != null) {
+                if (purchaseItemList != null && purchaseItemList.size() > 0) {
+                    for (PurchaseItem purchaseItem : purchaseItemList) {
+                        if (purchaseItem != null) {
                             purchaseItem.setPrevQuantity(purchaseItem.getQuantity());
                         }
                     }
                     purchase.setPurchaseItemList(purchaseItemList);
                 }
-                logger.debug("SMNLOG:purchase:"+purchase);
+                logger.debug("SMNLOG:purchase:" + purchase);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -1328,28 +1328,28 @@ public class AdminController {
     @RequestMapping(value = "/*/upsertPurchase.do", method = RequestMethod.POST)
     public String upsertPurchase(HttpServletRequest request, @ModelAttribute("purchase") Purchase purchase) {
         logger.debug("SMNLOG:: purchase POST Controller::");
-        logger.debug("SMNLOG:: purchase::"+purchase);
+        logger.debug("SMNLOG:: purchase::" + purchase);
         Long purchaseId = purchase.getId();
         try {
             logger.debug("SMNLOG:: purchaseId:: " + purchaseId);
             //if(user.getJoiningDate() == null)user.setJoiningDate(new Date());
-            if (purchaseId != null ){ // when to update
-            if(Utils.isEmpty(purchase.getPurchaseTokenNo()))
-                purchase.setPurchaseTokenNo(Utils.generateUniqueId("P"));
-            }else{ // when to save
+            if (purchaseId != null) { // when to update
+                if (Utils.isEmpty(purchase.getPurchaseTokenNo()))
+                    purchase.setPurchaseTokenNo(Utils.generateUniqueId("P"));
+            } else { // when to save
                 purchase.setPurchaseDate(new Date());
                 purchase.setPurchaseTokenNo(Utils.generateUniqueId("P"));
             }
 
 
-            User user = (User)adminService.getAbstractBaseEntityByString(Constants.USER,"userName",Utils.getLoggedUserName());
+            User user = (User) adminService.getAbstractBaseEntityByString(Constants.USER, "userName", Utils.getLoggedUserName());
             purchase.setUser(user);
             adminService.saveOrUpdatePurchase(purchase);
 
-            if (purchaseId != null )
+            if (purchaseId != null)
                 Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("purchase.update.success.msg"));
             else
-                Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("purchase.save.success.msg")+"<b>&nbsp;PURCHASE INVOICE NO:</b>&nbsp;<b style='color:red'>"+purchase.getPurchaseTokenNo()+"</b>");
+                Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("purchase.save.success.msg") + "<b>&nbsp;PURCHASE INVOICE NO:</b>&nbsp;<b style='color:red'>" + purchase.getPurchaseTokenNo() + "</b>");
         } catch (Exception ex) {
             logger.error("Save Purchase exception:: " + ex);
             if (purchaseId != null)
@@ -1363,18 +1363,20 @@ public class AdminController {
 
 
     @RequestMapping(value = "/*/deleteAnyObject.do", method = RequestMethod.GET)
-    public @ResponseBody Boolean deleteAnyObject(HttpServletRequest request, Model model) {
+    public
+    @ResponseBody
+    Boolean deleteAnyObject(HttpServletRequest request, Model model) {
         logger.error("SMNLOG:: delete Any Object controller ::");
-        String tableName = request.getParameter("tableName") != null ? (String)request.getParameter("tableName") : "";
-        String colName = request.getParameter("colName") != null ? (String)request.getParameter("colName") : "";
-        String colValue = request.getParameter("colValue") != null ? (String)request.getParameter("colValue") : "";
-        logger.debug("SMNLOG:tableName:"+tableName+" colName:"+colName+" colValue:"+colValue);
+        String tableName = request.getParameter("tableName") != null ? (String) request.getParameter("tableName") : "";
+        String colName = request.getParameter("colName") != null ? (String) request.getParameter("colName") : "";
+        String colValue = request.getParameter("colValue") != null ? (String) request.getParameter("colValue") : "";
+        logger.debug("SMNLOG:tableName:" + tableName + " colName:" + colName + " colValue:" + colValue);
         Boolean isSuccess = false;
         try {
             if (!Utils.isEmpty(tableName) && !Utils.isEmpty(colName) && !Utils.isEmpty(colValue)) {
                 adminJdbcService.deleteEntityByAnyColValue(tableName, colName, colValue);
                 isSuccess = true;
-            }else{
+            } else {
                 logger.debug("SMNLOG:EMPTY :");
             }
         } catch (Exception e) {
@@ -1419,9 +1421,9 @@ public class AdminController {
         Map<String, Object> userDataMap;
         try {
             int totalRecords = adminService.getEntitySize(Constants.PRODUCT_TYPE_CLASS);
-            if(length < 0){
-                userDataMap = adminJdbcService.getPurchases(start, totalRecords, sortColName, sortType, searchKey,purchaseReturn);
-            }else{
+            if (length < 0) {
+                userDataMap = adminJdbcService.getPurchases(start, totalRecords, sortColName, sortType, searchKey, purchaseReturn);
+            } else {
                 userDataMap = adminJdbcService.getPurchases(start, length, sortColName, sortType, searchKey, purchaseReturn);
             }
 
@@ -1431,9 +1433,9 @@ public class AdminController {
                 * handle data Table search, paginatin operation very simply
                 */
             dataModelBean.setAaData((List) userDataMap.get("data"));
-            if(!Utils.isEmpty(searchKey)) {
+            if (!Utils.isEmpty(searchKey)) {
                 dataModelBean.setiTotalDisplayRecords((Integer) userDataMap.get("total"));
-            }else{
+            } else {
                 dataModelBean.setiTotalDisplayRecords(totalRecords);
             }
             dataModelBean.setiTotalRecords(totalRecords);
@@ -1454,15 +1456,15 @@ public class AdminController {
         logger.error("SMNLOG: :: delete Purchase controller :: ");
         Long purchaseId = request.getParameter("purchaseId") != null ? Long.parseLong(request.getParameter("purchaseId")) : 0;
         Long opt = request.getParameter("opt") != null ? Long.parseLong(request.getParameter("opt")) : 0;
-        logger.error("SMNLOG: :: purchaseId :: "+purchaseId);
+        logger.error("SMNLOG: :: purchaseId :: " + purchaseId);
         List<PurchaseItem> purchaseItemList = new ArrayList<PurchaseItem>();
         PurchaseItem purchaseItem;
         Boolean isError = true;
         try {
             if (purchaseId > 0) {
                 purchaseItemList = adminService.getPurchaseItemListByPurchaseId(purchaseId);
-                if(purchaseItemList != null && purchaseItemList.size() > 0){
-                    for(int i=0; i< purchaseItemList.size(); i++){
+                if (purchaseItemList != null && purchaseItemList.size() > 0) {
+                    for (int i = 0; i < purchaseItemList.size(); i++) {
                         purchaseItem = purchaseItemList.get(i);
                         adminService.deleteObject(purchaseItem);
                     }
@@ -1473,24 +1475,24 @@ public class AdminController {
             isError = false;
         }
 
-        if( isError == true){
-            logger.debug("SMNLOG:Purchase item deleted successful.Now to delete Purchase:"+purchaseId);
+        if (isError == true) {
+            logger.debug("SMNLOG:Purchase item deleted successful.Now to delete Purchase:" + purchaseId);
             try {
-                adminJdbcService.deleteEntityByAnyColValue(Constants.PURCHASE_TABLE, "id", purchaseId+"");
-                Utils.setGreenMessage(request, opt == 1? Utils.getMessageBundlePropertyValue("purchase.return.delete.success.msg"):
+                adminJdbcService.deleteEntityByAnyColValue(Constants.PURCHASE_TABLE, "id", purchaseId + "");
+                Utils.setGreenMessage(request, opt == 1 ? Utils.getMessageBundlePropertyValue("purchase.return.delete.success.msg") :
                         Utils.getMessageBundlePropertyValue("purchase.delete.success.msg"));
             } catch (Exception e) {
                 e.printStackTrace();
                 logger.debug("ERROR:Failed to delete user");
-                Utils.setErrorMessage(request, opt == 1? Utils.getMessageBundlePropertyValue("purchase.return.delete.failed.msg"):
+                Utils.setErrorMessage(request, opt == 1 ? Utils.getMessageBundlePropertyValue("purchase.return.delete.failed.msg") :
                         Utils.getMessageBundlePropertyValue("purchase.delete.failed.msg"));
             }
-        }else{
-            Utils.setErrorMessage(request, opt == 1? Utils.getMessageBundlePropertyValue("purchase.return.delete.failed.msg"):
+        } else {
+            Utils.setErrorMessage(request, opt == 1 ? Utils.getMessageBundlePropertyValue("purchase.return.delete.failed.msg") :
                     Utils.getMessageBundlePropertyValue("purchase.delete.failed.msg"));
         }
-        if(opt ==1)
-        return "redirect:./purchaseReturnList.do";
+        if (opt == 1)
+            return "redirect:./purchaseReturnList.do";
 
         return "redirect:./purchaseList.do";
 
@@ -1504,11 +1506,11 @@ public class AdminController {
         List<PurchaseItem> purchaseItemList = null;
         Long purchaseId = request.getParameter("purchaseId") != null ? Long.parseLong(request.getParameter("purchaseId")) : 0;
         Long update = request.getParameter("update") != null ? Long.parseLong(request.getParameter("update")) : 0;
-        logger.debug("SMNLOG:purchaseId:"+purchaseId);
+        logger.debug("SMNLOG:purchaseId:" + purchaseId);
         int purchaseReturn = 1; // for purchase return
         try {
             if (purchaseId > 0) {
-                purchase = adminService.getPurchase(purchaseId,purchaseReturn);
+                purchase = adminService.getPurchase(purchaseId, purchaseReturn);
                 if (purchase == null) {
                     logger.debug("ERROR:Failed to load purchase return");
                     Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("purchase.return.load.failed.msg"));
@@ -1516,15 +1518,15 @@ public class AdminController {
                 }
 
                 purchaseItemList = adminService.getPurchaseItemListByPurchaseId(purchaseId);
-                logger.debug("SMNLOG:purchaseItemList size:"+purchaseItemList.size());
+                logger.debug("SMNLOG:purchaseItemList size:" + purchaseItemList.size());
 
-                if(purchaseItemList != null && purchaseItemList.size() > 0){
-                    for(PurchaseItem purchaseItem : purchaseItemList) {
-                        if(purchaseItem != null) {
-                            if(update ==0){
+                if (purchaseItemList != null && purchaseItemList.size() > 0) {
+                    for (PurchaseItem purchaseItem : purchaseItemList) {
+                        if (purchaseItem != null) {
+                            if (update == 0) {
                                 purchaseItem.setTotalPrice(0.0);
-                            }else{
-                                purchaseItem.setQuantity(purchaseItem.getQuantity() < 0 ? (purchaseItem.getQuantity()*(-1)):purchaseItem.getQuantity());
+                            } else {
+                                purchaseItem.setQuantity(purchaseItem.getQuantity() < 0 ? (purchaseItem.getQuantity() * (-1)) : purchaseItem.getQuantity());
                             }
                             purchaseItem.setPrevQuantity(purchaseItem.getQuantity());
 
@@ -1532,14 +1534,14 @@ public class AdminController {
                     }
                     purchase.setPurchaseItemList(purchaseItemList);
                 }
-                logger.debug("SMNLOG:purchase:"+purchase);
+                logger.debug("SMNLOG:purchase:" + purchase);
             }
         } catch (Exception e) {
             e.printStackTrace();
 
         }
-        if(update ==0)
-        purchase.setTotalAmount(0.0);
+        if (update == 0)
+            purchase.setTotalAmount(0.0);
 
         purchase.setId(null); // As it is purchase return
         purchase.setPurchaseItemList(purchaseItemList);
@@ -1552,28 +1554,28 @@ public class AdminController {
     @RequestMapping(value = "/*/upsertPurchaseReturn.do", method = RequestMethod.POST)
     public String upsertPurchaseReturn(HttpServletRequest request, @ModelAttribute("purchase") Purchase purchase) {
         logger.debug("SMNLOG:: purchase return POST Controller::");
-        logger.debug("SMNLOG:: purchase::"+purchase);
+        logger.debug("SMNLOG:: purchase::" + purchase);
         boolean status = false;
         Long purchaseId = purchase.getId();
         try {
             logger.debug("SMNLOG:: purchaseId:: " + purchaseId);
             //if(user.getJoiningDate() == null)user.setJoiningDate(new Date());
             purchase.setPurchaseDate(new Date());
-            User user = (User)adminService.getAbstractBaseEntityByString(Constants.USER,"userName",Utils.getLoggedUserName());
+            User user = (User) adminService.getAbstractBaseEntityByString(Constants.USER, "userName", Utils.getLoggedUserName());
 
             purchase.setPurchaseTokenNo(Utils.generateUniqueId("PR"));
             purchase.setUser(user);
             purchase.setPurchaseReturn(true); // As this is for purchase return
             status = adminService.saveOrUpdatePurchaseReturn(purchase);
-            if(status == false){
+            if (status == false) {
                 Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("purchase.nothing.save.msg"));
                 return "redirect:./purchaseReturnList.do";
             }
 
-            if (purchaseId != null )
+            if (purchaseId != null)
                 Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("purchase.return.update.success.msg"));
             else
-                Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("purchase.return.save.success.msg")+"<b>&nbsp;PURCHASE RETURN INVOICE NO:</b>&nbsp;<b style='color:red'>"+purchase.getPurchaseTokenNo()+"</b>");
+                Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("purchase.return.save.success.msg") + "<b>&nbsp;PURCHASE RETURN INVOICE NO:</b>&nbsp;<b style='color:red'>" + purchase.getPurchaseTokenNo() + "</b>");
 
         } catch (Exception ex) {
             logger.error("Save Purchase Return exception:: " + ex);
@@ -1593,6 +1595,48 @@ public class AdminController {
         return "common/purchaseList";
     }
 
+    @RequestMapping(value = "/superAdmin/generateKey.do", method = RequestMethod.POST)
+    public
+    @ResponseBody
+    String generateKey(HttpServletRequest request, @ModelAttribute("productKey") ProductKey productKey, Model model) {
+        logger.error("SMNLOG: :: generateKey controller :: ");
+        logger.error("SMNLOG: :: productKey:: " + productKey);
+        Long productKeyId = productKey.getId();
+        try {
+           /* String txt="some text to be encrypted" ;
+            String key="key phrase used for XOR-ing";
+            System.out.println(txt+" XOR-ed to: "+(txt=xorMessage( txt, key )));
+            String encoded=base64encode( txt );
+            System.out.println( " is encoded to: "+encoded+" and that is decoding to: "+ (txt=base64decode( encoded )));
+            System.out.print( "XOR-ing back to original: "+xorMessage( txt, key ) );*/
+
+            String salt = Utils.generateUniqueId("");
+            String message = productKey.getUserName() + Constants.P_KEY_SEPARATOR
+                    + salt + Constants.P_KEY_SEPARATOR + productKey.getValidUpTo();
+            logger.debug("SMNLOG:message::" + message);
+
+            String generatedProductKey = Utils.xorMessage(message, productKey.getPrivateKey());
+            logger.debug("SMNLOG:generatedProductKey::" + generatedProductKey);
+
+
+            adminService.saveOrUpdateObject(productKey);
+
+            if (productKeyId != null)
+                Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("productKey.return.update.success.msg"));
+            else
+                Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("productKey.return.save.success.msg"));
+
+        } catch (Exception ex) {
+            logger.error("Product Key exception:: " + ex);
+            if (productKey.getId() != null)
+                Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("productKey.return.update.failed.msg"));
+            else
+                Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("productKey.return.save.failed.msg"));
+
+        }
+
+        return "redirect:./superAdmin";
+    }
 
 }
 
