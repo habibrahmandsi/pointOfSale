@@ -53,4 +53,5 @@ public interface AdminService {
     ProductGroup getProductGroupByName(String name) throws Exception;
 
     void saveOrUpdateObject(Object object) throws Exception;
+    ProductKeyValidation getActiveProductKeyValidation() throws Exception;
 }

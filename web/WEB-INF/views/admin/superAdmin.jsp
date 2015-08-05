@@ -116,7 +116,7 @@
                 <br>
                 <div class="row">
                     <div class="col-lg-5">
-                    <form:form action="../superAdmin/generateKey" method="post" id="userForm" commandName="key">
+                    <form:form action="./generateKey.do" method="post" id="productKeyForm" commandName="productKey">
                     <form:hidden path="id"/>
 
                         <div class="form-group">
@@ -151,6 +151,8 @@
 
 <script>
     $(document).ready(function () {
+        $("#productKeyForm").find("input").attr("autocomplete","off");
+
         $("#productGroupFileId").change(function () {
             console.log("SMNLOG:changed");
             var val = $(this).val();
@@ -181,6 +183,51 @@
             $("#superAdminForm").submit()
 
         });
+
+        /* initial form validation declaration */
+        console.log('initiliaze validation....')
+        function userFormValidation() {
+            $("#productKeyForm").bootstrapValidator({
+
+                fields: {
+                    userName: {
+                        validators: {
+                            notEmpty: {
+                                message: "Not Empty"
+                            },
+                            stringLength: {
+                                message: 'Minimum 3 characters',
+                                min:3
+                            }
+                        }
+                    },
+                    privateKey: {
+                        validators: {
+                            notEmpty: {
+                                message: "Not Empty"
+                            },
+                            stringLength: {
+                                message: 'Must be less than 16 characters',
+                                max:16
+                            }
+                        }
+                    },
+                    validUpTo: {
+                        validators: {
+                            notEmpty: {
+                                message: "Not Empty"
+                            },
+                            numeric: {
+                                message: "must be numeric"
+                            }
+                        }
+                    }
+
+                }
+            });
+        }
+
+        userFormValidation();
     });
 
 </script>

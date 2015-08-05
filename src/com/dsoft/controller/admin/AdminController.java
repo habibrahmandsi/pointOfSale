@@ -16,11 +16,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
+import javax.rmi.CORBA.Util;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.Key;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -1596,9 +1598,7 @@ public class AdminController {
     }
 
     @RequestMapping(value = "/superAdmin/generateKey.do", method = RequestMethod.POST)
-    public
-    @ResponseBody
-    String generateKey(HttpServletRequest request, @ModelAttribute("productKey") ProductKey productKey, Model model) {
+    public String generateKey(HttpServletRequest request, @ModelAttribute("productKey") ProductKey productKey, Model model) {
         logger.error("SMNLOG: :: generateKey controller :: ");
         logger.error("SMNLOG: :: productKey:: " + productKey);
         Long productKeyId = productKey.getId();
@@ -1609,22 +1609,35 @@ public class AdminController {
             String encoded=base64encode( txt );
             System.out.println( " is encoded to: "+encoded+" and that is decoding to: "+ (txt=base64decode( encoded )));
             System.out.print( "XOR-ing back to original: "+xorMessage( txt, key ) );*/
+//            byte[] keyValue = new byte[] { 'T', 'h', 'e', 'B', 'e', 's', 't','S', 'e', 'c', 'r','e', 't', 'K', 'e', 'y' };
+            byte[] keyValue = productKey.getPrivateKey().getBytes();
 
-            String salt = Utils.generateUniqueId("");
+            Key key = Utils.generateKey(keyValue);
+            logger.debug("SMNLOG:keyValue::" + keyValue+" :: key"+key);
+
             String message = productKey.getUserName() + Constants.P_KEY_SEPARATOR
-                    + salt + Constants.P_KEY_SEPARATOR + productKey.getValidUpTo();
+                    +  productKey.getPrivateKey() + Constants.P_KEY_SEPARATOR
+                    +  Utils.getStringFromDate(Constants.DATE_FORMAT, new Date())+ Constants.P_KEY_SEPARATOR
+                    +  productKey.getValidUpTo();
+
             logger.debug("SMNLOG:message::" + message);
 
-            String generatedProductKey = Utils.xorMessage(message, productKey.getPrivateKey());
+            String generatedProductKey = Utils.encrypt(message, key);
+            productKey.setProductKey(generatedProductKey);
             logger.debug("SMNLOG:generatedProductKey::" + generatedProductKey);
+/*
 
+            key = Utils.generateKey(keyValue);
+            logger.debug("SMNLOG:original value::" + Utils.decrypt(generatedProductKey,key));
+*/
 
             adminService.saveOrUpdateObject(productKey);
 
             if (productKeyId != null)
                 Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("productKey.return.update.success.msg"));
             else
-                Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("productKey.return.save.success.msg"));
+                Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("productKey.return.save.success.msg") + "<b>&nbsp;PRODUCT KEY:</b>&nbsp;<b style='color:red'>" + productKey.getProductKey() + "</b>");
+
 
         } catch (Exception ex) {
             logger.error("Product Key exception:: " + ex);
@@ -1635,7 +1648,7 @@ public class AdminController {
 
         }
 
-        return "redirect:./superAdmin";
+        return "redirect:./superAdmin.do";
     }
 
 }

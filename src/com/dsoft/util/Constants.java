@@ -14,6 +14,8 @@ public class Constants {
     public static final String PRODUCT_CLASS="Product";
     public static final String PRODUCT_TYPE_CLASS="ProductType";
     public static final String COMPANY_CLASS="Company";
+    public static final String PRODUCT_KEY_VALIDATION_CLASS="ProductKeyValidation";
+    public static final String PRODUCT_KEY_CLASS="ProductKey";
     public static final String DATE_FORMAT="dd/MM/yyyy";
     public static final String DATE_FORMAT_JS="dd/mm/yyyy";
     public static final String IDISPLAY_LENGTH = "iDisplayLength";
@@ -23,6 +25,6 @@ public class Constants {
     public static final String sSearch= "sSearch";
     public static final String sortType= "sSortDir_0";
     public static final String FILE_PATH= "tmp/";
-    public static final String P_KEY_SEPARATOR= "-";
+    public static final String P_KEY_SEPARATOR= "#";
 
 }

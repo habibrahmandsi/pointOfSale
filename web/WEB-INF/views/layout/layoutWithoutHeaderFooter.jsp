@@ -26,10 +26,7 @@
     <link href='<%= contextPath %>/resources/theme/css/bootstrap.min.css' rel='stylesheet' type='text/css'>
     <link href='<%= contextPath %>/resources/theme/font-awesome/css/font-awesome.css' rel='stylesheet' type='text/css'>
     <link href='<%= contextPath %>/resources/theme/css/sb-admin.css' rel='stylesheet' type='text/css'>
-
-
     <link href='<%= contextPath %>/resources/css/style.css' rel='stylesheet' type='text/css'>
-
     <!-- Core Scripts - Include with every page -->
     <script src="<%= contextPath %>/resources/theme/js/jquery-1.10.2.js"></script>
     <script src="<%= contextPath %>/resources/theme/js/bootstrap.min.js"></script>
@@ -41,6 +38,8 @@
 <div id="wrapper">
 
     <div class="container">
+        <br>
+        <%@ include file="/WEB-INF/views/message.jsp" %>
         <tiles:insertAttribute name="body"/>
     </div>
 </div>

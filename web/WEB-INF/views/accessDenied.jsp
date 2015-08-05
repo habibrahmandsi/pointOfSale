@@ -1,3 +1,11 @@
+<%@ page pageEncoding="UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<%@taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
+
+<%
+    final String contextPath = request.getContextPath();
+%>
 
 <div class="page not-found">
     <br>
@@ -11,7 +19,7 @@
 
     <div>
         <center>
-            <pre>  Md. Habibur Rahman<br>Mob: 01730-037413, 01673446630<br>E-mail:sumon050789@gmail.com </pre>
+          <spring:message code="contact.point"/>
         </center>
     </div>
 </div>

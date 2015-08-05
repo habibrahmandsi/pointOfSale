@@ -24,7 +24,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public List<User> getAllUserList() {
 
-      return adminDao.getAllUserList();
+        return adminDao.getAllUserList();
     }
 
     @Override
@@ -32,12 +32,12 @@ public class AdminServiceImpl implements AdminService {
         return null;
     }
 
-    public   int getEntitySize(String entity){
+    public int getEntitySize(String entity) {
         return adminDao.getEntitySize(entity);
 
     }
 
-    public void saveOrUpdateUser(User user){
+    public void saveOrUpdateUser(User user) {
         adminDao.saveOrUpdateUser(user);
 
     }
@@ -50,7 +50,7 @@ public class AdminServiceImpl implements AdminService {
         adminDao.deleteUser(user);
     }
 
-    public void saveOrUpdateProductGroup(ProductGroup productGroup) throws Exception{
+    public void saveOrUpdateProductGroup(ProductGroup productGroup) throws Exception {
         adminDao.saveOrUpdateProductGroup(productGroup);
 
     }
@@ -63,7 +63,7 @@ public class AdminServiceImpl implements AdminService {
         adminDao.deleteProductGroup(productGroup);
     }
 
-   public void saveOrUpdateProduct(Product product) throws Exception{
+    public void saveOrUpdateProduct(Product product) throws Exception {
         adminDao.saveOrUpdateProduct(product);
 
     }
@@ -76,7 +76,7 @@ public class AdminServiceImpl implements AdminService {
         adminDao.deleteProduct(product);
     }
 
-   public void saveOrUpdateCompany(Company company) throws Exception{
+    public void saveOrUpdateCompany(Company company) throws Exception {
         adminDao.saveOrUpdateCompany(company);
 
     }
@@ -89,7 +89,7 @@ public class AdminServiceImpl implements AdminService {
         adminDao.deleteCompany(company);
     }
 
-   public void saveOrUpdateUnitOfMeasure(UnitOfMeasure unitOfMeasure) throws Exception{
+    public void saveOrUpdateUnitOfMeasure(UnitOfMeasure unitOfMeasure) throws Exception {
         adminDao.saveOrUpdateUnitOfMeasure(unitOfMeasure);
 
     }
@@ -102,7 +102,7 @@ public class AdminServiceImpl implements AdminService {
         adminDao.deleteUnitOfMeasure(unitOfMeasure);
     }
 
-   public void saveOrUpdateProductType(ProductType productType) throws Exception{
+    public void saveOrUpdateProductType(ProductType productType) throws Exception {
         adminDao.saveOrUpdateProductType(productType);
 
     }
@@ -121,20 +121,20 @@ public class AdminServiceImpl implements AdminService {
         return adminDao.getAbstractBaseEntityByString(className, anyColumn, columnValue);
     }
 
-    public void saveOrUpdatePurchase(Purchase purchase) throws Exception{
+    public void saveOrUpdatePurchase(Purchase purchase) throws Exception {
         adminDao.saveOrUpdatePurchase(purchase);
 
     }
 
     public Purchase getPurchase(Long purchaseId, int purchaseReturn) throws Exception {
-        return adminDao.getPurchase(purchaseId,purchaseReturn);
+        return adminDao.getPurchase(purchaseId, purchaseReturn);
     }
 
     public void deletePurchase(Purchase purchase) throws Exception {
         adminDao.deletePurchase(purchase);
     }
 
-   public List<PurchaseItem> getPurchaseItemListByPurchaseId(Long purchaseId) throws Exception {
+    public List<PurchaseItem> getPurchaseItemListByPurchaseId(Long purchaseId) throws Exception {
         return adminDao.getPurchaseItemListByPurchaseId(purchaseId);
     }
 
@@ -146,16 +146,20 @@ public class AdminServiceImpl implements AdminService {
         return adminDao.saveOrUpdatePurchaseReturn(purchase);
     }
 
-   public Company getCompanyByName(String companyName) throws Exception{
+    public Company getCompanyByName(String companyName) throws Exception {
         return adminDao.getCompanyByName(companyName);
     }
 
-    public ProductGroup getProductGroupByName(String name) throws Exception{
+    public ProductGroup getProductGroupByName(String name) throws Exception {
         return adminDao.getProductGroupByName(name);
     }
 
-   public void saveOrUpdateObject(Object object) throws Exception{
+    public void saveOrUpdateObject(Object object) throws Exception {
         adminDao.saveOrUpdateObject(object);
+    }
+
+    public ProductKeyValidation getActiveProductKeyValidation() throws Exception {
+        return adminDao.getActiveProductKeyValidation();
     }
 
 

@@ -324,8 +324,19 @@ public class AdminDaoImpl implements AdminDao {
             return (ProductGroup) object;
         return null;
     }
+
     public void saveOrUpdateObject(Object object) throws Exception{
         hibernateTemplate.saveOrUpdate(object);
+    }
+
+    public ProductKeyValidation getActiveProductKeyValidation() throws Exception{
+        Session session = getSession();
+        Query query = session.createQuery("FROM ProductKeyValidation WHERE active = :active");
+        query.setParameter("active", true);
+        Object object = query.uniqueResult();
+        if (object != null)
+            return (ProductKeyValidation) object;
+        return null;
     }
 
 }

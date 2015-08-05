@@ -1,5 +1,7 @@
 package com.dsoft.controller;
 
+import com.dsoft.entity.ProductKey;
+import com.dsoft.entity.ProductKeyValidation;
 import com.dsoft.entity.Role;
 import com.dsoft.entity.User;
 import com.dsoft.service.AdminJdbcService;
@@ -16,7 +18,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.invoke.ConstantCallSite;
+import java.security.Key;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +30,7 @@ import java.util.Map;
 public class LoginController {  // to handle login related task
 
     private static Logger logger = Logger.getLogger(LoginController.class);
+    private static Boolean isDevForProductKey = true;
     @Autowired(required = true)
     private AdminService adminService;
     @Autowired(required = true)
@@ -40,11 +45,93 @@ public class LoginController {  // to handle login related task
     */
     @RequestMapping(value = "/login.do", method = RequestMethod.GET)
     public String redirectLogin(@RequestParam(value = "error", required = false) String error, HttpServletRequest request, Model model) {
+        ProductKeyValidation productKeyValidation = null;
+        if (!isDevForProductKey) {
+            try {
+                productKeyValidation = adminService.getActiveProductKeyValidation();
+                logger.debug(":: productKeyValidation ##" + productKeyValidation);
+            } catch (Exception e) {
+                logger.debug(":: ERROR: productKeyValidation load" + e);
+            }
+
+            if (productKeyValidation == null) {
+                logger.debug(":: You have no product key !!!");
+                Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("product.key.error")
+                        + "" + Utils.getMessageBundlePropertyValue("contact.point"));
+                return "redirect:./productKeyValidation.do";
+            } else if (productKeyValidation != null && productKeyValidation.getActive() == true) {
+                logger.debug(":: Returning to login ::");
+                return "login";
+            }
+        }
+
         if (!Utils.isNullOrEmpty(error)) {
-            logger.debug("SMNLOG:error:"+error);
+            logger.debug("SMNLOG:error:" + error);
             model.addAttribute("error", Utils.getMessageBundlePropertyValue("login.error"));
         }
         return "login";
+    }
+
+    @RequestMapping(value = "/productKeyValidation.do", method = RequestMethod.GET)
+    public String productKeyValidationGet(HttpServletRequest request, Model model) {
+        logger.debug(":: Product Key Validation GET controller");
+        ProductKeyValidation productKeyValidation = new ProductKeyValidation();
+        model.addAttribute("productKeyValidation", productKeyValidation);
+        return "productKeyValidation";
+    }
+
+
+    @RequestMapping(value = "/productKeyValidation.do", method = RequestMethod.POST)
+    public String productKeyValidation(@ModelAttribute("productKeyValidation") ProductKeyValidation productKeyValidation, HttpServletRequest request, Model model) {
+        logger.debug(":: Product Key Validation POST controller" + productKeyValidation);
+        Boolean isFound = false;
+        Boolean isValid = false;
+        ProductKeyValidation prKeyValid = null;
+        if (productKeyValidation != null && !Utils.isEmpty(productKeyValidation.getProductKey())) {
+            try {
+                prKeyValid = (ProductKeyValidation) adminService.getAbstractBaseEntityByString(Constants.PRODUCT_KEY_VALIDATION_CLASS, "product_key", productKeyValidation.getProductKey());
+                isFound = true;
+
+                logger.debug("isFound::" + isFound + " prKeyValid:" + prKeyValid);
+                if (isFound && prKeyValid != null && prKeyValid.getId() != null && prKeyValid.getId() > 0) {
+                    logger.debug(":: -------------- Product Key found from db ---------------- ::" + prKeyValid.getId());
+                    prKeyValid = this.isValidProductKey(productKeyValidation.getUserName(), productKeyValidation.getPrivateKey()
+                            , productKeyValidation.getProductKey(), prKeyValid);
+                    if (prKeyValid.getProductKeyValid()) {
+                        if (!prKeyValid.getActive()) {
+                            logger.debug(":: ********************* PRODUCT KEY IS FINALLY VALID BUT INACTIVE*********************::");
+                            prKeyValid.setActive(true);
+                            adminService.saveOrUpdateObject(prKeyValid);
+                            logger.debug(":: ********************* Save or update object *********************::");
+                        } else {
+                            return "redirect:./login.do";
+                        }
+                    }
+                } else {
+                    logger.debug(":: ----------- Product key not found in db --------------:: Trying to validate this key:" + productKeyValidation.getPrivateKey());
+                    productKeyValidation = this.isValidProductKey(productKeyValidation.getUserName(), productKeyValidation.getPrivateKey()
+                            , productKeyValidation.getProductKey(), productKeyValidation);
+                    logger.debug(":: ------ Coming back -----::");
+                    if (productKeyValidation.getProductKeyValid()) {
+                        logger.debug(":: ********************* PRODUCT KEY IS FINALLY VALID *********************::");
+                        productKeyValidation.setActive(true);
+                        adminService.saveOrUpdateObject(productKeyValidation);
+                        logger.debug(":: ********************* Save or update object *********************::");
+                        Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("product.key.valid.success.mssg")
+                                +" "+ productKeyValidation.getValidUpTo()+" ");
+                    }
+                }
+            } catch (Exception e) {
+                logger.debug("SMNLOG:ERROR :" + e);
+            }
+
+            if (!productKeyValidation.getProductKeyValid()) {
+                Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("product.key.error"));
+                return "redirect:./productKeyValidation.do";
+            }
+        }
+
+        return "redirect:./login.do";
     }
 
     /*
@@ -71,20 +158,20 @@ public class LoginController {  // to handle login related task
         if (Utils.isInRole(Role.SUPER_ADMIN.getLabel())) {
             logger.debug("Forward Controller Redirect AS " + Role.SUPER_ADMIN.getLabel());
             isLoggedInSuccess = true;
-            if(isLoggedInSuccess)
-                this.setLoggedUserInfoInSession(request,adminService);
+            if (isLoggedInSuccess)
+                this.setLoggedUserInfoInSession(request, adminService);
             return "redirect:./superAdmin/superAdmin.do";
-        }else if(Utils.isInRole(Role.ROLE_ADMIN.getLabel())){
+        } else if (Utils.isInRole(Role.ROLE_ADMIN.getLabel())) {
             logger.debug("Forward Controller Redirect AS " + Role.ROLE_ADMIN.getLabel());
             isLoggedInSuccess = true;
-            if(isLoggedInSuccess)
-                this.setLoggedUserInfoInSession(request,adminService);
+            if (isLoggedInSuccess)
+                this.setLoggedUserInfoInSession(request, adminService);
             return "redirect:./admin/landingPage.do";
-        }else if(Utils.isInRole(Role.ROLE_EMPLOYEE.getLabel())){
+        } else if (Utils.isInRole(Role.ROLE_EMPLOYEE.getLabel())) {
             logger.debug("Forward Controller Redirect AS " + Role.ROLE_EMPLOYEE.getLabel());
             isLoggedInSuccess = true;
-            if(isLoggedInSuccess)
-                this.setLoggedUserInfoInSession(request,adminService);
+            if (isLoggedInSuccess)
+                this.setLoggedUserInfoInSession(request, adminService);
             return "redirect:./employee/landingPage.do";
         }
 
@@ -104,7 +191,7 @@ public class LoginController {  // to handle login related task
 
 
     @RequestMapping(value = "/*/sendAnEmail.do", method = RequestMethod.GET)
-    public String sendAnEmail( HttpServletRequest request, @RequestParam("name") String name, Model model) {
+    public String sendAnEmail(HttpServletRequest request, @RequestParam("name") String name, Model model) {
         logger.debug("Send email controller start.");
         String subject = Utils.getApplicationPropertyValue("reset.mail.subject");
         String from = Utils.getApplicationPropertyValue("reset.password.mail.sender");
@@ -134,8 +221,9 @@ public class LoginController {  // to handle login related task
         logger.debug("Send email controller end.");
         return "admin/emailRecovery";
     }
+
     @RequestMapping(value = "/*/resetPassword.do", method = RequestMethod.GET)
-    public String resetUserPassword(HttpServletRequest request, @RequestParam("name") String name, Model model ) {
+    public String resetUserPassword(HttpServletRequest request, @RequestParam("name") String name, Model model) {
         logger.debug("Password change controller start.");
         User tempUser = new User();
 
@@ -148,9 +236,10 @@ public class LoginController {  // to handle login related task
             logger.debug("CERROR:: Reset password exception description: " + ex);
         }*/
         logger.debug("Password change controller end.");
-        model.addAttribute("user",tempUser);
+        model.addAttribute("user", tempUser);
         return "admin/resetPassword";
     }
+
     @RequestMapping(value = "/*/resetPassword.do", method = RequestMethod.POST)
     public String saveNewPassword(HttpServletRequest request, @ModelAttribute("user") User tempUser, BindingResult result) {
         logger.debug("Save new password start.");
@@ -184,21 +273,23 @@ public class LoginController {  // to handle login related task
         logger.debug("Home page Controller:");
         return "common/home";
     }
-/*
-* Method to show login page
-* @param @RequestParam(value = "error", required = false) String error, HttpServletRequest request, Model model
-* @return type String
-*/
+
+    /*
+    * Method to show login page
+    * @param @RequestParam(value = "error", required = false) String error, HttpServletRequest request, Model model
+    * @return type String
+    */
     @RequestMapping(value = "about.do", method = RequestMethod.GET)
     public String getAbout(HttpServletRequest request, Model model) {
         logger.debug("About page Controller:");
         return "common/about";
     }
-/*
-* Method to show login page
-* @param @RequestParam(value = "error", required = false) String error, HttpServletRequest request, Model model
-* @return type String
-*/
+
+    /*
+    * Method to show login page
+    * @param @RequestParam(value = "error", required = false) String error, HttpServletRequest request, Model model
+    * @return type String
+    */
     @RequestMapping(value = "contact.do", method = RequestMethod.GET)
     public String getContact(HttpServletRequest request, Model model) {
         logger.debug("Contact page Controller:");
@@ -216,17 +307,61 @@ public class LoginController {  // to handle login related task
         return "common/feature";
     }
 
-    public void setLoggedUserInfoInSession(HttpServletRequest request, AdminService adminService){
-        String loggedUserName = (String)request.getSession().getAttribute("loggedUserName");
-        logger.debug(":: setLoggedUserInfoInSession method :: loggedUserName:"+loggedUserName);
-        if(loggedUserName == null && Utils.isEmpty(loggedUserName)){
+    public void setLoggedUserInfoInSession(HttpServletRequest request, AdminService adminService) {
+        String loggedUserName = (String) request.getSession().getAttribute("loggedUserName");
+        logger.debug(":: setLoggedUserInfoInSession method :: loggedUserName:" + loggedUserName);
+        if (loggedUserName == null && Utils.isEmpty(loggedUserName)) {
             logger.debug(":: Setting user info in session :: ");
-            User user = (User)adminService.getAbstractBaseEntityByString(Constants.USER,"userName",Utils.getLoggedUserName());
-            logger.debug("SMNLOG:user:"+user);
+            User user = (User) adminService.getAbstractBaseEntityByString(Constants.USER, "userName", Utils.getLoggedUserName());
+            logger.debug("SMNLOG:user:" + user);
             request.getSession().setAttribute("loggUserId", user != null ? user.getId() : 0);
-            request.getSession().setAttribute("loggedUserEmail",user!= null ? user.getEmail():"");
-            request.getSession().setAttribute("loggedUserName", user!= null ? user.getName():"");
+            request.getSession().setAttribute("loggedUserEmail", user != null ? user.getEmail() : "");
+            request.getSession().setAttribute("loggedUserName", user != null ? user.getName() : "");
         }
+    }
+
+    public ProductKeyValidation isValidProductKey(String userName, String privateKey, String message, ProductKeyValidation productKeyValidation) {
+        logger.debug(":: ******** Product key validation starts ********");
+        byte[] keyValue = privateKey.getBytes();
+        productKeyValidation.setProductKeyValid(true);
+        try {
+            Key key = Utils.generateKey(keyValue);
+            String decryptedText = Utils.decrypt(message, key);
+            logger.debug("SMNLOG:decryptedText:" + decryptedText);
+            String[] arr = decryptedText.split(Constants.P_KEY_SEPARATOR);
+            if (arr.length == 4) {
+                if (userName.equals(arr[0])) {
+                    logger.debug("SMNLOG: 11 :user name match found:" + userName);
+                }else{
+                    productKeyValidation.setProductKeyValid(false);
+                }
+
+                if (privateKey.equals(arr[1])) {
+                    logger.debug("SMNLOG: 22: Private key match found:" + privateKey);
+                }else{
+                    productKeyValidation.setProductKeyValid(false);
+                }
+
+                Date date = Utils.getDateFromString(Constants.DATE_FORMAT, arr[2]);
+                logger.debug("SMNLOG: 33: date found from product key:" + date);
+                Integer validityUpTo = Integer.parseInt(arr[3]);
+                Date lastDateOfValidation = Utils.addNDaysInDate(date, validityUpTo);
+                logger.debug("SMNLOG: 44: date found from product key:" + date + " last validity date:" + lastDateOfValidation);
+
+                if (date.compareTo(lastDateOfValidation) < 0) {
+                    productKeyValidation.setValidationStartFrom(date);
+                    productKeyValidation.setValidUpTo(validityUpTo);
+                }else{
+                    productKeyValidation.setProductKeyValid(false);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.debug(":: Decryption failed ::userName:" + userName + " privateKey:" + privateKey);
+            productKeyValidation.setProductKeyValid(false);
+        }
+        logger.debug("SMNLOG:FINAL RESULT ::" + productKeyValidation.getProductKeyValid());
+        return productKeyValidation;
     }
 }
 

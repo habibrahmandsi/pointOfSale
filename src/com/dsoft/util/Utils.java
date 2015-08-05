@@ -24,6 +24,7 @@ import javax.activation.DataSource;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
@@ -38,6 +39,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Time;
@@ -54,13 +56,9 @@ public class Utils {
     private static Cipher ecipher;
     private static Cipher dcipher;
     public static Integer globalCounter=0;
-    public static final String DEFAULT_ENCODING="UTF-8";
-    static BASE64Encoder enc=new BASE64Encoder();
-    static BASE64Decoder dec=new BASE64Decoder();
+    private static final String ALGO = "AES";
 
-    private static final SecretKey key = getSecretKey();
-//    key = KeyGenerator.getInstance("DES").generateKey();
-	@SuppressWarnings("unchecked")
+  	@SuppressWarnings("unchecked")
 	public static boolean isInRole(String roleName){
 		List<GrantedAuthority> grantedRoles = (List<GrantedAuthority>) SecurityContextHolder.getContext().getAuthentication().getAuthorities();
         for(GrantedAuthority role : grantedRoles){
@@ -1440,90 +1438,7 @@ public class Utils {
         return  Utils.dateTimeToString(date);
     }
 
-    public static String encrypt(String password) throws NoSuchAlgorithmException {
-
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        md.update(password.getBytes());
-        byte byteData[] = md.digest();
-
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < byteData.length; i++) {
-            sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
-        }
-        return sb.toString();
-
-    }
-
-    public static String encryptSt(String str) {
-
-        try {
-
-            if(Utils.isNullOrEmpty(str)) {
-                return new String();
-            }
-            // generate secret key using DES algorithm
-            ecipher = Cipher.getInstance("DES");
-            // encode the string into a sequence of bytes using the named charset
-            ecipher.init(Cipher.ENCRYPT_MODE, key);
-            // storing the result into a new byte array.
-
-            byte[] utf8 = str.trim().getBytes("UTF8");
-
-            byte[] enc = ecipher.doFinal(utf8);
-            // encode to base64
-
-            enc = BASE64EncoderStream.encode(enc);
-
-            return new String(enc);
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-        }
-
-        return null;
-
-    }
-    public static String decryptSt(String str) {
-
-        try {
-            if(Utils.isNullOrEmpty(str)) {
-                return new String();
-            }
-            dcipher = Cipher.getInstance("DES");
-            // decode with base64 to get bytes
-            dcipher.init(Cipher.DECRYPT_MODE, key);
-            byte[] dec = BASE64DecoderStream.decode(str.trim().getBytes("UTF8"));
-
-            byte[] utf8 = dcipher.doFinal(dec);
-
-            // create new string based on the specified charset
-
-            return new String(utf8);
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-        }
-
-        return null;
-
-    }
-
-    private static SecretKey getSecretKey()  {
-        try {
-            return KeyGenerator.getInstance("DES").generateKey();
-
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-        return null;
-    }
-
-
-    public static String[] getFileNames(String directoryName){
+     public static String[] getFileNames(String directoryName){
     	logger.debug("Scanning Directory Name is: "+directoryName);
     	File dir = new File(directoryName);
 	    FilenameFilter filter = new FilenameFilter() {
@@ -1776,53 +1691,32 @@ public class Utils {
         return startsWith+""+str;
     }
 
-     public static String generateUniqueNo(String startsWith) {
-        Date dt = new Date();
-        return startsWith+""+dt.getYear()+""+dt.getMonth()+""+dt.getDate()+""+(Utils.globalCounter++);
+    public static String encrypt(String Data, Key key) throws Exception {
+        Cipher c = Cipher.getInstance(ALGO);
+        c.init(Cipher.ENCRYPT_MODE, key);
+        byte[] encVal = c.doFinal(Data.getBytes());
+        String encryptedValue = new BASE64Encoder().encode(encVal);
+        return encryptedValue;
     }
 
-    public static String base64encode(String text){
-        try {
-            String rez = enc.encode( text.getBytes( DEFAULT_ENCODING ) );
-            return rez;
-        }
-        catch ( UnsupportedEncodingException e ) {
-            return null;
-        }
-    }//base64encode
+    public static String decrypt(String encryptedData, Key key) throws Exception {
+        Cipher c = Cipher.getInstance(ALGO);
+        c.init(Cipher.DECRYPT_MODE, key);
+        byte[] decordedValue = new BASE64Decoder().decodeBuffer(encryptedData);
+        byte[] decValue = c.doFinal(decordedValue);
+        String decryptedValue = new String(decValue);
+        return decryptedValue;
+    }
+    public static Key generateKey(byte[] keyValue) throws Exception {
+        Key key = new SecretKeySpec(keyValue, ALGO);
+        return key;
+    }
 
-    public static String base64decode(String text){
-
-        try {
-            return new String(dec.decodeBuffer( text ),DEFAULT_ENCODING);
-        }
-        catch ( IOException e ) {
-            return null;
-        }
-
-    }//base64decode
-
-    public static String xorMessage(String message, String key){
-        try {
-            if (message==null || key==null ) return null;
-
-            char[] keys=key.toCharArray();
-            char[] mesg=message.toCharArray();
-
-            int ml=mesg.length;
-            int kl=keys.length;
-            char[] newmsg=new char[ml];
-
-            for (int i=0; i<ml; i++){
-                newmsg[i]=(char)(mesg[i]^keys[i%kl]);
-            }//for i
-            mesg=null; keys=null;
-            return new String(newmsg);
-        }
-        catch ( Exception e ) {
-            return null;
-        }
-    }//xorMessage
-
+    public static Date addNDaysInDate(Date date, int noOfDay) throws Exception {
+        Calendar calendar = new GregorianCalendar(/* remember about timezone! */);
+        calendar.setTime(date);
+        calendar.add(Calendar.DATE, noOfDay);
+        return calendar.getTime();
+    }
 }
 
