@@ -46,7 +46,7 @@
     <link href='<%= contextPath %>/resources/css/style.css' rel='stylesheet' type='text/css'>
 
     <!-- Core Scripts - Include with every page -->
-    <script src="<%= contextPath %>/resources/theme/js/jquery-1.10.2.js"></script>
+    <script src="<%= contextPath %>/resources/js/jquery-2.1.0.min.js"></script>
     <script src="<%= contextPath %>/resources/theme/js/bootstrap.min.js"></script>
     <script src="<%= contextPath %>/resources/theme/js/plugins/metisMenu/jquery.metisMenu.js"></script>
     <script src="<%= contextPath %>/resources/theme/js/sb-admin.js"></script>

@@ -14,7 +14,10 @@
                         class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li>
-                        <a href="flot.html"><i class="fa fa-money fa-fw"></i>&nbsp;<spring:message code="menu.sales"/></a>
+                        <a href="./upsertSales.do"><i class="fa fa-money fa-fw"></i>&nbsp;<spring:message code="menu.sales"/></a>
+                    </li>
+                     <li>
+                        <a href="./salesList.do"><i class="fa fa-money fa-fw"></i>&nbsp;<spring:message code="menu.sales.information"/></a>
                     </li>
                     <li>
                         <a href="flot.html"><i class="fa fa-upload fa-fw"></i>&nbsp;<spring:message code="menu.sales.return"/></a>

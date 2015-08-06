@@ -80,5 +80,10 @@ public class AdminJdbcServiceImpl implements AdminJdbcService {
         return adminJdbcDao.getPurchases(start, length, sortColName, sortType, searchKey, purchaseReturn);
     }
 
+   @Override
+    public Map<String, Object> getSales(Integer start, Integer length, String sortColName, String sortType, String searchKey, int salesReturn) throws Exception {
+        return adminJdbcDao.getSales(start, length, sortColName, sortType, searchKey, salesReturn);
+    }
+
 
 }

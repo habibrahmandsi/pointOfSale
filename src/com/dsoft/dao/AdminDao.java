@@ -51,4 +51,11 @@ public interface AdminDao {
 
     void saveOrUpdateObject(Object object) throws Exception;
     ProductKeyValidation getActiveProductKeyValidation() throws Exception;
+
+    void saveOrUpdateSales(Sales sales) throws Exception;
+    Sales getSale(Long saleId, int salesReturn) throws Exception;
+    void deleteSale(Sales sales) throws Exception;
+
+    List<SalesItem> getSalesItemListBySalesId(Long salesId) throws Exception;
+    void deleteSalesItem(List<SalesItem> salesItemList) throws Exception;
 }

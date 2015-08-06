@@ -163,4 +163,24 @@ public class AdminServiceImpl implements AdminService {
     }
 
 
+    public void saveOrUpdateSales(Sales sales) throws Exception{
+         adminDao.saveOrUpdateSales(sales);
+    }
+
+    public Sales getSale(Long saleId, int salesReturn) throws Exception{
+        return adminDao.getSale(saleId, salesReturn);
+    }
+
+    public void deleteSale(Sales sales) throws Exception{
+        adminDao.deleteSale(sales);
+    }
+
+    public List<SalesItem> getSalesItemListBySalesId(Long salesId) throws Exception {
+        return adminDao.getSalesItemListBySalesId(salesId);
+    }
+
+    public void deleteSalesItem(List<SalesItem> salesItemList) throws Exception{
+        adminDao.deleteSalesItem(salesItemList);
+    }
+
 }

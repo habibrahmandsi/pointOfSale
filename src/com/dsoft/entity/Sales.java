@@ -2,6 +2,7 @@ package com.dsoft.entity;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @Author: Md. Habibur Rahman on 25/07/15.
@@ -9,12 +10,11 @@ import java.util.Date;
 
 @Entity
 @Table(name = "sales")
-public class Sales {
+public class Sales extends AbstractBaseEntity{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
-    private long id;
+    public Sales(){
+        this.salesReturn = false;
+    }
 
     @Column(name = "sales_token_no",unique=true)
     private String salesTokenNo;
@@ -35,18 +35,12 @@ public class Sales {
     @JoinColumn(name="sale_by_id")
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name="sale_return")
-    private Sales salesReturn;
 
+    @Column(name="sale_return")
+    private Boolean salesReturn;
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
+    @Transient
+    private List<SalesItem> salesItemList;
 
     public String getSalesTokenNo() {
         return salesTokenNo;
@@ -96,18 +90,25 @@ public class Sales {
         this.user = user;
     }
 
-    public Sales getSalesReturn() {
+    public Boolean getSalesReturn() {
         return salesReturn;
     }
 
-    public void setSalesReturn(Sales salesReturn) {
+    public void setSalesReturn(Boolean salesReturn) {
         this.salesReturn = salesReturn;
+    }
+
+    public List<SalesItem> getSalesItemList() {
+        return salesItemList;
+    }
+
+    public void setSalesItemList(List<SalesItem> salesItemList) {
+        this.salesItemList = salesItemList;
     }
 
     @Override
     public String toString() {
         return "Sales{" +
-                "id=" + id +
                 ", salesTokenNo='" + salesTokenNo + '\'' +
                 ", salesDate=" + salesDate +
                 ", totalAmount=" + totalAmount +

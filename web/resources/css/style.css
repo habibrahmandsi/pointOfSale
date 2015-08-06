@@ -121,3 +121,28 @@ table.dataTable thead > tr > th {
 .panel-heading{
     font-weight: 700;
 }
+.pNameTableOnSale{
+margin-bottom: 0px;
+}
+
+.pNameTableOnSale tbody tr td{
+    padding: 0px;
+}
+
+.typeahead-list a, .typeahead-dropdown > li > a{
+    padding: 5px 2px !important;
+}
+
+.typeahead-list > li > a:hover,
+.typeahead-list > li > a:focus,
+.typeahead-list > li.active > a,
+.typeahead-dropdown > li > a:hover,
+.typeahead-dropdown > li > a:focus,
+.typeahead-dropdown > li.active > a {
+    background-color: #47cf55 !important;
+    color: #fff !important;
+}
+
+.tt-suggestion{
+    font-size: 10px;
+}

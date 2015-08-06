@@ -13,7 +13,7 @@ public class SalesItem {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
-    private long id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name="sales_id")
@@ -24,7 +24,7 @@ public class SalesItem {
     private Product product;
 
     @Column(name = "quantity")
-    private Float quantity;
+    private Double quantity;
 
     @Column(name = "purchase_rate")
     private Double purchaseRate;
@@ -36,11 +36,14 @@ public class SalesItem {
     private Double totalPrice;
 
 
-    public long getId() {
+    @Transient
+    private Double prevQuantity;
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -60,11 +63,11 @@ public class SalesItem {
         this.product = product;
     }
 
-    public Float getQuantity() {
+    public Double getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Float quantity) {
+    public void setQuantity(Double quantity) {
         this.quantity = quantity;
     }
 
@@ -92,6 +95,14 @@ public class SalesItem {
         this.totalPrice = totalPrice;
     }
 
+    public Double getPrevQuantity() {
+        return prevQuantity;
+    }
+
+    public void setPrevQuantity(Double prevQuantity) {
+        this.prevQuantity = prevQuantity;
+    }
+
     @Override
     public String toString() {
         return "SalesItem{" +
@@ -102,6 +113,7 @@ public class SalesItem {
                 ", purchaseRate=" + purchaseRate +
                 ", salesRate=" + salesRate +
                 ", totalPrice=" + totalPrice +
+                ", prevQuantity=" + prevQuantity +
                 '}';
     }
 }

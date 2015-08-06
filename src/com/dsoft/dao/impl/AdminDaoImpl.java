@@ -339,4 +339,65 @@ public class AdminDaoImpl implements AdminDao {
         return null;
     }
 
+
+
+    public void saveOrUpdateSales(Sales sales) throws Exception {
+        hibernateTemplate.saveOrUpdate(sales);
+        Product product;
+        List<SalesItem> salesItemList = sales.getSalesItemList() != null ? sales.getSalesItemList() : new ArrayList<SalesItem>();
+        if (!Utils.isEmpty(salesItemList)) {
+            for (SalesItem salesItem : salesItemList) {
+                if (salesItem != null && salesItem.getId() != null) {
+                    updateObject(salesItem);
+                } else {
+                    salesItem.setSales(sales);
+                    saveObject(salesItem);
+                }
+                product = salesItem.getProduct();
+                logger.debug("SMNLOG:PrevQuantity" + salesItem.getPrevQuantity() + " current Qty:" + salesItem.getQuantity());
+                if (salesItem.getPrevQuantity() > salesItem.getQuantity() || salesItem.getPrevQuantity() < salesItem.getQuantity()) {
+                    this.updateProductQuantity(product.getId(), (salesItem.getQuantity() - salesItem.getPrevQuantity())*(-1));// as to deduct from totl qty
+                } else {
+                    logger.debug("######## sales :: No nedd to update product quantity ##########");
+                }
+            }
+        }
+
+    }
+
+
+    public Sales getSale(Long saleId, int salesReturn) throws Exception{
+        Session session = getSession();
+        Query query = session.createQuery("FROM Sales WHERE id = :id");
+        query.setParameter("id", saleId);
+        Object object = query.uniqueResult();
+        if (object != null)
+            return (Sales) object;
+        return null;
+    }
+
+    public void deleteSale(Sales sales) throws Exception{
+        hibernateTemplate.delete(sales);
+    }
+
+    public List<SalesItem> getSalesItemListBySalesId(Long salesId) throws Exception{
+        return hibernateTemplate.find("FROM SalesItem where sales.id = ?", salesId);
+    }
+
+    public void deleteSalesItem(List<SalesItem> salesItemList) throws Exception{
+        SalesItem salesItem = null;
+        if (salesItemList != null && salesItemList.size() > 0) {
+            for (int i = 0; i < salesItemList.size(); i++) {
+                salesItem = salesItemList.get(i);
+                logger.debug("SMNLOG:salesItem---:"+salesItem);
+                if( salesItem != null && salesItem.getProduct() != null){
+                    this.updateProductQuantity(salesItem.getProduct().getId(), salesItem.getQuantity());// as to add in total qty
+                }
+
+                this.deleteObject(salesItem);
+            }
+        }
+
+    }
+
 }

@@ -177,6 +177,9 @@ function makeAutoComplete(inputIdOrClass,dataList, matchingColName, displayKey) 
                 if("1" == displayKey){
                     //return data.productName+""+data.uomName+" "+data.typeName;
                     return data.productName;
+                 }else if("2" == displayKey){
+                    //return data.productName+""+data.uomName+" "+data.typeName;
+                    return data.productName+" ( "+data.total_quantity+" ) ";
                  }else{
                     return data[displayKey];
                  }
@@ -220,94 +223,124 @@ function getDateForTableView(date){
     return  date.getDate() + "/" +(date.getMonth()+1) + "/" + date.getFullYear()
 }
 
-function makeTabularAutoComplete(){
-    $('#user_v1-query').typeahead({
+function makeTabularAutoComplete(inputIdOrClass,dataList, matchingColName, displayKey){
+
+    var data = {
+        productName: ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda",
+            "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh",
+            "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan", "Bolivia",
+            "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burma",
+            "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Central African Republic", "Chad",
+            "Chile", "China", "Colombia", "Comoros", "Congo, Democratic Republic", "Congo, Republic of the",
+            "Costa Rica", "Cote d'Ivoire", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti",
+            "Dominica", "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador",
+            "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Fiji", "Finland", "France", "Gabon",
+            "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Greenland", "Grenada", "Guatemala", "Guinea",
+            "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hong Kong", "Hungary", "Iceland", "India",
+            "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan",
+            "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kuwait", "Kyrgyzstan", "Laos",
+            "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg",
+            "Macedonia", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands",
+            "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Mongolia", "Morocco", "Monaco",
+            "Mozambique", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger",
+            "Nigeria", "Norway", "Oman", "Pakistan", "Panama", "Papua New Guinea", "Paraguay", "Peru",
+            "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Samoa", "San Marino",
+            "Sao Tome", "Saudi Arabia", "Senegal", "Serbia and Montenegro", "Seychelles", "Sierra Leone",
+            "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "Spain",
+            "Sri Lanka", "Sudan", "Suriname", "Swaziland", "Sweden", "Switzerland", "Syria", "Taiwan",
+            "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey",
+            "Turkmenistan", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States",
+            "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"]
+    };
+
+    $(inputIdOrClass).typeahead({
         minLength: 1,
         order: "asc",
+        group: [true, '<table  class="pNameTableOnSale table table-striped"><thead><tr><td style="width:150px;">Name</td><td style="width:20px;">Sales Rate</td>'
+        +'<td style="width:20px;">Qty.</td></tr></thead><tbody>'],
+        groupMaxItem: 6,
+        hint: true,
         dynamic: true,
-        delay: 500,
-        backdrop: {
-            "background-color": "#fff"
+        dropdownFilter: "All",
+        href: "https://en.wikipedia.org/?title={{display}}",
+        template:  '<table  class="pNameTableOnSale table table-striped"><tbody>'
+        + '<tr>'
+        + '<td style="width:150px">'
+        + '{{display}}'
+        + '</td>'
+        + '<td style="width:30px">'
+        + '10.22'
+        + '</td>'
+        + '<td style="width:30px">'
+        + '10'
+        + '</td>'
+        + '</tr>'
+        + '</tbody>'
+        + '</table>' ,
+        displayKey:  function(data){
+                return data.productName;
         },
-        template: '<span class="row">' +
-        '<span class="avatar">' +
-        '<img src="{{avatar}}">' +
-        "</span>" +
-        '<span class="username">{{username}}{{status}}</span>' +
-        '<span class="id">({{id}})</span>' +
-        "</span>",
         source: {
-            user: {
-                display: "username",
-                href: "https://www.github.com/{{username}}",
-                data: [{
-                    "id": 415849,
-                    "username": "an inserted user that is not inside the database",
-                    "avatar": "https://avatars3.githubusercontent.com/u/415849",
-                    "status":  " <small style='color: #777'>(contributor)</small>"
-                }],
-                url: [{
-                    type: "POST",
-                    url: "/jquerytypeahead/user_v1.json",
+         productName: {
+                //data: data.productName
+                data:function findMatches(q, cb) {
+                        var matches, substringRegex;
 
-                    data: {
-                        q: "{{query}}"
-                    },
-                    callback: {
-                        done: function (data) {
-                            for (var i = 0; i < data.data.user.length; i++) {
-                                if (data.data.user[i].username === 'running-coder') {
-                                    data.data.user[i].status = ' <small style="color: #ff1493">(owner)</small>';
-                                } else {
-                                    data.data.user[i].status = ' <small style="color: #777">(contributor)</small>';
-                                }
+                        // an array that will be populated with substring matches
+                        matches = [];
+
+                        // regex used to determine if a string contains the substring `q`
+                        substrRegex = new RegExp("^"+q, 'i');
+
+                        // iterate through the pool of strings and for any string that
+                        // contains the substring `q`, add it to the `matches` array
+                        $.each(dataList, function (i, str) {
+                            //console.log("SMNLOG:i"+i);
+                            if (substrRegex.test(str[matchingColName])) {
+                                matches.push(str);
                             }
-                            return data;
-                        }
+                        });
+                        //console.log("SMNLOG:matches:"+matches);
+                        //cb(matches);
+                        return matches;
                     }
-                }, "data.user"]
-            },
-            project: {
-                display: "project",
-                href: function (item) {
-                    return '/' + item.project.replace(/\s+/g, '').toLowerCase() + '/documentation/'
-                },
-                url: [{
-                    type: "POST",
-                    url: "/jquerytypeahead/user_v1.json",
-                    data: {
-                        q: "{{query}}"
-                    }
-                }, "data.project"],
-                template: '<span>' +
-                '<span class="project-logo">' +
-                '<img src="{{image}}">' +
-                '</span>' +
-                '<span class="project-information">' +
-                '<span class="project">{{project}} <small>{{version}}</small></span>' +
-                '<ul>' +
-                '<li>{{demo}} Demos</li>' +
-                '<li>{{option}}+ Options</li>' +
-                '<li>{{callback}}+ Callbacks</li>' +
-                '</ul>' +
-                '</span>' +
-                '</span>'
             }
-        },
+        }
+        ,
         callback: {
-            onClick: function (node, a, item, event) {
+            onClickAfter: function (node, a, item, event) {
 
-                // You can do a simple window.location of the item.href
-                alert(JSON.stringify(item));
+                var r = confirm("You will be redirected to:\n" + item.href + "\n\nContinue?");
+                if (r == true) {
+                    window.open(item.href);
+                }
+
+                $('#result-container').text('');
 
             },
-            onSendRequest: function (node, query) {
-                console.log('request is sent, perhaps add a loading animation?')
+            onResult: function (node, query, obj, objCount) {
+
+                var text = "";
+                if (query !== "") {
+                    text = objCount + ' elements matching "' + query + '"';
+                }
+                $('#result-container').text(text);
+
             },
-            onReceiveRequest: function (node, query) {
-                console.log('request is received, stop the loading animation?')
+            onMouseEnter: function (node, a, obj, e) {
+
+                if (obj.group === "country") {
+                    $(a).append('<span class="flag-chart flag-' + obj.display.replace(' ', '-').toLowerCase() + '"></span>')
+                }
+
+            },
+            onMouseLeave: function (node, a, obj, e) {
+
+                $(a).find('.flag-chart').remove();
+
             }
         },
         debug: true
     });
+
 }

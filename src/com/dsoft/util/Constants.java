@@ -9,10 +9,12 @@ public class Constants {
     public static final String USER_CLASS="User";
     public static final String USER_TABLE="user";
     public static final String PURCHASE_TABLE="purchase";
+    public static final String SALES_TABLE="sales";
     public static final String PRODUCT_GROUP_CLASS="ProductGroup";
     public static final String UNIT_OF_MEASURE_CLASS="UnitOfMeasure";
     public static final String PRODUCT_CLASS="Product";
     public static final String PRODUCT_TYPE_CLASS="ProductType";
+    public static final String SALES_CLASS="Sales";
     public static final String COMPANY_CLASS="Company";
     public static final String PRODUCT_KEY_VALIDATION_CLASS="ProductKeyValidation";
     public static final String PRODUCT_KEY_CLASS="ProductKey";

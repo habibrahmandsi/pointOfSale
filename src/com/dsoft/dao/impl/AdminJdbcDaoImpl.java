@@ -512,4 +512,49 @@ public List<Object> getPartialDataList(int page, int rp,  String qtype, String q
         return result;
     }
 
+    @Override
+    public Map<String, Object> getSales(Integer start, Integer length, String sortColName, String sortType, String searchKey, int salesReturn) throws Exception {
+        Map<String, Object> result = new HashMap();
+        String sql = "SELECT s.*, u.name userName "
+                +"FROM sales s "
+                +"LEFT JOIN user u ON(u.id = s.sale_by_id) WHERE s.sale_return = ?";
+
+        logger.debug("SMNLOG: searchKey:"+searchKey+" length:"+length);
+
+        if(!Utils.isEmpty(searchKey)){
+            sql = sql + " AND sales_token_no LIKE ? "
+                      + " OR sales_date LIKE ? "
+                      + " OR total_amount LIKE ? "
+                      + " OR discount LIKE ? "
+                      + " OR u.name LIKE ? ";
+        }
+
+        sql = sql+" ORDER BY " + sortColName + " "+ sortType +" LIMIT ?, ? ";
+
+        List paramList = new ArrayList();
+        paramList.add(salesReturn);
+        if(!Utils.isEmpty(searchKey)) {
+            paramList.add(searchKey+"%");
+            paramList.add(searchKey+"%");
+            paramList.add(searchKey+"%");
+            paramList.add(searchKey+"%");
+            paramList.add(searchKey+"%");
+        }
+        paramList.add(start);
+        paramList.add(length);
+        logger.debug("SMNLOG:sql:"+sql);
+
+        List list = jdbcTemplate.queryForList(sql, paramList.toArray());
+//        logger.debug("SMNLOG:list:"+list);
+
+        result.put("data", list);
+        if (list != null && list.size() > 0)
+            result.put("total" ,list.size());
+        else
+            result.put("total" ,0);
+
+
+        return result;
+    }
+
 }

@@ -24,5 +24,6 @@ public interface AdminJdbcService {
     void deleteEntityByAnyColValue(String tableName,String colName, String colValue) throws Exception;
 
     Map<String, Object> getPurchases(Integer start, Integer length, String sortColName, String sortType, String searchKey, int purchaseReturn) throws Exception ;
+    Map<String, Object> getSales(Integer start, Integer length, String sortColName, String sortType, String searchKey, int salesReturn) throws Exception ;
 
 }

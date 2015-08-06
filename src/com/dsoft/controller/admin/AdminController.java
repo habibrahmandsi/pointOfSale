@@ -1517,6 +1517,9 @@ public class AdminController {
                     logger.debug("ERROR:Failed to load purchase return");
                     Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("purchase.return.load.failed.msg"));
                     return "redirect:./purchaseList.do";
+                }else if(!purchase.getPurchaseReturn()){
+                    Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("purchase.return.failed.msg"));
+                    return "redirect:./purchaseList.do";
                 }
 
                 purchaseItemList = adminService.getPurchaseItemListByPurchaseId(purchaseId);
@@ -1650,6 +1653,190 @@ public class AdminController {
 
         return "redirect:./superAdmin.do";
     }
+
+    @RequestMapping(value = "/*/upsertSales.do", method = RequestMethod.GET)
+    public String getupsertSales(HttpServletRequest request, Model model) {
+        logger.error("SMNLOG:: upsert Sales view controller ::");
+        Sales sales = new Sales();
+        List<SalesItem> salesItemList = null;
+        Long salesId = request.getParameter("salesId") != null ? Long.parseLong(request.getParameter("salesId")) : 0;
+        logger.debug("SMNLOG:salesId:" + salesId);
+        int salesReturn = 0; // for sales
+        try {
+            if (salesId > 0) {
+                sales = adminService.getSale(salesId, salesReturn);
+                if (sales == null) {
+                    logger.debug("ERROR:Failed to load sales");
+                    Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("sales.load.failed.msg"));
+                    return "redirect:./salesList.do";
+                }
+                salesItemList = adminService.getSalesItemListBySalesId(salesId);
+                logger.debug("SMNLOG:salesItemList size:" + salesItemList.size());
+
+                if (salesItemList != null && salesItemList.size() > 0) {
+                    for (SalesItem salesItem : salesItemList) {
+                        if (salesItem != null) {
+                            salesItem.setPrevQuantity(salesItem.getQuantity());
+                        }
+                    }
+                    sales.setSalesItemList(salesItemList);
+                }
+                logger.debug("SMNLOG:sales:" + sales);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+
+        sales.setSalesItemList(salesItemList);
+        model.addAttribute("sales", sales);
+        return "common/sales";
+    }
+
+    @RequestMapping(value = "/*/upsertSales.do", method = RequestMethod.POST)
+    public String upsertSales(HttpServletRequest request, @ModelAttribute("sales") Sales sales) {
+        logger.debug("SMNLOG:: sales POST Controller::");
+        logger.debug("SMNLOG:: sales::" + sales);
+        Long salesId = sales.getId();
+        try {
+            logger.debug("SMNLOG:: salesId:: " + salesId);
+            if (salesId != null) { // when to update
+                if (Utils.isEmpty(sales.getSalesTokenNo()))
+                    sales.setSalesTokenNo(Utils.generateUniqueId("S"));
+            } else { // when to save
+                sales.setSalesDate(new Date());
+                sales.setSalesReturn(false);// as it is sales not sales return
+                sales.setSalesTokenNo(Utils.generateUniqueId("S"));
+            }
+
+            User user = (User) adminService.getAbstractBaseEntityByString(Constants.USER, "userName", Utils.getLoggedUserName());
+            sales.setUser(user);
+            adminService.saveOrUpdateSales(sales);
+
+            if (salesId != null)
+                Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("sales.update.success.msg"));
+            else
+                Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("sales.save.success.msg") + "<b>&nbsp;SALES INVOICE NO:</b>&nbsp;<b style='color:red'>" + sales.getSalesTokenNo() + "</b>");
+        } catch (Exception ex) {
+            logger.error("Save sales exception:: " + ex);
+            if (salesId != null)
+                Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("sales.update.failed.msg"));
+            else
+                Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("sales.save.failed.msg"));
+
+        }
+        return "redirect:./salesList.do";
+    }
+
+
+    @RequestMapping(value = "/*/getSales.do", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    DataModelBean getSales(HttpServletRequest request) throws Exception {
+        logger.info(":: Get Sales List Ajax Controller ::");
+        DataModelBean dataModelBean = new DataModelBean();
+        /* this params is for dataTables */
+        String[] tableColumns = "sales_token_no,sales_date,total_amount,discount,userName".split(",");
+        int start = request.getParameter(Constants.IDISPLAY_START) != null ? Integer.parseInt(request.getParameter(Constants.IDISPLAY_START)) : 0;
+        int length = request.getParameter(Constants.IDISPLAY_LENGTH) != null ? Integer.parseInt(request.getParameter(Constants.IDISPLAY_LENGTH)) : 5;
+        int sEcho = request.getParameter(Constants.sEcho) != null ? Integer.parseInt(request.getParameter(Constants.sEcho)) : 0;
+        int iSortColIndex = request.getParameter(Constants.iSortCOL) != null ? Integer.parseInt(request.getParameter(Constants.iSortCOL)) : 0;
+        String searchKey = request.getParameter(Constants.sSearch) != null ? request.getParameter(Constants.sSearch) : "";
+        String sortType = request.getParameter(Constants.sortType) != null ? request.getParameter(Constants.sortType) : "asc";
+        Integer purchaseReturn = request.getParameter("opt") != null ? Integer.parseInt(request.getParameter("opt")) : 0;
+        String sortColName = "";
+        logger.debug("SMNLOG:iSortColIndex:" + iSortColIndex + " sortType:" + sortType + " searchKey:" + searchKey);
+
+        // sorting related operation for data Tables
+
+        sortColName = tableColumns[iSortColIndex];
+        logger.debug("SMNLOG:sortColName:" + sortColName);
+
+        String trackingDetailsDataStr = null;
+        Map<String, Object> userDataMap;
+        try {
+            int totalRecords = adminService.getEntitySize(Constants.SALES_CLASS);
+            if (length < 0) {
+                userDataMap = adminJdbcService.getSales(start, totalRecords, sortColName, sortType, searchKey, purchaseReturn);
+            } else {
+                userDataMap = adminJdbcService.getSales(start, length, sortColName, sortType, searchKey, purchaseReturn);
+            }
+
+
+                /*
+                * DataModelBean is a bean of Data table to
+                * handle data Table search, paginatin operation very simply
+                */
+            dataModelBean.setAaData((List) userDataMap.get("data"));
+            if (!Utils.isEmpty(searchKey)) {
+                dataModelBean.setiTotalDisplayRecords((Integer) userDataMap.get("total"));
+            } else {
+                dataModelBean.setiTotalDisplayRecords(totalRecords);
+            }
+            dataModelBean.setiTotalRecords(totalRecords);
+            dataModelBean.setsEcho(sEcho);
+            dataModelBean.setiDisplayStart(start);
+            dataModelBean.setiDisplayLength(totalRecords);
+
+        } catch (Exception ex) {
+            logger.error(":: ERROR:: Failed to load Sales details data:: " + ex);
+        }
+
+        return dataModelBean;
+    }
+
+
+    @RequestMapping(value = "/*/salesList.do", method = RequestMethod.GET)
+    public String salesListView(HttpServletRequest request, Model model) {
+        logger.error("SMNLOG: :: sales view controller :: ");
+        model.addAttribute("opt", 0);
+        return "common/salesList";
+    }
+
+    @RequestMapping(value = "/*/deleteSales.do", method = RequestMethod.GET)
+    public String deleteSales(HttpServletRequest request, Model model) {
+        logger.error("SMNLOG: :: delete Sales controller :: ");
+        Long salesId = request.getParameter("salesId") != null ? Long.parseLong(request.getParameter("salesId")) : 0;
+        Long opt = request.getParameter("opt") != null ? Long.parseLong(request.getParameter("opt")) : 0;
+        logger.error("SMNLOG: :: salesId :: " + salesId);
+        List<SalesItem> salesItemList = new ArrayList<SalesItem>();
+        Boolean isError = true;
+        try {
+            if (salesId > 0) {
+                salesItemList = adminService.getSalesItemListBySalesId(salesId);
+                if (salesItemList != null && salesItemList.size() > 0) {
+                        adminService.deleteSalesItem(salesItemList);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            isError = false;
+            logger.debug("SMNLOG:ERROR to delete salesItem:"+e);
+        }
+
+        if (isError == true) {
+            logger.debug("SMNLOG:Sales item deleted successful.Now to delete Sales:" + salesId);
+            try {
+                adminJdbcService.deleteEntityByAnyColValue(Constants.SALES_TABLE, "id", salesId + "");
+                Utils.setGreenMessage(request, opt == 1 ? Utils.getMessageBundlePropertyValue("sales.return.delete.success.msg") :
+                        Utils.getMessageBundlePropertyValue("sales.delete.success.msg"));
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.debug("ERROR:Failed to delete user");
+                Utils.setErrorMessage(request, opt == 1 ? Utils.getMessageBundlePropertyValue("sales.return.delete.failed.msg") :
+                        Utils.getMessageBundlePropertyValue("sales.delete.failed.msg"));
+            }
+        } else {
+            Utils.setErrorMessage(request, opt == 1 ? Utils.getMessageBundlePropertyValue("sales.return.delete.failed.msg") :
+                    Utils.getMessageBundlePropertyValue("sales.delete.failed.msg"));
+        }
+        if (opt == 1)
+            return "redirect:./salesReturnList.do";
+
+        return "redirect:./salesList.do";
+
+    }
+
 
 }
 
