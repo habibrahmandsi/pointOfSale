@@ -27,7 +27,7 @@
             </div>
             <div class="panel-body">
                 <div class="row">
-                    <div class="col-lg-3">
+                    <div class="col-lg-3 leftPanelDiv">
 
                        <%-- <div class="form-group">
                             <label><spring:message code="company.form.name"/></label>
@@ -136,6 +136,19 @@
                                                                        src="<%=contextPath %>/resources/images/crossIcon.jpeg">
                                     </td>
                                 </tr>
+                                 <tr>
+                                    <td></td>
+                                    <td>
+                                    <td></td>
+                                    <td></td>
+                                    <td class="italicFont">Vat:</td>
+                                    <td class="italicFont discount"><form:input path="vat" cssClass="italicFont"
+                                                                                cssStyle="max-width: 50px;padding-right: 5px;"/></td>
+                                    <td style="text-align: right"><img class="hidden" alt="Invalid" title="Invalid"
+                                                                       style="width: 20px;"
+                                                                       src="<%=contextPath %>/resources/images/crossIcon.jpeg">
+                                    </td>
+                                </tr>
                                 <tr>
                                     <td></td>
                                     <td>
@@ -166,5 +179,9 @@
         <!-- /.col-lg-12 -->
     </div>
     </form:form>
+        <script>
+            var purchaseId = "${purchase.id}";
+            console.log("SMNLOG:purchaseId:"+purchaseId);
+        </script>
     <!-- /.row -->
     <!-- ==================== END OF COMMON ELEMENTS ROW ==================== -->

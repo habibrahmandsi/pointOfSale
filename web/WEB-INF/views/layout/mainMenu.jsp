@@ -3,7 +3,9 @@
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib prefix="security" uri="http://www.springframework.org/security/tags" %>
-
+<%
+    final String contextPath = request.getContextPath();
+%>
 <!-- ==================== MAIN MENU ==================== -->
 <nav class="navbar-default navbar-static-side" role="navigation">
     <div class="sidebar-collapse">
@@ -14,13 +16,19 @@
                         class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li>
-                        <a href="./upsertSales.do"><i class="fa fa-money fa-fw"></i>&nbsp;<spring:message code="menu.sales"/></a>
+                        <a href="./upsertSales.do"><i class="fa fa-money fa-fw"></i>
+                            &nbsp;<spring:message code="menu.sales"/></a>
                     </li>
                      <li>
                         <a href="./salesList.do"><i class="fa fa-money fa-fw"></i>&nbsp;<spring:message code="menu.sales.information"/></a>
                     </li>
+<%--
                     <li>
                         <a href="flot.html"><i class="fa fa-upload fa-fw"></i>&nbsp;<spring:message code="menu.sales.return"/></a>
+                    </li>
+--%>
+                    <li>
+                        <a href="./salesReturnList.do?opt=1"><i class="fa fa-upload fa-fw"></i>&nbsp;<spring:message code="sales.return.list.header"/></a>
                     </li>
                     <li>
                         <a href="./upsertPurchase.do"><i class="fa fa-table fa-fw"></i>&nbsp;<spring:message code="menu.purchase"/></a>
@@ -30,9 +38,11 @@
                         <a href="./purchaseList.do"><i class="fa fa-table fa-fw"></i>&nbsp;<spring:message code="purchase.list.header"/></a>
                     </li>
 
+<%--
                     <li>
                         <a href="morris.html"><i class="fa fa-upload fa-fw"></i>&nbsp;<spring:message code="menu.purchase.return"/></a>
                     </li>
+--%>
                       <li>
                         <a href="./purchaseReturnList.do?opt=1"><i class="fa fa-upload fa-fw"></i>&nbsp;<spring:message code="menu.purchase.return.list"/></a>
                     </li>
@@ -55,7 +65,7 @@
                         <a href="./companyList.do"><spring:message code="menu.administration.new.company"/></a>
                     </li>
                     <li>
-                        <a href="./productList.do"><spring:message code="menu.administration.new.product"/></a>
+                        <a href="./productList.do"><spring:message code="product.list.header"/></a>
                     </li>
                     <li>
                         <a href="./productGroupList.do"><spring:message code="menu.administration.new.productGroup"/></a>

@@ -85,5 +85,13 @@ public class AdminJdbcServiceImpl implements AdminJdbcService {
         return adminJdbcDao.getSales(start, length, sortColName, sortType, searchKey, salesReturn);
     }
 
+    public int getSalesCount(int salesReturn) throws Exception{
+        return adminJdbcDao.getSalesCount(salesReturn);
+    }
+
+   public int getPurchaseCount(int purchaseReturn) throws Exception{
+        return adminJdbcDao.getPurchaseCount(purchaseReturn);
+    }
+
 
 }

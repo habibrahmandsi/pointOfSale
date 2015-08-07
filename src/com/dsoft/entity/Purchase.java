@@ -33,6 +33,9 @@ public class Purchase {
     @Column(name = "discount")
     private Double discount;
 
+    @Column(name = "vat")
+    private Double vat;
+
     @ManyToOne
     @JoinColumn(name="purchase_by_id")
     private User user;
@@ -84,6 +87,14 @@ public class Purchase {
         this.discount = discount;
     }
 
+    public Double getVat() {
+        return vat;
+    }
+
+    public void setVat(Double vat) {
+        this.vat = vat;
+    }
+
     public User getUser() {
         return user;
     }
@@ -116,6 +127,7 @@ public class Purchase {
                 ", purchaseDate=" + purchaseDate +
                 ", totalAmount=" + totalAmount +
                 ", discount=" + discount +
+                ", vat=" + vat +
                 ", user=" + user +
                 ", purchaseReturn=" + purchaseReturn +
                 ", purchaseItemList=" + purchaseItemList +

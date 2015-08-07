@@ -10,6 +10,7 @@ var editTitle = 'Are you sure to edit ?';
 var confirmTitle = 'Are you sure ?';
 var deleteTitle = 'Are you sure to delete ?';
 var rowDisplayGlobal = 20;
+var globalRoundDigits = 2;
 
 function confirmDialog(title,bodyTitle,successBtnTxt,cancelBtnTxt,fn){
     bootbox.dialog({
@@ -343,4 +344,7 @@ function makeTabularAutoComplete(inputIdOrClass,dataList, matchingColName, displ
         debug: true
     });
 
+}
+function getRoundNDigits(number, nDigits){
+    return number.toFixed(nDigits);
 }

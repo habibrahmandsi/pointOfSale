@@ -400,4 +400,52 @@ public class AdminDaoImpl implements AdminDao {
 
     }
 
+    public boolean saveOrUpdateSalesReturn(Sales sales) throws Exception{
+        hibernateTemplate.save(sales);
+        Product product;
+        List<SalesItem> salesItemList = sales.getSalesItemList();
+        int count = 0;
+        if (!Utils.isEmpty(salesItemList)) {
+            for (SalesItem salesItem : salesItemList) {
+                if (salesItem != null && salesItem.getId() != null && (salesItem.getPrevQuantity() > salesItem.getQuantity() || salesItem.getPrevQuantity() < salesItem.getQuantity())) {
+                    logger.debug("SMNLOG:Sales return item should be saved");
+                    salesItem.setId(null);// to add as a sales return
+                    salesItem.setSales(sales);
+                    saveObject(salesItem);
+                } else {
+                    // salesItem.setSales(sales);
+                    // saveObject(salesItem);
+                }
+                product = salesItem.getProduct();
+                logger.debug("SMNLOG:PrevQuantity" + salesItem.getPrevQuantity() + " current Qty:" + salesItem.getQuantity());
+                if (salesItem.getPrevQuantity() > salesItem.getQuantity() || salesItem.getPrevQuantity() < salesItem.getQuantity()) {
+                    this.updateProductQuantity(product.getId(), salesItem.getQuantity()); // positive for return
+                    count = count+1;
+                } else {
+                    logger.debug("######## (sales return) No need to update product quantity ##########");
+                }
+            }
+        }
+        if(count == 0){
+            logger.debug("######## (sales return) Nothing to save: ROLL backing ##########");
+            hibernateTemplate.delete(sales);
+            return false;
+        }
+        return true;
+    }
+
+    public void deletePurchaseItem(List<PurchaseItem> purchaseItemList) throws Exception{
+        PurchaseItem purchaseItem = null;
+        if (purchaseItemList != null && purchaseItemList.size() > 0) {
+            for (int i = 0; i < purchaseItemList.size(); i++) {
+                purchaseItem = purchaseItemList.get(i);
+                logger.debug("SMNLOG:purchaseItem---:"+purchaseItem);
+                if( purchaseItem != null && purchaseItem.getProduct() != null){
+                    this.updateProductQuantity(purchaseItem.getProduct().getId(), purchaseItem.getQuantity()*(-1));// as to subtract in total qty
+                }
+
+                this.deleteObject(purchaseItem);
+            }
+        }
+    }
 }

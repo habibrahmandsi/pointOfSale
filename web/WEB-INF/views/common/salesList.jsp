@@ -34,10 +34,10 @@
                         </div>
                         <div class="col-md-3">
                             <c:if test="${opt == 0}">
-                                <a href="./upsertPurchase.do" class="btn btn-primary" style="width: 98%;">New Sales</a>
+                                <a href="./upsertSales.do" class="btn btn-primary" style="width: 98%;">New Sales</a>
                             </c:if>
                             <c:if test="${opt == 1}">
-                                <a href="./upsertPurchaseReturn.do" class="btn btn-primary" style="width: 98%;">New Sales Return</a>
+                                <a href="./upsertSalesReturn.do" class="btn btn-primary" style="width: 98%;">New Sales Return</a>
                             </c:if>
 
                         </div>

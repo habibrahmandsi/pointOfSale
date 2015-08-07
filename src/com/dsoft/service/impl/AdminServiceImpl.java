@@ -183,4 +183,12 @@ public class AdminServiceImpl implements AdminService {
         adminDao.deleteSalesItem(salesItemList);
     }
 
+   public boolean saveOrUpdateSalesReturn(Sales sales) throws Exception{
+       return adminDao.saveOrUpdateSalesReturn(sales);
+   }
+
+    public void deletePurchaseItem(List<PurchaseItem> purchaseItemList) throws Exception{
+        adminDao.deletePurchaseItem(purchaseItemList);
+    }
+
 }
