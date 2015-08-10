@@ -191,4 +191,16 @@ public class AdminServiceImpl implements AdminService {
         adminDao.deletePurchaseItem(purchaseItemList);
     }
 
+   public void updateProductQuantity(Long productId, Double qty) throws Exception{
+        adminDao.updateProductQuantity(productId, qty);
+    }
+
+  public void saveObject(Object object) throws Exception{
+        adminDao.saveObject(object);
+  }
+
+    public  SalesItem getSalesItem(Long id) throws Exception {
+        return adminDao.getSalesItem(id);
+    }
+
 }

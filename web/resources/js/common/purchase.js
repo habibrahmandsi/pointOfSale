@@ -114,7 +114,12 @@ $(document).ready(function () {
             $(".purchaseLineItemsDiv table tfoot tr td.grandTotal").find("label").text(total);
             $(".purchaseLineItemsDiv table tfoot tr td.grandTotal").find("input").val(total);// for binding
         }
-
+        var buttonName = "";
+        if("false" == purchaseReturn){
+            buttonName = "Purchase";
+        }else{
+            buttonName = "Purchase Return";
+        }
         $(".addLineItem").click(function (e) {
             var table = '<table class="table table-striped">'
                 + '<thead>'
@@ -137,7 +142,7 @@ $(document).ready(function () {
                 + '</table>'
                 + '</br>'
                 + '<div style="text-align: right;"><button class="btn btn-danger" type="reset">Cancel</button>&nbsp;'
-                + '<button class="btn btn-success purchaseSave" type="button">Purchase</button></div>';
+                + '<button class="btn btn-success purchaseSave" type="button">'+buttonName+'</button></div>';
 
 
             if ($(".purchaseLineItemsDiv").find("table").length > 0) {

@@ -155,8 +155,8 @@ public class LoginController {  // to handle login related task
     public String forwardOnRole(HttpServletRequest request, Model model) {
         logger.debug("Forward Controller Start 11111111.");
         Boolean isLoggedInSuccess = false;
-        if (Utils.isInRole(Role.SUPER_ADMIN.getLabel())) {
-            logger.debug("Forward Controller Redirect AS " + Role.SUPER_ADMIN.getLabel());
+        if (Utils.isInRole(Role.ROLE_SUPER_ADMIN.getLabel())) {
+            logger.debug("Forward Controller Redirect AS " + Role.ROLE_SUPER_ADMIN.getLabel());
             isLoggedInSuccess = true;
             if (isLoggedInSuccess)
                 this.setLoggedUserInfoInSession(request, adminService);

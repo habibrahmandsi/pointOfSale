@@ -71,15 +71,15 @@ public class AdminDaoImpl implements AdminDao {
     public User getUser(Long userId) throws Exception {
         Session session = getSession();
         String sql = "FROM User WHERE id = :id ";
-        if (!Utils.isInRole(Role.SUPER_ADMIN.getLabel())) {
+        if (!Utils.isInRole(Role.ROLE_SUPER_ADMIN.getLabel())) {
             logger.debug("SMNLOG:This is super Admin");
             sql = "FROM User WHERE role != :roleName AND id = :id ";
         }
 
         Query query = session.createQuery(sql);
 
-        if (!Utils.isInRole(Role.SUPER_ADMIN.getLabel()))
-            query.setParameter("roleName", Role.SUPER_ADMIN.getLabel());
+        if (!Utils.isInRole(Role.ROLE_SUPER_ADMIN.getLabel()))
+            query.setParameter("roleName", Role.ROLE_SUPER_ADMIN.getLabel());
 
         query.setParameter("id", userId);
 
@@ -448,4 +448,16 @@ public class AdminDaoImpl implements AdminDao {
             }
         }
     }
+
+    public SalesItem getSalesItem(Long id) throws Exception{
+        Session session = getSession();
+        Query query = session.createQuery("FROM SalesItem WHERE id = :id");
+        query.setParameter("id", id);
+        Object object = query.uniqueResult();
+        if (object != null)
+            return (SalesItem) object;
+        return null;
+    }
+
+
 }

@@ -1,16 +1,21 @@
+<%@ page import="com.dsoft.entity.Role" %>
 <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib prefix="security" uri="http://www.springframework.org/security/tags" %>
+
 <%
     final String contextPath = request.getContextPath();
 %>
+
 <!-- ==================== MAIN MENU ==================== -->
 <nav class="navbar-default navbar-static-side" role="navigation">
     <div class="sidebar-collapse">
         <ul class="nav" id="side-menu">
-
+           <%-- <security:authorize access="hasAnyRole(
+            '${superAdmin}','${adminUser}','${CreateSales}','${SalesInfo}','${DeleteSales}','${SalesReturn}','${DeleteSalesReturn}','${CreatePurchase}','${PurchaseInfo}','${DeletePurchase}','${PurchaseReturnInfo}','${DeletePurchaseReturn}')">
+--%>
             <li>
                 <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> <spring:message code="menu.salesAndPurchase"/><span
                         class="fa arrow"></span></a>
@@ -38,17 +43,16 @@
                         <a href="./purchaseList.do"><i class="fa fa-table fa-fw"></i>&nbsp;<spring:message code="purchase.list.header"/></a>
                     </li>
 
-<%--
                     <li>
-                        <a href="morris.html"><i class="fa fa-upload fa-fw"></i>&nbsp;<spring:message code="menu.purchase.return"/></a>
+                        <a href="./upsertPurchase.do?purchaseReturn=1"><i class="fa fa-upload fa-fw"></i>&nbsp;<spring:message code="menu.purchase.return"/></a>
                     </li>
---%>
                       <li>
                         <a href="./purchaseReturnList.do?opt=1"><i class="fa fa-upload fa-fw"></i>&nbsp;<spring:message code="menu.purchase.return.list"/></a>
                     </li>
                 </ul>
                 <!-- /.nav-second-level -->
             </li>
+            <%--</security:authorize>--%>
             <li>
                 <a href="tables.html"><i class="fa fa-table fa-fw"></i> <spring:message code="menu.administration"/>
                     <span class="fa arrow"></span>

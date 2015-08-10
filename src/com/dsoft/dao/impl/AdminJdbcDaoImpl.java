@@ -157,10 +157,10 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
                     + "OR age LIKE ? "
                     + "OR email LIKE ?";
         }
-        logger.debug("SMNLOG:-----_>" + Utils.isInRole(Role.SUPER_ADMIN.getLabel()));
-        if (!Utils.isEmpty(searchKey) && !Utils.isInRole(Role.SUPER_ADMIN.getLabel())) {
+        logger.debug("SMNLOG:-----_>" + Utils.isInRole(Role.ROLE_SUPER_ADMIN.getLabel()));
+        if (!Utils.isEmpty(searchKey) && !Utils.isInRole(Role.ROLE_SUPER_ADMIN.getLabel())) {
             sql += " AND role != ? ";
-        } else if (Utils.isEmpty(searchKey) && !Utils.isInRole(Role.SUPER_ADMIN.getLabel())) {
+        } else if (Utils.isEmpty(searchKey) && !Utils.isInRole(Role.ROLE_SUPER_ADMIN.getLabel())) {
             sql += " WHERE role != ? ";
         }
 
@@ -178,8 +178,8 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
             paramList.add(searchKey + "%");
             paramList.add(searchKey + "%");
         }
-        if (!Utils.isInRole(Role.SUPER_ADMIN.getLabel())) {
-            paramList.add(Role.SUPER_ADMIN.getLabel());
+        if (!Utils.isInRole(Role.ROLE_SUPER_ADMIN.getLabel())) {
+            paramList.add(Role.ROLE_SUPER_ADMIN.getLabel());
         }
 
         paramList.add(start);

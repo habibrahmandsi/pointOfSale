@@ -19,11 +19,13 @@
     <form:form action="./upsertPurchase.do" method="post" id="purchaseForm" commandName="purchase">
         <form:hidden path="id"/>
             <form:hidden path="purchaseReturn"/>
+            <form:hidden path="unposted"/>
 
     <div class="col-lg-12 zeroPaddingForm">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <spring:message code="purchase.header"/> Form
+                <c:if test="${purchase.purchaseReturn == false}"> <spring:message code="purchase.header"/> Form</c:if>
+                <c:if test="${purchase.purchaseReturn == true}"> <spring:message code="purchase.return.header"/> Form</c:if>
             </div>
             <div class="panel-body">
                 <div class="row">
@@ -165,7 +167,10 @@
                             <div style="text-align: right;">
                                 <button class="btn btn-danger" type="reset">Cancel</button>
                                 &nbsp;
-                                <button class="btn btn-success purchaseSave" type="button">Purchase</button>
+                                <button class="btn btn-success purchaseSave" type="button">
+                                <c:if test="${purchase.purchaseReturn == false}">Purchase </c:if>
+                                <c:if test="${purchase.purchaseReturn == true}">Purchase Return</c:if>
+                                </button>
                             </div>
 
                         </c:if>
@@ -181,7 +186,8 @@
     </form:form>
         <script>
             var purchaseId = "${purchase.id}";
-            console.log("SMNLOG:purchaseId:"+purchaseId);
+            var purchaseReturn = "${purchase.purchaseReturn}";
+            console.log("SMNLOG:purchaseId:"+purchaseId+" purchaseReturn:"+purchaseReturn);
         </script>
     <!-- /.row -->
     <!-- ==================== END OF COMMON ELEMENTS ROW ==================== -->

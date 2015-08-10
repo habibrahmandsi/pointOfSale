@@ -14,6 +14,9 @@ public class Sales extends AbstractBaseEntity{
 
     public Sales(){
         this.salesReturn = false;
+        this.unposted = true;
+        this.totalAmount = 0d;
+        this.discount = 0d;
     }
 
     @Column(name = "sales_token_no",unique=true)
@@ -38,6 +41,9 @@ public class Sales extends AbstractBaseEntity{
 
     @Column(name="sale_return")
     private Boolean salesReturn;
+
+    @Column(name="unposted")
+    private Boolean unposted;
 
     @Transient
     private List<SalesItem> salesItemList;
@@ -106,16 +112,26 @@ public class Sales extends AbstractBaseEntity{
         this.salesItemList = salesItemList;
     }
 
+    public Boolean getUnposted() {
+        return unposted;
+    }
+
+    public void setUnposted(Boolean unposted) {
+        this.unposted = unposted;
+    }
+
     @Override
     public String toString() {
         return "Sales{" +
-                ", salesTokenNo='" + salesTokenNo + '\'' +
+                "salesTokenNo='" + salesTokenNo + '\'' +
                 ", salesDate=" + salesDate +
                 ", totalAmount=" + totalAmount +
                 ", discount=" + discount +
                 ", due=" + due +
                 ", user=" + user +
                 ", salesReturn=" + salesReturn +
+                ", unposted=" + unposted +
+                ", salesItemList=" + salesItemList +
                 '}';
     }
 }

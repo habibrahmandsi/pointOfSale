@@ -12,9 +12,28 @@ import java.util.List;
  */
 public enum Role {
 
-    SUPER_ADMIN( 1, "superAdmin", "SUPER_ADMIN"),
+    ROLE_SUPER_ADMIN( 1, "superAdmin", "ROLE_SUPER_ADMIN"),
     ROLE_ADMIN( 2, "Admin", "ROLE_ADMIN"),
-    ROLE_EMPLOYEE( 3, "Employee", "ROLE_EMPLOYEE");
+    ROLE_EMPLOYEE( 3, "Employee", "ROLE_EMPLOYEE"),
+
+    ROLE_USER( 4, "UserInfo", "ROLE_USER"),
+    ROLE_COMPANY( 5, "CompanyInfo", "ROLE_COMPANY"),
+    ROLE_PRODUCT( 6, "ProductInfo", "ROLE_PRODUCT"),
+    ROLE_PRODUCT_GROUP( 7, "ProductGroupInfo", "ROLE_PRODUCT_GROUP"),
+    ROLE_PRODUCT_TYPE( 8, "ProductTypeInfo", "ROLE_PRODUCT_TYPE"),
+    ROLE_UOM_INFO( 9, "UomInfo", "ROLE_UOM_INFO"),
+
+    ROLE_CREATE_SALES( 10, "CreateSales", "ROLE_CREATE_SALES"),
+    ROLE_SALES_INFO( 11, "SalesInfo", "ROLE_SALES_INFO"),
+    ROLE_DELETE_SALES( 12, "DeleteSales", "ROLE_DELETE_SALES"),
+    ROLE_SALES_RETURN( 13, "SalesReturn", "ROLE_SALES_RETURN"),
+    ROLE_DELETE_SALES_RETURN( 14, "DeleteSalesReturn", "ROLE_DELETE_SALES_RETURN"),
+
+    ROLE_CREATE_PURCHASE( 15, "CreatePurchase", "ROLE_CREATE_PURCHASE"),
+    ROLE_PURCHASE_INFO( 16, "PurchaseInfo", "ROLE_PURCHASE_INFO"),
+    ROLE_DELETE_PURCHASE( 17, "DeletePurchase", "ROLE_DELETE_PURCHASE"),
+    ROLE_PURCHASE_RETURN_INFO( 18, "PurchaseReturnInfo", "ROLE_PURCHASE_RETURN_INFO"),
+    ROLE_DELETE_PURCHASE_RETURN( 19, "DeletePurchaseReturn", "ROLE_DELETE_PURCHASE_RETURN");
 
 
     private String label;

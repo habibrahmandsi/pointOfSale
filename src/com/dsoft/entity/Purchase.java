@@ -14,6 +14,7 @@ public class Purchase {
 
     public Purchase(){
         this.purchaseReturn = false;
+        this.unposted = true;
     }
 
     @Id
@@ -42,6 +43,9 @@ public class Purchase {
 
     @Column(name = "purchase_return")
     private Boolean purchaseReturn;
+
+    @Column(name = "unposted")
+    private Boolean unposted;
 
 
     @Transient
@@ -119,6 +123,14 @@ public class Purchase {
         this.purchaseItemList = purchaseItemList;
     }
 
+    public Boolean getUnposted() {
+        return unposted;
+    }
+
+    public void setUnposted(Boolean unposted) {
+        this.unposted = unposted;
+    }
+
     @Override
     public String toString() {
         return "Purchase{" +
@@ -130,6 +142,7 @@ public class Purchase {
                 ", vat=" + vat +
                 ", user=" + user +
                 ", purchaseReturn=" + purchaseReturn +
+                ", unposted=" + unposted +
                 ", purchaseItemList=" + purchaseItemList +
                 '}';
     }

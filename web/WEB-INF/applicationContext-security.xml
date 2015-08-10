@@ -17,8 +17,8 @@
         <intercept-url pattern="/resources/**" access="permitAll" />
 
         <!--<intercept-url pattern="/admin/getTrxSearchDataList.do" access="hasAnyRole( 'LEGAL', 'COMPLIANCE','ROLE_ADMIN','IA_ANALYST','IA_MANAGER','EMPLOYEE')"/>-->
-        <intercept-url pattern="/superAdmin/**" access="hasAnyRole('SUPER_ADMIN')"/>
-        <intercept-url pattern="/admin/**" access="hasAnyRole('ROLE_ADMIN','SUPER_ADMIN')"/>
+        <intercept-url pattern="/superAdmin/**" access="hasAnyRole('ROLE_SUPER_ADMIN')"/>
+        <intercept-url pattern="/admin/**" access="hasAnyRole('ROLE_ADMIN','ROLE_SUPER_ADMIN')"/>
 
 
         <intercept-url pattern="/**" access="isAuthenticated()" />

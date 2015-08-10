@@ -61,4 +61,7 @@ public interface AdminDao {
     boolean saveOrUpdateSalesReturn(Sales sales) throws Exception;
 
     void deletePurchaseItem(List<PurchaseItem> purchaseItemList) throws Exception;
+    void updateProductQuantity(Long productId, Double qty) throws Exception;
+    void saveObject(Object object) throws Exception;
+    SalesItem getSalesItem(Long id) throws Exception;
 }

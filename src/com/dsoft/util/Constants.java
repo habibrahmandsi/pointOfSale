@@ -15,6 +15,8 @@ public class Constants {
     public static final String PRODUCT_CLASS="Product";
     public static final String PRODUCT_TYPE_CLASS="ProductType";
     public static final String SALES_CLASS="Sales";
+    public static final String SALES_ITEM_CLASS="SalesItem";
+    public static final String SALES_ITEM_TABLE="sales_item";
     public static final String COMPANY_CLASS="Company";
     public static final String PRODUCT_KEY_VALIDATION_CLASS="ProductKeyValidation";
     public static final String PRODUCT_KEY_CLASS="ProductKey";

@@ -20,6 +20,30 @@
 <c:set var="employee" value="<%=Role.ROLE_EMPLOYEE.getLabel()%>" scope="session"/>
 
 
+<c:set var="superAdmin" value="<%=Role.ROLE_SUPER_ADMIN.getLabel()%>"/>
+<c:set var="adminUser" value="<%=Role.ROLE_ADMIN.getLabel()%>"/>
+<c:set var="employee" value="<%=Role.ROLE_EMPLOYEE.getLabel()%>"/>
+
+<c:set var="UserInfo" value="<%=Role.ROLE_USER.getLabel()%>"/>
+<c:set var="CompanyInfo" value="<%=Role.ROLE_COMPANY.getLabel()%>"/>
+
+<c:set var="ProductInfo" value="<%=Role.ROLE_PRODUCT.getLabel()%>"/>
+<c:set var="ProductGroupInfo" value="<%=Role.ROLE_PRODUCT_GROUP.getLabel()%>"/>
+
+<c:set var="ProductTypeInfo" value="<%=Role.ROLE_PRODUCT_TYPE.getLabel()%>"/>
+<c:set var="UomInfo" value="<%=Role.ROLE_UOM_INFO.getLabel()%>"/>
+
+<c:set var="CreateSales" value="<%=Role.ROLE_CREATE_SALES.getLabel()%>"/>
+<c:set var="SalesInfo" value="<%=Role.ROLE_SALES_INFO.getLabel()%>"/>
+<c:set var="DeleteSales" value="<%=Role.ROLE_DELETE_SALES.getLabel()%>"/>
+<c:set var="SalesReturn" value="<%=Role.ROLE_SALES_RETURN.getLabel()%>"/>
+<c:set var="DeleteSalesReturn" value="<%=Role.ROLE_DELETE_SALES_RETURN.getLabel()%>"/>
+<c:set var="CreatePurchase" value="<%=Role.ROLE_CREATE_PURCHASE.getLabel()%>"/>
+<c:set var="PurchaseInfo" value="<%=Role.ROLE_PURCHASE_INFO.getLabel()%>"/>
+<c:set var="DeletePurchase" value="<%=Role.ROLE_DELETE_PURCHASE.getLabel()%>"/>
+<c:set var="PurchaseReturnInfo" value="<%=Role.ROLE_PURCHASE_RETURN_INFO.getLabel()%>"/>
+<c:set var="DeletePurchaseReturn" value="<%=Role.ROLE_DELETE_PURCHASE_RETURN.getLabel()%>"/>
+
 
 <!DOCTYPE html lang="en">
 <link rel="shortcut icon" type="image/x-icon" href="<%= contextPath %>/resources/images/new_logo.png" />

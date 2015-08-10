@@ -18,8 +18,8 @@
 <!-- /.row -->
 <div class="row">
     <form:form action="./upsertSales.do" method="post" id="salesForm" commandName="sales">
-        <form:hidden path="id"/>
-        <form:hidden path="salesReturn"/>
+        <form:hidden path="id" id="saleId"/>
+        <form:hidden path="salesReturn" id="salesReturn"/>
 
     <div class="col-lg-12 zeroPaddingForm">
         <div class="panel panel-default">

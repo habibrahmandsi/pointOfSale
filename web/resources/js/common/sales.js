@@ -1,12 +1,12 @@
 $(document).ready(function () {
 
-    if(typeof salesId != "undefined" && salesId > 0){
+   /* if(typeof salesId != "undefined" && salesId > 0){
        $("#salesForm").find("div.leftPanelDiv").remove();
        $("#salesForm").find("div.salesLineItemsDiv").removeClass("col-lg-9").addClass("col-lg-12");
        $("#salesForm").find("input").attr("disabled",true);
        $("#salesForm").find("img").remove();
        $("#salesForm").find("button").remove();
-    }else{
+    }else{*/
         $("#salesForm").find("input").attr("autocomplete","off");
         $('.productName').on('typeahead:selected', function (evt, itemObject) {
             console.log('i am in updater' + JSON.stringify(itemObject));
@@ -136,41 +136,60 @@ $(document).ready(function () {
             var quantity = +$(".qty").val();
             var lineTotal = quantity * salesRate;
             console.log("SMNLOG:quantity:"+quantity+" salesRate:"+salesRate+" lineTotal:"+lineTotal);
-            var row = '<tr id="'+productObject.productId+'">'
-                + '<td><label>' + serialNo + '</label>'
-                + '<input type="text" name="salesItemList[].product.id" class="productId hidden" value="'+productObject.productId+'">'
-                + '<input type="text" name="salesItemList[].prevQuantity" class="prevQuantity hidden" value="0">'
-                + '</td>'
-                + '<td>' + productObject.productName + '</td>'
-                + '<td>' + productObject.companyName + '</td>'
-                + '<td>' + salesRate + '<input type="text" name="salesItemList[].salesRate" class="salesRate hidden" value="'+salesRate+'"></td>'
-                + '<td><input type="text" name="salesItemList[].quantity" class="qunatityInput" value="'+quantity +'" style="max-width: 80px;padding-right: 5px;padding-left:5px;"></td>'
-                + '<td class="lineTotal italicFont"><label>' + lineTotal + '</label><input type="text" name="salesItemList[].totalPrice" class="totalPrice hidden" value="'+lineTotal+'"></td>'
-                + '<td style="text-align: right"><img alt="Saved" title="Saved" class="iconInsideTable"  src="' + contextPath + '/resources/images/crossIcon.jpeg"></td>'
-                + '</tr>';
+
 
             console.log("SMNLOG:productObject.id"+productObject.productId);
-
-            //$(".salesLineItemsDiv").find("table").find("tbody").find("tr").each(function () {
-            if($("#"+productObject.productId).length > 0){ // same product row is already exist
-                console.log("SMNLOG:FOUND......");
-                var newQty = +$("#"+productObject.productId).find("input.qunatityInput").val();
-                $("#"+productObject.productId).find("input.qunatityInput").val(quantity+newQty).keyup();
-            }else{
-                $(".salesLineItemsDiv").find("table").find("tbody").append(row);
+            var sItemId=0;
+            if($("#"+productObject.productId).length > 0){
+                sItemId= + $("#"+productObject.productId).find("input.itemId").val();
             }
-            //});
 
+            var sId = +$("#saleId").val();
+            var pId = +productObject.productId;
+            var pRate =  typeof productObject.purchaseRate != "undefined" ? productObject.purchaseRate : 0;
+            var url = './addSalesItems.do?sId='+sId+'&pId='+pId+'&qty='+quantity+'&pRate='+pRate
+                +'&sRate='+salesRate+'&totalPrice='+lineTotal+'&sItemId='+sItemId;
+            console.log("SMNLOG:url:"+url);
+            /*Add sales item */
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: {},
+                success: function (data) {
+                    if(!"false".indexOf(data) >-1){
+                        console.log("SMNLOG:Save success full");
 
+                        var row = '<tr id="'+productObject.productId+'">'
+                            + '<td><label>' + serialNo + '</label>'
+                            + '<input type="text" name="salesItemList[].product.id" class="productId hidden" value="'+productObject.productId+'">'
+                            + '<input type="text" name="salesItemList[].id" class="itemId hidden" value="'+data+'">'
+                            + '<input type="text" name="salesItemList[].sales.id" class="salesId hidden" value="'+sId+'">'
+                            + '<input type="text" name="salesItemList[].prevQuantity" class="prevQuantity hidden" value="0">'
+                            + '</td>'
+                            + '<td>' + productObject.productName + '</td>'
+                            + '<td>' + productObject.companyName + '</td>'
+                            + '<td>' + salesRate + '<input type="text" name="salesItemList[].salesRate" class="salesRate hidden" value="'+salesRate+'"></td>'
+                            + '<td><input type="text" name="salesItemList[].quantity" class="qunatityInput" value="'+quantity +'" style="max-width: 80px;padding-right: 5px;padding-left:5px;"></td>'
+                            + '<td class="lineTotal italicFont"><label>' + lineTotal + '</label><input type="text" name="salesItemList[].totalPrice" class="totalPrice hidden" value="'+lineTotal+'"></td>'
+                            + '<td style="text-align: right"><img alt="Saved" title="Saved" class="iconInsideTable"  src="' + contextPath + '/resources/images/crossIcon.jpeg"></td>'
+                            + '</tr>';
 
-            reCalculateSalesTotal();
-
-            $(".productName").val("");
-            $(".productName").focus();
-
-            /* for indexing */
-            indexingSales();
-            e.preventDefault();
+                        if($("#"+productObject.productId).length > 0){ // same product row is already exist
+                            console.log("SMNLOG:FOUND......");
+                            var newQty = +$("#"+productObject.productId).find("input.qunatityInput").val();
+                            $("#"+productObject.productId).find("input.qunatityInput").val(quantity+newQty).keyup();
+                        }else{
+                            $(".salesLineItemsDiv").find("table").find("tbody").append(row);
+                        }
+                        reCalculateSalesTotal();
+                        $(".productName").val("");
+                        $(".productName").focus();
+                        /* for indexing */
+                        indexingSales();
+                    }
+                }
+            });
+           e.preventDefault();
         });
 
         function deleteRowOrFullTable(that){
@@ -184,13 +203,17 @@ $(document).ready(function () {
         }
 
         $(document).on("click", '.iconInsideTable', function () {
-            var itemId = $(this).closest("tr").find("input.itemId").val();
+            var itemId = +$(this).closest("tr").find("input.itemId").val();
+            var totalPrice = $(this).closest("tr").find("input.totalPrice").val();
+            var sId = $("#saleId").val();
+            var salesReturn = $("#salesReturn").val();
             var that = $(this);
             if( itemId > 0){
                 console.log("SMNLOG:To Delete from db:itemId:"+itemId);
                 $.ajax({
-                    url: './deleteAnyObject.do?'
-                    +'tableName=sales_item&colName=id&colValue='+itemId,
+                    //url: './deleteAnyObject.do?'
+                    url: './deleteSalesItem.do?'
+                    +'sId='+sId+'&sItemId='+itemId+'&totalPrice='+totalPrice+'&salesReturn='+salesReturn,
                     type: 'get',
                     data: {},
                     success: function (result) {
@@ -212,7 +235,7 @@ $(document).ready(function () {
 
         });
 
-    }
+    //}
 
 
     /*    var previousCompanyValue = "";
