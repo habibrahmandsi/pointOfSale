@@ -569,4 +569,51 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
         String sql = "SELECT COUNT(*) FROM purchase WHERE purchase_return=" + purchaseReturn;
         return jdbcTemplate.queryForInt(sql);
     }
+
+    public Map<String, Object> getProductsForAutoComplete(String sortColName, String sortType, String searchKey) throws Exception {
+        Map<String, Object> result = new HashMap();
+        String sql = "SELECT "
+                + "p.id productId,p.name productName, p.sale_rate saleRate, p.purchase_rate purchaseRate,p.total_quantity totalQuantity "
+                + ",cm.name companyName "
+//                + ", pg.name groupName, pt.name typeName, uom.name uomName,cm.name companyName "
+                + "FROM product p "
+                + "LEFT JOIN company cm ON(cm.id = p.company_id) ";
+//                + "LEFT JOIN product_group pg ON(pg.id = p.product_group_id) "
+//                + "LEFT JOIN product_type pt ON(pt.id = p.product_type_id) "
+//                + "LEFT JOIN unit_of_measure uom ON(uom.id = p.unit_of_measure_id) ";
+
+        logger.debug("SMNLOG: searchKey:" + searchKey);
+
+        if (!Utils.isEmpty(searchKey)) {
+            sql = sql + " WHERE p.name LIKE ? "
+//                    + "OR pg.name LIKE ? "
+//                    + "OR pt.name LIKE ? "
+//                    + "OR uom.name LIKE ? "
+//                    + "OR cm.name LIKE ? "
+//                    + "OR p.sale_rate LIKE ? "
+//                    + "OR p.purchase_rate LIKE ? "
+//                    + "OR p.total_quantity LIKE ? "
+            ;
+        }
+
+        sql = sql + " ORDER BY " + sortColName + " " + sortType;
+
+        List paramList = new ArrayList();
+        if (!Utils.isEmpty(searchKey)) {
+            paramList.add(searchKey + "%");
+
+        }
+        logger.debug("SMNLOG:sql:" + sql);
+
+        List list = jdbcTemplate.queryForList(sql, paramList.toArray());
+//        logger.debug("SMNLOG:list:"+list);
+
+        result.put("data", list);
+        if (list != null && list.size() > 0)
+            result.put("total", list.size());
+        else
+            result.put("total", 0);
+        return result;
+    }
+
 }

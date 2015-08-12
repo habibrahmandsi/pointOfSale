@@ -1,6 +1,7 @@
 package com.dsoft.entity;
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * @Author: Md. Habibur Rahman on 25/07/15.
@@ -40,6 +41,9 @@ public class Product extends AbstractBaseEntity{
 
     @Transient
     private Boolean saved;
+
+    @Transient
+    private List productList;
 
 
     public String getName() {
@@ -112,6 +116,14 @@ public class Product extends AbstractBaseEntity{
 
     public void setSaved(Boolean saved) {
         this.saved = saved;
+    }
+
+    public List getProductList() {
+        return productList;
+    }
+
+    public void setProductList(List productList) {
+        this.productList = productList;
     }
 
     @Override

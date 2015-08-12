@@ -519,6 +519,46 @@ public class AdminController {
         return dataModelBean;
     }
 
+    @RequestMapping(value = "/*/getProductsForAutoComplete.do", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    DataModelForTypeAhead getProductsForAutoComplete(HttpServletRequest request) throws Exception {
+        logger.info(":: Get getProducts For Auto Complete Ajax Controller ::");
+        DataModelForTypeAhead dataModelForTypeAhead = new DataModelForTypeAhead();
+    /* this params is for dataTables */
+        String[] tableColumns = "p.name".split(",");
+        int sEcho = request.getParameter(Constants.sEcho) != null ? Integer.parseInt(request.getParameter(Constants.sEcho)) : 0;
+        int iSortColIndex = request.getParameter(Constants.iSortCOL) != null ? Integer.parseInt(request.getParameter(Constants.iSortCOL)) : 0;
+        String searchKey = request.getParameter(Constants.sSearch) != null ? request.getParameter(Constants.sSearch) : "";
+        String sortType = request.getParameter(Constants.sortType) != null ? request.getParameter(Constants.sortType) : "asc";
+        String sortColName = "";
+        logger.debug("SMNLOG:iSortColIndex:" + iSortColIndex + " sortType:" + sortType + " searchKey:" + searchKey);
+
+        sortColName = tableColumns[iSortColIndex];
+        logger.debug("SMNLOG:sortColName:" + sortColName);
+
+        String trackingDetailsDataStr = null;
+        Map<String, Object> userDataMap;
+
+        try {
+                userDataMap = adminJdbcService.getProductsForAutoComplete(sortColName, sortType, searchKey);
+
+                /*
+                * DataModelBean is a bean of Data table to
+                * handle data Table search, paginatin operation very simply
+                */
+            Product product = new Product();
+            product.setProductList((List) userDataMap.get("data"));
+            dataModelForTypeAhead.setData(product);
+            dataModelForTypeAhead.setStatus(true);
+        } catch (Exception ex) {
+            logger.error(":: ERROR:: Failed to getProducts For Auto Complete:: " + ex);
+            dataModelForTypeAhead.setStatus(false);
+        }
+
+        return dataModelForTypeAhead;
+    }
+
     @RequestMapping(value = "/*/upsertCompany.do", method = RequestMethod.GET)
     public String getCompany(HttpServletRequest request, Model model) {
         logger.error("SMNLOG: :: upsert Company controller :: ");
@@ -1991,40 +2031,55 @@ public class AdminController {
     public @ResponseBody String addSalesItem(HttpServletRequest request, Model model) {
         logger.error("SMNLOG:: add Sales items AJAX controller ::");
         SalesItem salesItem = new SalesItem();
-        Long sId = request.getParameter("sId") != null ? Long.parseLong(request.getParameter("sId")) : 0;
-        Long pId = request.getParameter("pId") != null ? Long.parseLong(request.getParameter("pId")) : 0;
-        Long sItemId = request.getParameter("sItemId") != null ? Long.parseLong(request.getParameter("sItemId")) : 0;
-        Double qty = request.getParameter("qty") != null ? Double.parseDouble(request.getParameter("qty")) : 0;
-        Double pRate = request.getParameter("pRate") != null ? Double.parseDouble(request.getParameter("pRate")) : 0;
-        Double sRate = request.getParameter("sRate") != null ? Double.parseDouble(request.getParameter("sRate")) : 0;
-        Double totalPrice = request.getParameter("totalPrice") != null ? Double.parseDouble(request.getParameter("totalPrice")) : 0;
-
-        int salesReturn = request.getParameter("salesReturn") != null ? Integer.parseInt(request.getParameter("salesReturn")) : 0;
-        logger.debug("sId:"+sId+" pId:" + pId+" sItemId"+ sItemId+" qty"+qty+" pRate:"+pRate+" sRate:"+sRate+" totalPrice:"+totalPrice);
-//        int salesReturn = 0; // for sales
         try {
+
+            Long sId = request.getParameter("sId") != null ? Long.parseLong(request.getParameter("sId")) : 0;
+            Long pId = request.getParameter("pId") != null ? Long.parseLong(request.getParameter("pId")) : 0;
+            Long sItemId = request.getParameter("sItemId") != null ? Long.parseLong(request.getParameter("sItemId")) : 0;
+            int onUpdateTxt = request.getParameter("onUpdateTxt") != null ? Integer.parseInt(request.getParameter("onUpdateTxt")) : 0;
+            Double qty = request.getParameter("qty") != null ? Double.parseDouble(request.getParameter("qty")) : 0;
+            Double pRate = request.getParameter("pRate") != null ? Double.parseDouble(request.getParameter("pRate")) : 0;
+            Double sRate = request.getParameter("sRate") != null ? Double.parseDouble(request.getParameter("sRate")) : 0;
+            Double totalPrice = request.getParameter("totalPrice") != null ? Double.parseDouble(request.getParameter("totalPrice")) : 0;
+            Double grandTotal = request.getParameter("grandTotal") != null ? Double.parseDouble(request.getParameter("grandTotal")) : 0;
+            Double discount = request.getParameter("discount") != null ? Double.parseDouble(request.getParameter("discount")) : 0;
+            Double prevQty = 0d;
+            int salesReturn = request.getParameter("salesReturn") != null ? Integer.parseInt(request.getParameter("salesReturn")) : 0;
+            logger.debug("sId:"+sId+" pId:" + pId+" sItemId"+ sItemId+" qty"+qty+" pRate:"+pRate
+                    +" sRate:"+sRate+" totalPrice:"+totalPrice+" grandTotal:"+grandTotal+" discount:"+discount);
+//        int salesReturn = 0; // for sales
+
             if (sId > 0 && pId > 0) {
                 Sales sales = adminService.getSale(sId,salesReturn);
                 sales.setId(sId);
-                sales.setTotalAmount(sales.getTotalAmount() + totalPrice);
-                adminService.saveOrUpdateObject(sales);
+
+                sales.setTotalAmount(grandTotal);
+                sales.setDiscount(discount);
+
                 Product product = new Product();
                 product.setId(pId);
-                salesItem.setPurchaseRate(pRate);
-                salesItem.setSalesRate(sRate);
-                if(sItemId > 0){
+
+                if(sItemId > 0 ){
                     salesItem = adminService.getSalesItem(sItemId);
-                    salesItem.setQuantity(salesItem.getQuantity()+qty);
-                    salesItem.setTotalPrice(salesItem.getQuantity()*salesItem.getSalesRate());
+                    prevQty = salesItem.getQuantity();
                 }else{
                     salesItem.setSales(sales);
                     salesItem.setProduct(product);
-                    salesItem.setQuantity(qty);
-                    salesItem.setTotalPrice(totalPrice);
                 }
-                adminService.saveOrUpdateObject(salesItem);
-                adminService.updateProductQuantity(pId, qty*(-1));
 
+                salesItem.setPurchaseRate(pRate);
+                salesItem.setSalesRate(sRate);
+                salesItem.setQuantity(qty);
+                salesItem.setTotalPrice(salesItem.getQuantity()*salesItem.getSalesRate());
+
+                adminService.saveOrUpdateObject(sales);
+                adminService.saveOrUpdateObject(salesItem);
+                if(sItemId > 0){
+                    logger.debug("SMNLOG:-------QTY :--------:"+prevQty);
+                    logger.debug("SMNLOG:-------QTY TO UPDATE--------:"+(qty-prevQty));
+                    adminService.updateProductQuantity(pId, (-1)*(qty-prevQty));
+                }else
+                    adminService.updateProductQuantity(pId, qty*(-1));
             }else{
                 return "false";
             }

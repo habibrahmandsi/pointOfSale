@@ -27,4 +27,5 @@ public interface AdminJdbcService {
     Map<String, Object> getSales(Integer start, Integer length, String sortColName, String sortType, String searchKey, int salesReturn) throws Exception ;
     int getSalesCount(int salesReturn) throws Exception;
     int getPurchaseCount(int purchaseReturn) throws Exception;
+    Map<String, Object> getProductsForAutoComplete(String sortColName, String sortType, String searchKey) throws Exception ;
 }

@@ -8,9 +8,10 @@
 %>
 <title><spring:message code="sales.header"/></title>
 
-<script src="<%= contextPath %>/resources/js/typeahead.bundle.js" type="text/javascript"></script>
+<%--<script src="<%= contextPath %>/resources/js/typeahead.bundle.js" type="text/javascript"></script>--%>
+<script src="<%= contextPath %>/resources/js/jquery.typeahead.min.js" type="text/javascript"></script>
 <script src="<%= contextPath %>/resources/js/common/sales.js" type="text/javascript"></script>
-<%--<link rel="stylesheet" type="text/css" href="<%= contextPath %>/resources/css/jquery.typeahead.css"/>--%>
+<link rel="stylesheet" type="text/css" href="<%= contextPath %>/resources/css/jquery.typeahead.css"/>
 
 <!-- ==================== COMMON ELEMENTS ROW ==================== -->
 
@@ -28,24 +29,21 @@
             </div>
             <div class="panel-body">
                 <div class="row">
-                    <div class="col-lg-3 leftPanelDiv" style="padding-right: 0px;padding-left: 6px;">
+                    <div class="col-lg-4 leftPanelDiv" style="padding-right: 0px;padding-left: 6px;">
 
-               <div class="form-group">
+                        <div class="form-group">
                             <label><spring:message code="product.form.name"/></label>
 
-                                <div class="col-lg-12 noLeftRightPadding">
-                                <input type="text" class="form-control productName"/>
+                            <div class="col-lg-12 noLeftRightPadding">
+                                <%--<input type="text" class="form-control productName"/>--%>
 
-                               <%-- <p id="result-container"></p>
                                 <div class="typeahead-container">
                                     <div class="typeahead-field">
-
-                                 <span class="typeahead-query">
-                                 <input class="productName" type="search" autofocus autocomplete="off">
-                                 </span>
-
+                                     <span class="typeahead-query">
+                                     <input class="productName" type="search" autocomplete="off">
+                                     </span>
+                                     </div>
                                  </div>
-                                 </div>--%>
 
                             </div>
                         </div>
@@ -56,14 +54,14 @@
 
                         <div class="form-group">
                             <label><spring:message code="product.quantity"/></label>
-                            <input type="text" class="form-control qty"/>
+                            <input id="" type="text" class="form-control qty"/>
                         </div>
                         <button class="btn btn-success btn-block addLineItem" type="button"><spring:message
                                 code="button.add"/></button>
 
                     </div>
                     <!-- /.row (nested) -->
-                    <div class="col-lg-9 salesLineItemsDiv">
+                    <div class="col-lg-8 salesLineItemsDiv">
                         <c:if test="${not empty sales.salesItemList}">
                             <table class="table table-striped">
                                 <thead>
@@ -88,6 +86,8 @@
                                                         cssClass="salesId hidden"/>
                                             <form:input path="salesItemList[${k.index}].prevQuantity"
                                                         cssClass="prevQuantity hidden"/>
+                                            <form:input path="salesItemList[${k.index}].purchaseRate"
+                                                        cssClass="purchaseRate hidden"/>
                                         </td>
                                         <td> ${salesItem.product.name}</td>
                                         <td> ${salesItem.product.company.name}</td>
@@ -164,9 +164,9 @@
         <!-- /.col-lg-12 -->
     </div>
     </form:form>
-       <script>
-           var salesId = "${sales.id}";
-           console.log("SMNLOG:salesId:"+salesId);
-       </script>
+    <script>
+        var salesId = "${sales.id}";
+        console.log("SMNLOG:salesId:" + salesId);
+    </script>
     <!-- /.row -->
     <!-- ==================== END OF COMMON ELEMENTS ROW ==================== -->

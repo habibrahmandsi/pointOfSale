@@ -11,7 +11,7 @@ Write custom css here
 }
 
 .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
-    padding: 2px;
+    padding: 0px;
     font-size: 13px;
 }
 
@@ -148,4 +148,13 @@ margin-bottom: 0px;
 }
 .menuImg{
     width: 20px;
+}
+.typeahead-list li a table{
+    margin-bottom: 0px;
+}
+.typeahead-list table tr td{
+    font-size: 10px;
+}
+.headerSuggestions{
+    font-weight: 700;
 }

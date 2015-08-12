@@ -93,5 +93,9 @@ public class AdminJdbcServiceImpl implements AdminJdbcService {
         return adminJdbcDao.getPurchaseCount(purchaseReturn);
     }
 
+    @Override
+    public Map<String, Object> getProductsForAutoComplete(String sortColName, String sortType, String searchKey) throws Exception{
+        return adminJdbcDao.getProductsForAutoComplete(sortColName, sortType, searchKey);
+    }
 
 }

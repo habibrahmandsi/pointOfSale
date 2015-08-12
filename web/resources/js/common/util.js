@@ -163,7 +163,6 @@ function makeAjaxUrlForTypeAhead(url, colIndex, txtToSearch,length){
     return url+"?iSortCOL="+colIndex+"&sSearch="+txtToSearch+"&iDisplayLength="+length;
 }
 
-
 function makeAutoComplete(inputIdOrClass,dataList, matchingColName, displayKey) {
 
     $(inputIdOrClass).typeahead({
@@ -224,125 +223,163 @@ function getDateForTableView(date){
     return  date.getDate() + "/" +(date.getMonth()+1) + "/" + date.getFullYear()
 }
 
-function makeTabularAutoComplete(inputIdOrClass,dataList, matchingColName, displayKey){
-
-    var data = {
-        productName: ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda",
-            "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh",
-            "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan", "Bolivia",
-            "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burma",
-            "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Central African Republic", "Chad",
-            "Chile", "China", "Colombia", "Comoros", "Congo, Democratic Republic", "Congo, Republic of the",
-            "Costa Rica", "Cote d'Ivoire", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti",
-            "Dominica", "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador",
-            "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Fiji", "Finland", "France", "Gabon",
-            "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Greenland", "Grenada", "Guatemala", "Guinea",
-            "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hong Kong", "Hungary", "Iceland", "India",
-            "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan",
-            "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kuwait", "Kyrgyzstan", "Laos",
-            "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg",
-            "Macedonia", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands",
-            "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Mongolia", "Morocco", "Monaco",
-            "Mozambique", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger",
-            "Nigeria", "Norway", "Oman", "Pakistan", "Panama", "Papua New Guinea", "Paraguay", "Peru",
-            "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Samoa", "San Marino",
-            "Sao Tome", "Saudi Arabia", "Senegal", "Serbia and Montenegro", "Seychelles", "Sierra Leone",
-            "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "Spain",
-            "Sri Lanka", "Sudan", "Suriname", "Swaziland", "Sweden", "Switzerland", "Syria", "Taiwan",
-            "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey",
-            "Turkmenistan", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States",
-            "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"]
-    };
-
+function makeTabularAutoComplete(inputIdOrClass,url, callback){
     $(inputIdOrClass).typeahead({
-        minLength: 1,
+        minLength: 2,
+        maxItem: 20,
         order: "asc",
-        group: [true, '<table  class="pNameTableOnSale table table-striped"><thead><tr><td style="width:150px;">Name</td><td style="width:20px;">Sales Rate</td>'
-        +'<td style="width:20px;">Qty.</td></tr></thead><tbody>'],
-        groupMaxItem: 6,
-        hint: true,
         dynamic: true,
-        dropdownFilter: "All",
-        href: "https://en.wikipedia.org/?title={{display}}",
-        template:  '<table  class="pNameTableOnSale table table-striped"><tbody>'
-        + '<tr>'
-        + '<td style="width:150px">'
-        + '{{display}}'
-        + '</td>'
-        + '<td style="width:30px">'
-        + '10.22'
-        + '</td>'
-        + '<td style="width:30px">'
-        + '10'
-        + '</td>'
-        + '</tr>'
-        + '</tbody>'
-        + '</table>' ,
-        displayKey:  function(data){
-                return data.productName;
+        group: [true, '<table  class="table headerSuggestions table-striped"><thead><tr><td style="width:150px;">PRODUCT NAME</td><td style="width:60px;">SALE RATE</td>'
+        +'<td style="width:60px;">QTY.</td></tr></thead><tbody>'],
+        delay: 0,
+        backdrop: {
+            "background-color": "#fff"
         },
+            template:  '<table  class="table table-striped"><tbody>'
+            + '<tr id="{{productId}}">'
+            + '<td style="width:150px">'
+            + '{{productName}}'
+            + '</td>'
+            + '<td style="width:60px">'
+                + '{{saleRate}}'
+            + '</td>'
+            + '<td style="width:60px">'
+                + '{{totalQuantity}}'
+            + '</td>'
+            + '</tr>'
+            + '</tbody>'
+            + '</table>',
         source: {
-         productName: {
-                //data: data.productName
-                data:function findMatches(q, cb) {
-                        var matches, substringRegex;
+            user: {
+                display: "productName",
+                data: [{
+                    "productId": 1,
+                    "productName": "test medicine",
+                    "saleRate": "0.0",
+                    "totalQuantity": "0"
+                }],
+                url: [{
+                    type: "GET",
+                    url: url,
 
-                        // an array that will be populated with substring matches
-                        matches = [];
+                    data: {
+                        sSearch: "{{query}}"
+                    },
+                    callback: {
+                        done: function (data) {
+                            for (var i = 0; i < data.data.productList.length; i++) {
+                                if (data.data.productList[i].saleRate == 0) {
+                                    data.data.productList[i].saleRate = '0';
+                                    //console.log("SMNLOG:saleRate =0");
+                                }
+                                if (data.data.productList[i].totalQuantity == 0) {
+                                    data.data.productList[i].totalQuantity = '0';
+                                    //console.log("SMNLOG:totalQuantity =0");
+                                }
 
-                        // regex used to determine if a string contains the substring `q`
-                        substrRegex = new RegExp("^"+q, 'i');
-
-                        // iterate through the pool of strings and for any string that
-                        // contains the substring `q`, add it to the `matches` array
-                        $.each(dataList, function (i, str) {
-                            //console.log("SMNLOG:i"+i);
-                            if (substrRegex.test(str[matchingColName])) {
-                                matches.push(str);
                             }
-                        });
-                        //console.log("SMNLOG:matches:"+matches);
-                        //cb(matches);
-                        return matches;
+                            return data;
+                        }
                     }
+                }, "data.productList"]
             }
-        }
-        ,
+        },
         callback: {
+            onClick: function (node, a, item, event) {
+               // You can do a simple window.location of the item.href
+                if(typeof callback === 'function'){
+                    callback(item);
+                }
+
+            },
             onClickAfter: function (node, a, item, event) {
 
-                var r = confirm("You will be redirected to:\n" + item.href + "\n\nContinue?");
-                if (r == true) {
-                    window.open(item.href);
+              console.log("SMNLOG:end----------------");
+                if( typeof item.totalQuantity != 'undefined' && item.totalQuantity <= 0 ){
+                    alert("Quantity is empty.Please purchase first !");
+                    event.preventDefault();
+                    $(".productName").val("");
+                    $(".productName").focus();
+                }else{
+                    $(".qty").focus();
                 }
-
-                $('#result-container').text('');
-
             },
-            onResult: function (node, query, obj, objCount) {
-
-                var text = "";
-                if (query !== "") {
-                    text = objCount + ' elements matching "' + query + '"';
-                }
-                $('#result-container').text(text);
-
+            onSendRequest: function (node, query) {
+                //console.log('request is sent, perhaps add a loading animation?')
             },
-            onMouseEnter: function (node, a, obj, e) {
-
-                if (obj.group === "country") {
-                    $(a).append('<span class="flag-chart flag-' + obj.display.replace(' ', '-').toLowerCase() + '"></span>')
-                }
-
-            },
-            onMouseLeave: function (node, a, obj, e) {
-
-                $(a).find('.flag-chart').remove();
-
+            onReceiveRequest: function (node, query) {
+                //console.log('request is received, stop the loading animation?')
             }
         },
         debug: true
     });
+
+/*    $(inputIdOrClass).typeahead({
+        minLength: 1,
+        order: "asc",
+        group: [true, '<table  class="table table-striped"><thead><tr><td style="width:150px;">Product name</td><td style="width:60px;">Sale Rate</td>'
+        +'<td style="width:60px;">Qty.</td></tr></thead><tbody>'],
+        groupMaxItem: 6,
+        hint: true,
+        dynamic: true,
+        delay: 1,
+        template:  '<table  class="table table-striped"><tbody>'
+        + '<tr id="{{productId}}">'
+        + '<td style="width:150px">'
+        + '{{productName}}'
+        + '</td>'
+        + '<td style="width:60px">'
+        //+ '{{sale_rate}}'
+        + '</td>'
+        + '<td style="width:60px">'
+        //+ '{{total_quantity}}'
+        + '</td>'
+        + '</tr>'
+        + '</tbody>'
+        + '</table>',
+        source: {
+            productList: {
+                display: "username",
+                href: "https://www.github.com/{{username}}",
+                data: [{
+                    "productId": 415849,
+                    "productName": "an inserted user that is not inside the database",
+                    "sale_rate": "https://avatars3.githubusercontent.com/u/415849",
+                    "total_quantity":  " <small style='color: #777'>(contributor)</small>"
+                }],
+                url: [{
+                    type: "GET",
+                    url: url,
+
+                    data: {
+                        sSearch: "{{query}}"
+                    },
+                    callback: {
+                        done: function (data) {
+                            return data;
+                        }
+                    }
+                }, "data.productList"]
+
+            }
+        },
+         callback: {
+                onClick: function (node, a, item, event) {
+
+                    // You can do a simple window.location of the item.href
+                    alert(JSON.stringify(item));
+
+                },
+                onSendRequest: function (node, query) {
+                    console.log('request is sent, perhaps add a loading animation?')
+                },
+                onReceiveRequest: function (node, query) {
+                    console.log('request is received, stop the loading animation?')
+                }
+            },
+        debug: true
+    });
+    $(".typeahead-filter-button").remove();*/
 
 }
 function getRoundNDigits(number, nDigits){
