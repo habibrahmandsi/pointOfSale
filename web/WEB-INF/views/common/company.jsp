@@ -46,6 +46,21 @@
                                 <form:input path="permanentAddress" cssClass="form-control"/>
                             </div>
 
+                            <div class="form-group">
+                                <label><spring:message code="company.form.address"/></label>
+                                <form:input path="companyAddress" cssClass="form-control"/>
+                            </div>
+
+                            <div class="form-group">
+                                <label><spring:message code="company.form.cellNo"/></label>
+                                <form:input path="companyCellNo" cssClass="form-control"/>
+                            </div>
+
+                            <div class="form-group">
+                                <label><spring:message code="user.form.address"/></label>
+                                <form:input path="companyEmail" cssClass="form-control"/>
+                            </div>
+
 
                             <button class="btn btn-danger" type="reset"><spring:message code="button.cancel"/></button>
                             <button class="btn btn-success" type="submit"><spring:message

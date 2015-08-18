@@ -38,7 +38,7 @@ $(document).ready(function() {
         {"sTitle": "", "mData": null,"bSortable": false, "render": function (data) {
 
             /* Condition to print appropriate icon based on status*/
-            var html = '<a href="./deleteSales.do?salesId='+data.id+'"><img alt="Delete" title="Delete" src="'+contextPath+'/resources/images/delete2.png"></a>';
+            var html = '<a class="deleteTxt" href="./deleteSales.do?salesId='+data.id+'"><img alt="Delete" title="Delete" src="'+contextPath+'/resources/images/delete2.png">Delete</a>';
 
             return html;
         }
@@ -68,7 +68,7 @@ $(document).ready(function() {
         {"sTitle": "", "mData": null,"bSortable": false, "render": function (data) {
 
             /* Condition to print appropriate icon based on status*/
-            var html = '<a href="./deleteSales.do?opt=1&salesId='+data.id+'"><img alt="Delete" title="Delete" src="'+contextPath+'/resources/images/delete2.png"></a>';
+            var html = '<a class="deleteTxt" href="./deleteSales.do?opt=1&salesId='+data.id+'"><img alt="Delete" title="Delete" src="'+contextPath+'/resources/images/delete2.png">Delete</a>';
 
             return html;
         }

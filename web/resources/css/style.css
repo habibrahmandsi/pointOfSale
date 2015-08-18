@@ -158,3 +158,20 @@ margin-bottom: 0px;
 .headerSuggestions{
     font-weight: 700;
 }
+.dangerAlartHead{
+    background-color: rgba(255, 21, 23, 0.45) !important;
+}
+.shopName{
+    color: #3c763d !important;
+    font-family: times new roman;
+    font-size: 25px;
+    font-weight: 700;
+}
+.deleteTxt{
+    color: rgba(240, 0, 0, 0.55);
+    font-weight: 700;
+}
+.editTxt{
+    color: rgba(64, 99, 240, 0.55);
+    font-weight: 700;
+}

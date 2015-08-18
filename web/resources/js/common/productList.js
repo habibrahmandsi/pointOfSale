@@ -26,8 +26,8 @@ $(document).ready(function() {
         {"sTitle": "", "mData": null,"bSortable": false, "render": function (data) {
 
             /* Condition to print appropriate icon based on status*/
-            var html = '<a href="./upsertProduct.do?productId='+data.productId+'"><img alt="Edit" title="Edit" src="'+contextPath+'/resources/images/edit.png"></a>'
-                +'&nbsp;<a href="./deleteProduct.do?productId='+data.productId+'"><img alt="Delete" title="Delete" src="'+contextPath+'/resources/images/delete2.png"></a>';
+            var html = '<a class="editTxt" href="./upsertProduct.do?productId='+data.productId+'"><img alt="Edit" title="Edit" src="'+contextPath+'/resources/images/edit.png">Edit</a>'
+                +'&nbsp;<a class="deleteTxt" href="./deleteProduct.do?productId='+data.productId+'"><img alt="Delete" title="Delete" src="'+contextPath+'/resources/images/delete2.png">Delete</a>';
 
             return html;
         }

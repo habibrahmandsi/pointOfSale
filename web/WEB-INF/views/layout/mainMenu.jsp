@@ -59,9 +59,9 @@
                 </a>
 
                 <ul class="nav nav-second-level">
-                   <%-- <li>
-                        <a href="./upsertUser.do"><spring:message code="menu.administration.new.user"/></a>
-                    </li>--%>
+                    <li>
+                        <a href="./settings.do"><spring:message code="menu.administration.settings"/></a>
+                    </li>
                     <li>
                         <a href="./userList.do"><spring:message code="menu.administration.user"/></a>
                     </li>
@@ -83,7 +83,22 @@
                 </ul>
                 <!-- /.nav-second-level -->
             </li>
+               <li>
+                   <a href="tables.html"><i class="fa fa-table fa-fw"></i> <spring:message code="menu.reporting"/>
+                       <span class="fa arrow"></span>
+                   </a>
 
+                   <ul class="nav nav-second-level">
+                       <li>
+                           <a href="./unpostedSale.do"><spring:message code="menu.reporting.unposted.sale"/></a>
+                       </li>
+                       <li>
+                           <a href="./saleReport.do"><spring:message code="menu.reporting.sale"/></a>
+                       </li>
+
+                   </ul>
+                   <!-- /.nav-second-level -->
+               </li>
         </ul>
         <!-- /#side-menu -->
     </div>

@@ -160,7 +160,13 @@
             </div>
             <!-- /.panel -->
         </div>
-
+        <div class="row">
+            <div class="col-lg-4 zeroPaddingForm"></div>
+            <div class="col-lg-4 zeroPaddingForm">
+                <a href="./unpostedSale.do?userId=${sales.user.id}" class="btn btn-primary btn-block" >My Un-posted Sale</a>
+            </div>
+            <div class="col-lg-4 zeroPaddingForm"></div>
+        </div>
         <!-- /.col-lg-12 -->
     </div>
     </form:form>

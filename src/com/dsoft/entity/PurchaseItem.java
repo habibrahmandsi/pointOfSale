@@ -32,6 +32,8 @@ public class PurchaseItem {
     @Column(name = "total_price")
     private Double totalPrice;
 
+    @Column(name = "rest_quantity")
+    private Double restQuantity;
 
     @Transient
     private Double prevQuantity;
@@ -92,6 +94,14 @@ public class PurchaseItem {
         this.prevQuantity = prevQuantity;
     }
 
+    public Double getRestQuantity() {
+        return restQuantity;
+    }
+
+    public void setRestQuantity(Double restQuantity) {
+        this.restQuantity = restQuantity;
+    }
+
     @Override
     public String toString() {
         return "PurchaseItem{" +
@@ -101,6 +111,7 @@ public class PurchaseItem {
                 ", quantity=" + quantity +
                 ", purchaseRate=" + purchaseRate +
                 ", totalPrice=" + totalPrice +
+                ", restQuantity=" + restQuantity +
                 ", prevQuantity=" + prevQuantity +
                 '}';
     }

@@ -38,7 +38,7 @@ $(document).ready(function() {
         {"sTitle": "", "mData": null,"bSortable": false, "render": function (data) {
 
             /* Condition to print appropriate icon based on status*/
-            var html = '<a href="./deletePurchase.do?purchaseId='+data.id+'"><img alt="Delete" title="Delete" src="'+contextPath+'/resources/images/delete2.png"></a>';
+            var html = '<a class="deleteTxt" href="./deletePurchase.do?purchaseId='+data.id+'"><img alt="Delete" title="Delete" src="'+contextPath+'/resources/images/delete2.png">Delete</a>';
 
             return html;
         }
@@ -68,7 +68,7 @@ $(document).ready(function() {
         {"sTitle": "", "mData": null,"bSortable": false, "render": function (data) {
 
             /* Condition to print appropriate icon based on status*/
-            var html = '<a href="./deletePurchase.do?opt=1&purchaseId='+data.id+'"><img alt="Delete" title="Delete" src="'+contextPath+'/resources/images/delete2.png"></a>';
+            var html = '<a class="deleteTxt" href="./deletePurchase.do?opt=1&purchaseId='+data.id+'"><img alt="Delete" title="Delete" src="'+contextPath+'/resources/images/delete2.png">Delete</a>';
 
             return html;
         }

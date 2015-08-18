@@ -60,8 +60,15 @@ public interface AdminDao {
     void deleteSalesItem(List<SalesItem> salesItemList) throws Exception;
     boolean saveOrUpdateSalesReturn(Sales sales) throws Exception;
 
-    void deletePurchaseItem(List<PurchaseItem> purchaseItemList) throws Exception;
+    void deletePurchaseItem(List<PurchaseItem> purchaseItemList, int purchaseReturn) throws Exception;
     void updateProductQuantity(Long productId, Double qty) throws Exception;
     void saveObject(Object object) throws Exception;
     SalesItem getSalesItem(Long id) throws Exception;
+
+    void deleteSalesReturnItem(List<SalesItem> salesItemList) throws Exception;
+
+    List<PurchaseItem> getPurchaseItemList(Long productId) throws Exception;
+    List<Settings> getSettingsList() throws Exception;
+    int getProductEntitySize(Double limitQty) throws Exception;
+    List<Sales> getUnpostedSalesListByUserId(Long userId) throws Exception;
 }

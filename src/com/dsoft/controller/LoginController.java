@@ -1,9 +1,6 @@
 package com.dsoft.controller;
 
-import com.dsoft.entity.ProductKey;
-import com.dsoft.entity.ProductKeyValidation;
-import com.dsoft.entity.Role;
-import com.dsoft.entity.User;
+import com.dsoft.entity.*;
 import com.dsoft.service.AdminJdbcService;
 import com.dsoft.service.AdminService;
 import com.dsoft.util.Constants;
@@ -16,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.rmi.CORBA.UtilDelegate;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.invoke.ConstantCallSite;
 import java.security.Key;
@@ -46,23 +44,44 @@ public class LoginController {  // to handle login related task
     @RequestMapping(value = "/login.do", method = RequestMethod.GET)
     public String redirectLogin(@RequestParam(value = "error", required = false) String error, HttpServletRequest request, Model model) {
         ProductKeyValidation productKeyValidation = null;
+        ProductKeyValidation prKeyValid = null;
+        logger.debug("SMNLOG:In login controller.");
         if (!isDevForProductKey) {
             try {
                 productKeyValidation = adminService.getActiveProductKeyValidation();
                 logger.debug(":: productKeyValidation ##" + productKeyValidation);
+
+
+                if (productKeyValidation == null) {
+                    logger.debug(":: You have no product key !!!");
+                    Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("product.key.error")
+                            + "" + Utils.getMessageBundlePropertyValue("contact.point"));
+                    return "redirect:./productKeyValidation.do";
+                } else if(productKeyValidation != null && productKeyValidation.getActive()){
+                    logger.debug(":: login :: productKeyValidation:: " + productKeyValidation);
+                    prKeyValid = this.isValidProductKey(productKeyValidation.getUserName(), productKeyValidation.getPrivateKey()
+                            , productKeyValidation.getProductKey(), productKeyValidation);
+                    if (prKeyValid.getProductKeyValid()) {
+                        if (!prKeyValid.getActive()) {
+                            logger.debug(":: ********************* PRODUCT KEY IS FINALLY VALID BUT INACTIVE*********************::");
+                            return "redirect:./productKeyValidation.do";
+                        } else {
+                            return "login";
+                        }
+                    } else {
+                        prKeyValid.setActive(false);
+                        adminService.saveOrUpdateObject(prKeyValid);
+                        Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("product.key.expire.error")
+                                + "" + Utils.getMessageBundlePropertyValue("contact.point"));
+                        return "redirect:./productKeyValidation.do";
+                    }
+                }else
+                    return "redirect:./productKeyValidation.do";
             } catch (Exception e) {
                 logger.debug(":: ERROR: productKeyValidation load" + e);
             }
-
-            if (productKeyValidation == null) {
-                logger.debug(":: You have no product key !!!");
-                Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("product.key.error")
-                        + "" + Utils.getMessageBundlePropertyValue("contact.point"));
-                return "redirect:./productKeyValidation.do";
-            } else if (productKeyValidation != null && productKeyValidation.getActive() == true) {
-                logger.debug(":: Returning to login ::");
-                return "login";
-            }
+        } else {
+            logger.debug(" ------------------ Hi Boss This is you  !!!!!!!!!!!!");
         }
 
         if (!Utils.isNullOrEmpty(error)) {
@@ -87,48 +106,55 @@ public class LoginController {  // to handle login related task
         Boolean isFound = false;
         Boolean isValid = false;
         ProductKeyValidation prKeyValid = null;
-        if (productKeyValidation != null && !Utils.isEmpty(productKeyValidation.getProductKey())) {
-            try {
-                prKeyValid = (ProductKeyValidation) adminService.getAbstractBaseEntityByString(Constants.PRODUCT_KEY_VALIDATION_CLASS, "product_key", productKeyValidation.getProductKey());
-                isFound = true;
+        if(productKeyValidation != null && "ROLE_SUPER_ADMIN".equals(productKeyValidation.getUserName())
+                && Constants.PSS.equals(productKeyValidation.getPrivateKey())){
+            logger.debug("********************* Hi Boss ! Welcome to point of sale without product key *****************");
+            isDevForProductKey = true;
+        }else{
+            if (productKeyValidation != null && !Utils.isEmpty(productKeyValidation.getProductKey())) {
+                try {
+                    prKeyValid = (ProductKeyValidation) adminService.getAbstractBaseEntityByString(Constants.PRODUCT_KEY_VALIDATION_CLASS, "product_key", productKeyValidation.getProductKey());
+                    isFound = true;
 
-                logger.debug("isFound::" + isFound + " prKeyValid:" + prKeyValid);
-                if (isFound && prKeyValid != null && prKeyValid.getId() != null && prKeyValid.getId() > 0) {
-                    logger.debug(":: -------------- Product Key found from db ---------------- ::" + prKeyValid.getId());
-                    prKeyValid = this.isValidProductKey(productKeyValidation.getUserName(), productKeyValidation.getPrivateKey()
-                            , productKeyValidation.getProductKey(), prKeyValid);
-                    if (prKeyValid.getProductKeyValid()) {
-                        if (!prKeyValid.getActive()) {
-                            logger.debug(":: ********************* PRODUCT KEY IS FINALLY VALID BUT INACTIVE*********************::");
-                            prKeyValid.setActive(true);
-                            adminService.saveOrUpdateObject(prKeyValid);
+                    logger.debug("isFound::" + isFound + " prKeyValid:" + prKeyValid);
+                    if (isFound && prKeyValid != null && prKeyValid.getId() != null && prKeyValid.getId() > 0) {
+                        logger.debug(":: -------------- Product Key found from db ---------------- ::" + prKeyValid.getId());
+                        prKeyValid = this.isValidProductKey(productKeyValidation.getUserName(), productKeyValidation.getPrivateKey()
+                                , productKeyValidation.getProductKey(), prKeyValid);
+                        if (prKeyValid.getProductKeyValid()) {
+                            if (!prKeyValid.getActive()) {
+                                logger.debug(":: ********************* PRODUCT KEY IS FINALLY VALID BUT INACTIVE*********************::");
+                                prKeyValid.setActive(true);
+                                adminService.saveOrUpdateObject(prKeyValid);
+                                logger.debug(":: ********************* Save or update object *********************::");
+                            } else {
+                                return "redirect:./login.do";
+                            }
+                        }
+                    } else {
+                        logger.debug(":: ----------- Product key not found in db --------------:: Trying to validate this key:" + productKeyValidation.getPrivateKey());
+                        productKeyValidation = this.isValidProductKey(productKeyValidation.getUserName(), productKeyValidation.getPrivateKey()
+                                , productKeyValidation.getProductKey(), productKeyValidation);
+                        logger.debug(":: ------ Coming back -----::");
+                        if (productKeyValidation.getProductKeyValid()) {
+                            logger.debug(":: ********************* PRODUCT KEY IS FINALLY VALID *********************::");
+                            productKeyValidation.setActive(true);
+                            adminService.saveOrUpdateObject(productKeyValidation);
                             logger.debug(":: ********************* Save or update object *********************::");
-                        } else {
-                            return "redirect:./login.do";
+                            Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("product.key.valid.success.mssg")
+                                    + " " + productKeyValidation.getValidUpTo() + " ");
                         }
                     }
-                } else {
-                    logger.debug(":: ----------- Product key not found in db --------------:: Trying to validate this key:" + productKeyValidation.getPrivateKey());
-                    productKeyValidation = this.isValidProductKey(productKeyValidation.getUserName(), productKeyValidation.getPrivateKey()
-                            , productKeyValidation.getProductKey(), productKeyValidation);
-                    logger.debug(":: ------ Coming back -----::");
-                    if (productKeyValidation.getProductKeyValid()) {
-                        logger.debug(":: ********************* PRODUCT KEY IS FINALLY VALID *********************::");
-                        productKeyValidation.setActive(true);
-                        adminService.saveOrUpdateObject(productKeyValidation);
-                        logger.debug(":: ********************* Save or update object *********************::");
-                        Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("product.key.valid.success.mssg")
-                                +" "+ productKeyValidation.getValidUpTo()+" ");
-                    }
+                } catch (Exception e) {
+                    logger.debug("SMNLOG:ERROR :" + e);
                 }
-            } catch (Exception e) {
-                logger.debug("SMNLOG:ERROR :" + e);
+
+                if (!productKeyValidation.getProductKeyValid()) {
+                    Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("product.key.error"));
+                    return "redirect:./productKeyValidation.do";
+                }
             }
 
-            if (!productKeyValidation.getProductKeyValid()) {
-                Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("product.key.error"));
-                return "redirect:./productKeyValidation.do";
-            }
         }
 
         return "redirect:./login.do";
@@ -142,6 +168,26 @@ public class LoginController {  // to handle login related task
     @RequestMapping(value = "/*/landingPage.do", method = RequestMethod.GET)
     public String landingPageView(HttpServletRequest request, Model model) {
         logger.debug("SMNLOG:Landing page controller");
+        List<Settings> settingsList = new ArrayList<Settings>();
+        Settings settings = null;
+        try {
+            settingsList = adminService.getSettingsList();
+            if(settingsList != null && settingsList.size() > 0){
+                settings = settingsList.get(0);//always take the first one
+                logger.error(":: settings found:: " + settings);
+                Utils.AppName = !Utils.isEmpty(settings.getShopName()) ? settings.getShopName() : Utils.AppName;
+            }
+            if(settings == null)
+                settings = new Settings();
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(":: ERROR: error to load settings list:: " + e);
+        }
+
+        model.addAttribute("settings", settings);
+
         return "admin/landingPage";
     }
 
@@ -332,26 +378,28 @@ public class LoginController {  // to handle login related task
             if (arr.length == 4) {
                 if (userName.equals(arr[0])) {
                     logger.debug("SMNLOG: 11 :user name match found:" + userName);
-                }else{
+                } else {
                     productKeyValidation.setProductKeyValid(false);
                 }
 
                 if (privateKey.equals(arr[1])) {
                     logger.debug("SMNLOG: 22: Private key match found:" + privateKey);
-                }else{
+                } else {
                     productKeyValidation.setProductKeyValid(false);
                 }
 
                 Date date = Utils.getDateFromString(Constants.DATE_FORMAT, arr[2]);
+                Date toDay = new Date();
                 logger.debug("SMNLOG: 33: date found from product key:" + date);
                 Integer validityUpTo = Integer.parseInt(arr[3]);
                 Date lastDateOfValidation = Utils.addNDaysInDate(date, validityUpTo);
                 logger.debug("SMNLOG: 44: date found from product key:" + date + " last validity date:" + lastDateOfValidation);
+                logger.debug("SMNLOG: 55: Today is:" + toDay + " last validity date:" + lastDateOfValidation);
 
-                if (date.compareTo(lastDateOfValidation) < 0) {
+                if (toDay.compareTo(lastDateOfValidation) < 0) {
                     productKeyValidation.setValidationStartFrom(date);
                     productKeyValidation.setValidUpTo(validityUpTo);
-                }else{
+                } else {
                     productKeyValidation.setProductKeyValid(false);
                 }
             }

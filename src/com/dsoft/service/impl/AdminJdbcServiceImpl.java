@@ -39,8 +39,8 @@ public class AdminJdbcServiceImpl implements AdminJdbcService {
     }
 
     @Override
-    public Map<String, Object> getProducts(Integer start, Integer length, String sortColName, String sortType, String searchKey) throws Exception{
-        return adminJdbcDao.getProducts(start, length, sortColName, sortType, searchKey);
+    public Map<String, Object> getProducts(Integer start, Integer length, String sortColName, String sortType, String searchKey, Double limitQty) throws Exception{
+        return adminJdbcDao.getProducts(start, length, sortColName, sortType, searchKey, limitQty);
     }
 
     @Override
@@ -96,6 +96,21 @@ public class AdminJdbcServiceImpl implements AdminJdbcService {
     @Override
     public Map<String, Object> getProductsForAutoComplete(String sortColName, String sortType, String searchKey) throws Exception{
         return adminJdbcDao.getProductsForAutoComplete(sortColName, sortType, searchKey);
+    }
+
+    @Override
+    public Map<String, Object> getUnpostedSales(Integer start, Integer length, String sortColName, String sortType, String searchKey, int salesReturn, Date fromDate, Date toDate, Long userId, int unposted) throws Exception{
+        return adminJdbcDao.getUnpostedSales(start, length, sortColName, sortType, searchKey, salesReturn, fromDate, toDate, userId, unposted);
+    }
+
+    public int getUnpostedSalesCount(int salesReturn, Date fromDate, Date toDate, Long userId, int unposted) throws Exception{
+        return adminJdbcDao.getUnpostedSalesCount(salesReturn, fromDate, toDate, userId, unposted);
+    }
+
+
+    @Override
+    public Map<String, Object> getSalesReport(Integer start, Integer length, String sortColName, String sortType, String searchKey, int salesReturn,Date fromDate, Date toDate, Long userId) throws Exception{
+        return adminJdbcDao.getSalesReport(start, length, sortColName, sortType, searchKey, salesReturn, fromDate, toDate, userId);
     }
 
 }

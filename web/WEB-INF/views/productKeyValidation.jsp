@@ -54,7 +54,7 @@
 
                     <div class="form-group">
                         <label><spring:message code="superAdmin.form.privateKey"/></label>
-                        <form:input path="privateKey" cssClass="form-control"/>
+                        <form:password path="privateKey" cssClass="form-control"/>
                     </div>
                     <div class="form-group">
                         <label><spring:message code="superAdmin.form.productKey"/></label>

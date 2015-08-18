@@ -163,15 +163,15 @@ public class AdminServiceImpl implements AdminService {
     }
 
 
-    public void saveOrUpdateSales(Sales sales) throws Exception{
-         adminDao.saveOrUpdateSales(sales);
+    public void saveOrUpdateSales(Sales sales) throws Exception {
+        adminDao.saveOrUpdateSales(sales);
     }
 
-    public Sales getSale(Long saleId, int salesReturn) throws Exception{
+    public Sales getSale(Long saleId, int salesReturn) throws Exception {
         return adminDao.getSale(saleId, salesReturn);
     }
 
-    public void deleteSale(Sales sales) throws Exception{
+    public void deleteSale(Sales sales) throws Exception {
         adminDao.deleteSale(sales);
     }
 
@@ -179,28 +179,51 @@ public class AdminServiceImpl implements AdminService {
         return adminDao.getSalesItemListBySalesId(salesId);
     }
 
-    public void deleteSalesItem(List<SalesItem> salesItemList) throws Exception{
+    public void deleteSalesItem(List<SalesItem> salesItemList) throws Exception {
         adminDao.deleteSalesItem(salesItemList);
     }
 
-   public boolean saveOrUpdateSalesReturn(Sales sales) throws Exception{
-       return adminDao.saveOrUpdateSalesReturn(sales);
-   }
-
-    public void deletePurchaseItem(List<PurchaseItem> purchaseItemList) throws Exception{
-        adminDao.deletePurchaseItem(purchaseItemList);
+    public boolean saveOrUpdateSalesReturn(Sales sales) throws Exception {
+        return adminDao.saveOrUpdateSalesReturn(sales);
     }
 
-   public void updateProductQuantity(Long productId, Double qty) throws Exception{
+    public void deletePurchaseItem(List<PurchaseItem> purchaseItemList, int purchaseReturn) throws Exception {
+        adminDao.deletePurchaseItem(purchaseItemList, purchaseReturn);
+    }
+
+    public void updateProductQuantity(Long productId, Double qty) throws Exception {
         adminDao.updateProductQuantity(productId, qty);
     }
 
-  public void saveObject(Object object) throws Exception{
+    public void saveObject(Object object) throws Exception {
         adminDao.saveObject(object);
-  }
+    }
 
-    public  SalesItem getSalesItem(Long id) throws Exception {
+    public SalesItem getSalesItem(Long id) throws Exception {
         return adminDao.getSalesItem(id);
     }
+
+    public void deleteSalesReturnItem(List<SalesItem> salesItemList) throws Exception{
+         adminDao.deleteSalesReturnItem(salesItemList);
+    }
+
+
+    public List<PurchaseItem> getPurchaseItemList(Long productId) throws Exception{
+        return adminDao.getPurchaseItemList(productId);
+    }
+
+   public List<Settings> getSettingsList() throws Exception{
+        return adminDao.getSettingsList();
+    }
+
+   public int getProductEntitySize(Double limitQty) throws Exception{
+        return adminDao.getProductEntitySize(limitQty);
+    }
+
+
+   public List<Sales> getUnpostedSalesListByUserId(Long userId) throws Exception{
+        return adminDao.getUnpostedSalesListByUserId(userId);
+    }
+
 
 }

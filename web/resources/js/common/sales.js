@@ -37,6 +37,7 @@ $(document).ready(function () {
 
      }
      });*/
+
     $(".productName").focus();
     makeTabularAutoComplete(".productName", './getProductsForAutoComplete.do', function (data) {
         console.log("SMNLOG:this is call back:" + JSON.stringify(data));

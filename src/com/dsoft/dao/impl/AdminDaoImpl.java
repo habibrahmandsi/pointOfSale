@@ -44,7 +44,7 @@ public class AdminDaoImpl implements AdminDao {
 
     @Override
     public List<User> getAllUserList() {
-        return hibernateTemplate.find("FROM User");
+        return hibernateTemplate.find("FROM User WHERE role != ?", Role.ROLE_SUPER_ADMIN.getLabel());
     }
 
     @Override
@@ -207,6 +207,7 @@ public class AdminDaoImpl implements AdminDao {
                     updateObject(purchaseItem);
                 } else {
                     purchaseItem.setPurchase(purchase);
+                    purchaseItem.setRestQuantity(purchaseItem.getQuantity()); //initially this two are equals
                     saveObject(purchaseItem);
                 }
                 product = purchaseItem.getProduct();
@@ -214,7 +215,7 @@ public class AdminDaoImpl implements AdminDao {
                 if (purchaseItem.getPrevQuantity() > purchaseItem.getQuantity() || purchaseItem.getPrevQuantity() < purchaseItem.getQuantity()) {
                     this.updateProductQuantity(product.getId(), purchaseItem.getQuantity() - purchaseItem.getPrevQuantity());
                 } else {
-                    logger.debug("######## No nedd to update product quantity ##########");
+                    logger.debug("######## No need to update product quantity ##########");
                 }
             }
         }
@@ -276,6 +277,25 @@ public class AdminDaoImpl implements AdminDao {
         int count = 0;
         if (!Utils.isEmpty(purchaseItemList)) {
             for (PurchaseItem purchaseItem : purchaseItemList) {
+                if (purchaseItem != null && purchaseItem.getId() != null) {
+                    updateObject(purchaseItem);
+                } else {
+                    purchaseItem.setPurchase(purchase);
+                    saveObject(purchaseItem);
+                }
+                product = purchaseItem.getProduct();
+                logger.debug("SMNLOG:PrevQuantity" + purchaseItem.getPrevQuantity() + " current Qty:" + purchaseItem.getQuantity());
+                if (purchaseItem.getQuantity() > 0) {
+                    this.updateProductQuantity(product.getId(), (-1) * (purchaseItem.getQuantity()));
+                    count = count + 1;
+                } else {
+                    logger.debug("######## No need to update product quantity ##########");
+                }
+            }
+        }
+
+        /*if (!Utils.isEmpty(purchaseItemList)) {
+            for (PurchaseItem purchaseItem : purchaseItemList) {
                 if (purchaseItem != null && purchaseItem.getId() != null && (purchaseItem.getPrevQuantity() > purchaseItem.getQuantity() || purchaseItem.getPrevQuantity() < purchaseItem.getQuantity())) {
                     logger.debug("SMNLOG:Purchase return item should be saved");
                     purchaseItem.setId(null);// to add as a purchase return
@@ -290,13 +310,13 @@ public class AdminDaoImpl implements AdminDao {
                 if (purchaseItem.getPrevQuantity() > purchaseItem.getQuantity() || purchaseItem.getPrevQuantity() < purchaseItem.getQuantity()) {
                     purchaseItem.setQuantity(purchaseItem.getQuantity() * (-1));
                     this.updateProductQuantity(product.getId(), purchaseItem.getQuantity()); // negative for return
-                    count = count+1;
+                    count = count + 1;
                 } else {
                     logger.debug("######## (purchase return) No need to update product quantity ##########");
                 }
             }
-        }
-        if(count == 0){
+        }*/
+        if (count == 0) {
             logger.debug("######## (purchase return) Nothing to save: ROLL backing ##########");
             hibernateTemplate.delete(purchase);
             return false;
@@ -305,7 +325,7 @@ public class AdminDaoImpl implements AdminDao {
     }
 
 
-    public Company getCompanyByName(String companyName) throws Exception{
+    public Company getCompanyByName(String companyName) throws Exception {
         Session session = getSession();
         Query query = session.createQuery("FROM Company WHERE name = :name");
         query.setParameter("name", companyName);
@@ -315,7 +335,7 @@ public class AdminDaoImpl implements AdminDao {
         return null;
     }
 
-  public ProductGroup getProductGroupByName(String name) throws Exception{
+    public ProductGroup getProductGroupByName(String name) throws Exception {
         Session session = getSession();
         Query query = session.createQuery("FROM ProductGroup WHERE name = :name");
         query.setParameter("name", name);
@@ -325,11 +345,11 @@ public class AdminDaoImpl implements AdminDao {
         return null;
     }
 
-    public void saveOrUpdateObject(Object object) throws Exception{
+    public void saveOrUpdateObject(Object object) throws Exception {
         hibernateTemplate.saveOrUpdate(object);
     }
 
-    public ProductKeyValidation getActiveProductKeyValidation() throws Exception{
+    public ProductKeyValidation getActiveProductKeyValidation() throws Exception {
         Session session = getSession();
         Query query = session.createQuery("FROM ProductKeyValidation WHERE active = :active");
         query.setParameter("active", true);
@@ -338,7 +358,6 @@ public class AdminDaoImpl implements AdminDao {
             return (ProductKeyValidation) object;
         return null;
     }
-
 
 
     public void saveOrUpdateSales(Sales sales) throws Exception {
@@ -356,7 +375,7 @@ public class AdminDaoImpl implements AdminDao {
                 product = salesItem.getProduct();
                 logger.debug("SMNLOG:PrevQuantity" + salesItem.getPrevQuantity() + " current Qty:" + salesItem.getQuantity());
                 if (salesItem.getPrevQuantity() > salesItem.getQuantity() || salesItem.getPrevQuantity() < salesItem.getQuantity()) {
-                    this.updateProductQuantity(product.getId(), (salesItem.getQuantity() - salesItem.getPrevQuantity())*(-1));// as to deduct from totl qty
+                    this.updateProductQuantity(product.getId(), (salesItem.getQuantity() - salesItem.getPrevQuantity()) * (-1));// as to deduct from totl qty
                 } else {
                     logger.debug("######## sales :: No nedd to update product quantity ##########");
                 }
@@ -366,7 +385,7 @@ public class AdminDaoImpl implements AdminDao {
     }
 
 
-    public Sales getSale(Long saleId, int salesReturn) throws Exception{
+    public Sales getSale(Long saleId, int salesReturn) throws Exception {
         Session session = getSession();
         Query query = session.createQuery("FROM Sales WHERE id = :id");
         query.setParameter("id", saleId);
@@ -376,21 +395,21 @@ public class AdminDaoImpl implements AdminDao {
         return null;
     }
 
-    public void deleteSale(Sales sales) throws Exception{
+    public void deleteSale(Sales sales) throws Exception {
         hibernateTemplate.delete(sales);
     }
 
-    public List<SalesItem> getSalesItemListBySalesId(Long salesId) throws Exception{
+    public List<SalesItem> getSalesItemListBySalesId(Long salesId) throws Exception {
         return hibernateTemplate.find("FROM SalesItem where sales.id = ?", salesId);
     }
 
-    public void deleteSalesItem(List<SalesItem> salesItemList) throws Exception{
+    public void deleteSalesItem(List<SalesItem> salesItemList) throws Exception {
         SalesItem salesItem = null;
         if (salesItemList != null && salesItemList.size() > 0) {
             for (int i = 0; i < salesItemList.size(); i++) {
                 salesItem = salesItemList.get(i);
-                logger.debug("SMNLOG:salesItem---:"+salesItem);
-                if( salesItem != null && salesItem.getProduct() != null){
+                logger.debug("SMNLOG:salesItem---:" + salesItem);
+                if (salesItem != null && salesItem.getProduct() != null) {
                     this.updateProductQuantity(salesItem.getProduct().getId(), salesItem.getQuantity());// as to add in total qty
                 }
 
@@ -400,7 +419,7 @@ public class AdminDaoImpl implements AdminDao {
 
     }
 
-    public boolean saveOrUpdateSalesReturn(Sales sales) throws Exception{
+    public boolean saveOrUpdateSalesReturn(Sales sales) throws Exception {
         hibernateTemplate.save(sales);
         Product product;
         List<SalesItem> salesItemList = sales.getSalesItemList();
@@ -420,13 +439,13 @@ public class AdminDaoImpl implements AdminDao {
                 logger.debug("SMNLOG:PrevQuantity" + salesItem.getPrevQuantity() + " current Qty:" + salesItem.getQuantity());
                 if (salesItem.getPrevQuantity() > salesItem.getQuantity() || salesItem.getPrevQuantity() < salesItem.getQuantity()) {
                     this.updateProductQuantity(product.getId(), salesItem.getQuantity()); // positive for return
-                    count = count+1;
+                    count = count + 1;
                 } else {
                     logger.debug("######## (sales return) No need to update product quantity ##########");
                 }
             }
         }
-        if(count == 0){
+        if (count == 0) {
             logger.debug("######## (sales return) Nothing to save: ROLL backing ##########");
             hibernateTemplate.delete(sales);
             return false;
@@ -434,14 +453,23 @@ public class AdminDaoImpl implements AdminDao {
         return true;
     }
 
-    public void deletePurchaseItem(List<PurchaseItem> purchaseItemList) throws Exception{
+    public void deletePurchaseItem(List<PurchaseItem> purchaseItemList, int purchaseReturn) throws Exception {
+        logger.debug(":: DELETE PURCHASE ITEM ::");
         PurchaseItem purchaseItem = null;
         if (purchaseItemList != null && purchaseItemList.size() > 0) {
             for (int i = 0; i < purchaseItemList.size(); i++) {
                 purchaseItem = purchaseItemList.get(i);
-                logger.debug("SMNLOG:purchaseItem---:"+purchaseItem);
-                if( purchaseItem != null && purchaseItem.getProduct() != null){
-                    this.updateProductQuantity(purchaseItem.getProduct().getId(), purchaseItem.getQuantity()*(-1));// as to subtract in total qty
+                logger.debug("SMNLOG:purchaseItem---:" + purchaseItem);
+                if (purchaseItem != null && purchaseItem.getProduct() != null) {
+                    logger.debug("SMNLOG:purchaseReturn:" + purchaseReturn);
+                    if (purchaseReturn == 0) {
+                        logger.debug("SMNLOG:-------if:");
+                        this.updateProductQuantity(purchaseItem.getProduct().getId(), purchaseItem.getQuantity() * (-1));// as to subtract in total qty
+                    } else {
+                        logger.debug("SMNLOG:-------else if:");
+                        this.updateProductQuantity(purchaseItem.getProduct().getId(), purchaseItem.getQuantity());// as to add in total qty
+                    }
+
                 }
 
                 this.deleteObject(purchaseItem);
@@ -449,7 +477,7 @@ public class AdminDaoImpl implements AdminDao {
         }
     }
 
-    public SalesItem getSalesItem(Long id) throws Exception{
+    public SalesItem getSalesItem(Long id) throws Exception {
         Session session = getSession();
         Query query = session.createQuery("FROM SalesItem WHERE id = :id");
         query.setParameter("id", id);
@@ -459,5 +487,69 @@ public class AdminDaoImpl implements AdminDao {
         return null;
     }
 
+
+    public void deleteSalesReturnItem(List<SalesItem> salesItemList) throws Exception {
+        SalesItem salesItem = null;
+        if (salesItemList != null && salesItemList.size() > 0) {
+            for (int i = 0; i < salesItemList.size(); i++) {
+                salesItem = salesItemList.get(i);
+                logger.debug("SMNLOG:salesItem---:" + salesItem);
+                if (salesItem != null && salesItem.getProduct() != null) {
+                    this.updateProductQuantity(salesItem.getProduct().getId(), (-1) * salesItem.getQuantity());// as to subtract in total qty
+                }
+
+                this.deleteObject(salesItem);
+            }
+        }
+
+    }
+
+    public List<PurchaseItem> getPurchaseItemList(Long productId) throws Exception {
+        return hibernateTemplate.find("FROM PurchaseItem where product.id = ? AND restQuantity > 0", productId);
+    }
+
+    public List<Settings> getSettingsList() throws Exception {
+        return hibernateTemplate.find("FROM Settings");
+    }
+
+    public int getProductEntitySize(Double limitQty) throws Exception {
+        Session session = getSession();
+        String sql = "Select count(*) From Product";
+        if (limitQty != null && limitQty > 0)
+            sql += " WHERE totalQuantity <= :limitQty";
+        Query query = session.createQuery(sql);
+
+        if (limitQty != null && limitQty > 0)
+            query.setParameter("limitQty", limitQty);
+
+        List list = query.list();
+
+        if (list != null && list.size() > 0) {
+            return Integer.parseInt((list.get(0)).toString());
+
+        }
+        return 0;
+
+    }
+
+    public List<Sales> getUnpostedSalesListByUserId(Long userId) throws Exception {
+        //Session session = getSession();
+//        String sql = "FROM Sales WHERE totalQuantity = :tqty AND unposted=:unposted AND user.id=:userId";
+        return hibernateTemplate.find("FROM Sales where totalAmount = 0 AND user.id = ?", userId);
+/*
+        Query query = session.createQuery(sql);
+        query.setParameter("tqty", 0);
+        query.setParameter("unposted", true);
+        query.setParameter("userId", userId);
+
+        List list = query.list();
+
+        if (list != null && list.size() > 0) {
+            return list;
+
+        }
+        return null;*/
+
+    }
 
 }
