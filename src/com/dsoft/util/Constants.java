@@ -31,5 +31,6 @@ public class Constants {
     public static final String FILE_PATH= "tmp/";
     public static final String P_KEY_SEPARATOR= "#";
     public static final String PSS= "sumonRoni01199402719";
+    public static final int TWO_DECIMAL_GLOBAL_ROUND= 2;
 
 }

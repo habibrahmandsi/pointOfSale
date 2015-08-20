@@ -109,8 +109,18 @@ public class AdminJdbcServiceImpl implements AdminJdbcService {
 
 
     @Override
-    public Map<String, Object> getSalesReport(Integer start, Integer length, String sortColName, String sortType, String searchKey, int salesReturn,Date fromDate, Date toDate, Long userId) throws Exception{
-        return adminJdbcDao.getSalesReport(start, length, sortColName, sortType, searchKey, salesReturn, fromDate, toDate, userId);
+    public Map<String, Object> getSalesReport(Integer start, Integer length, String sortColName, String sortType, String searchKey, int salesReturn,Date fromDate, Date toDate, Long userId,int unposted) throws Exception{
+        return adminJdbcDao.getSalesReport(start, length, sortColName, sortType, searchKey, salesReturn, fromDate, toDate, userId,unposted);
+    }
+
+    @Override
+    public int getSalesReportCount(String searchKey, int salesReturn, Date fromDate, Date toDate, Long userId,int unposted) throws Exception{
+        return adminJdbcDao.getSalesReportCount(searchKey, salesReturn, fromDate, toDate, userId,unposted);
+    }
+
+    @Override
+    public List getTotalSaleByDateAndUserId(Date fromDate, Date toDate, Long userId,int salesReturn,int unposted) throws Exception{
+        return adminJdbcDao.getTotalSaleByDateAndUserId(fromDate, toDate, userId,salesReturn,unposted);
     }
 
 }

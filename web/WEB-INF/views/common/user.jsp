@@ -16,7 +16,7 @@
     <!-- /.row -->
     <div class="row">
         <form:form method="post" id="userForm" commandName="user">
-                <form:hidden path="id"/>
+                    <form:hidden path="id"/>
         <div class="col-lg-12">
             <div class="panel panel-default">
                 <div class="panel-heading">

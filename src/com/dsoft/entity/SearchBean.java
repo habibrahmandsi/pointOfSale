@@ -16,6 +16,9 @@ public class SearchBean {
     private Date toDate;
     private Long userId;
     private List<User> userList;
+    private List totalSaleList;
+    private int opt;
+
 
     public String getFromDateStr() {
         return fromDateStr;
@@ -65,6 +68,22 @@ public class SearchBean {
         this.userList = userList;
     }
 
+    public List getTotalSaleList() {
+        return totalSaleList;
+    }
+
+    public void setTotalSaleList(List totalSaleList) {
+        this.totalSaleList = totalSaleList;
+    }
+
+    public int getOpt() {
+        return opt;
+    }
+
+    public void setOpt(int opt) {
+        this.opt = opt;
+    }
+
     @Override
     public String toString() {
         return "SearchBean{" +
@@ -74,6 +93,8 @@ public class SearchBean {
                 ", toDate=" + toDate +
                 ", userId=" + userId +
                 ", userList=" + userList +
+                ", totalSaleList=" + totalSaleList +
+                ", opt=" + opt +
                 '}';
     }
 }

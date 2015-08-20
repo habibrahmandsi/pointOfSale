@@ -175,3 +175,16 @@ margin-bottom: 0px;
     color: rgba(64, 99, 240, 0.55);
     font-weight: 700;
 }
+.legentRect{
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+}
+#chartByUserTotalSales{
+    margin-left: 30px;
+}
+.chartDesc{
+    font-style: italic;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.56);
+}

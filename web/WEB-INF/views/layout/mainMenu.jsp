@@ -89,13 +89,18 @@
                    </a>
 
                    <ul class="nav nav-second-level">
-                       <li>
+                      <%-- <li>
                            <a href="./unpostedSale.do"><spring:message code="menu.reporting.unposted.sale"/></a>
+                       </li>--%>
+                       <li>
+                           <a href="./saleReport.do?opt=0"><spring:message code="menu.reporting.sale"/></a>
                        </li>
                        <li>
-                           <a href="./saleReport.do"><spring:message code="menu.reporting.sale"/></a>
+                           <a href="./saleReport.do?opt=1"><spring:message code="menu.reporting.sale.return"/></a>
                        </li>
-
+                    <li>
+                           <a href="./saleReport.do?opt=2"><spring:message code="menu.reporting.unposted.sale"/></a>
+                       </li>
                    </ul>
                    <!-- /.nav-second-level -->
                </li>

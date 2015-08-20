@@ -163,7 +163,7 @@
         <div class="row">
             <div class="col-lg-4 zeroPaddingForm"></div>
             <div class="col-lg-4 zeroPaddingForm">
-                <a href="./unpostedSale.do?userId=${sales.user.id}" class="btn btn-primary btn-block" >My Un-posted Sale</a>
+                <a href="./unpostedSale.do?userId=${sales.user.id}" class="btn btn-primary btn-block unpostedSaleLnk" >My Un-posted Sale</a>
             </div>
             <div class="col-lg-4 zeroPaddingForm"></div>
         </div>
@@ -171,7 +171,7 @@
     </div>
     </form:form>
     <script>
-        var salesId = "${sales.id}";
+        var salesId = +"${salesId}";
         console.log("SMNLOG:salesId:" + salesId);
     </script>
     <!-- /.row -->

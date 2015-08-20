@@ -1332,7 +1332,7 @@ public class AdminController {
 
     @RequestMapping(value = "/*/upsertPurchase.do", method = RequestMethod.GET)
     public String upsertPurchase(HttpServletRequest request, Model model) {
-        logger.error("SMNLOG:: upsert Purchase view controller ::");
+        logger.debug("********* upsert Purchase view controller *********");
         Purchase purchase = new Purchase();
         List<PurchaseItem> purchaseItemList = null;
         Long purchaseId = request.getParameter("purchaseId") != null ? Long.parseLong(request.getParameter("purchaseId")) : 0;
@@ -1375,7 +1375,7 @@ public class AdminController {
 
     @RequestMapping(value = "/*/upsertPurchase.do", method = RequestMethod.POST)
     public String upsertPurchase(HttpServletRequest request, @ModelAttribute("purchase") Purchase purchase) {
-        logger.debug("SMNLOG:: purchase POST Controller::");
+        logger.debug("********* purchase POST Controller *********");
         logger.debug("SMNLOG:: purchase::" + purchase);
         Long purchaseId = purchase.getId();
         try {
@@ -1447,7 +1447,7 @@ public class AdminController {
     public
     @ResponseBody
     Boolean deleteAnyObject(HttpServletRequest request, Model model) {
-        logger.error("SMNLOG:: delete Any Object controller ::");
+        logger.error("********* delete Any Object controller *********");
         String tableName = request.getParameter("tableName") != null ? (String) request.getParameter("tableName") : "";
         String colName = request.getParameter("colName") != null ? (String) request.getParameter("colName") : "";
         String colValue = request.getParameter("colValue") != null ? (String) request.getParameter("colValue") : "";
@@ -1470,7 +1470,7 @@ public class AdminController {
 
     @RequestMapping(value = "/*/purchaseList.do", method = RequestMethod.GET)
     public String purchaseListView(HttpServletRequest request, Model model) {
-        logger.error("SMNLOG: :: purchase view controller :: ");
+        logger.error("********* purchase view controller *********");
         model.addAttribute("opt", 0);
         return "common/purchaseList";
     }
@@ -1479,7 +1479,7 @@ public class AdminController {
     public
     @ResponseBody
     DataModelBean getPurchases(HttpServletRequest request) throws Exception {
-        logger.info(":: Get Purchase List Ajax Controller ::");
+        logger.info("********* Get Purchase List Ajax Controller *********");
         DataModelBean dataModelBean = new DataModelBean();
     /* this params is for dataTables */
         String[] tableColumns = "purchase_token_no,purchase_date,total_amount,discount,userName".split(",");
@@ -1533,7 +1533,7 @@ public class AdminController {
 
     @RequestMapping(value = "/*/deletePurchase.do", method = RequestMethod.GET)
     public String deletePurchase(HttpServletRequest request, Model model) {
-        logger.debug("SMNLOG: :: delete Purchase controller :: ");
+        logger.debug("********* delete Purchase controller *********");
         Long purchaseId = request.getParameter("purchaseId") != null ? Long.parseLong(request.getParameter("purchaseId")) : 0;
         Long opt = request.getParameter("opt") != null ? Long.parseLong(request.getParameter("opt")) : 0;
         logger.debug("SMNLOG: :: purchaseId :: " + purchaseId);
@@ -1580,7 +1580,7 @@ public class AdminController {
 
     @RequestMapping(value = "/*/upsertPurchaseReturn.do", method = RequestMethod.GET)
     public String purchaseReturn(HttpServletRequest request, Model model) {
-        logger.error("SMNLOG:: Purchase return view controller ::");
+        logger.error("********* Purchase return view controller *********");
         Purchase purchase = new Purchase();
         List<PurchaseItem> purchaseItemList = null;
         Long purchaseId = request.getParameter("purchaseId") != null ? Long.parseLong(request.getParameter("purchaseId")) : 0;
@@ -1636,7 +1636,7 @@ public class AdminController {
 
     @RequestMapping(value = "/*/upsertPurchaseReturn.do", method = RequestMethod.POST)
     public String upsertPurchaseReturn(HttpServletRequest request, @ModelAttribute("purchase") Purchase purchase) {
-        logger.debug("SMNLOG:: purchase return POST Controller::");
+        logger.debug("********* purchase return POST Controller *********");
         logger.debug("SMNLOG:: purchase::" + purchase);
         boolean status = false;
         Long purchaseId = purchase.getId();
@@ -1673,14 +1673,14 @@ public class AdminController {
 
     @RequestMapping(value = "/*/purchaseReturnList.do", method = RequestMethod.GET)
     public String purchaseReturnListView(HttpServletRequest request, Model model) {
-        logger.error("SMNLOG: :: purchase Return list controller :: ");
+        logger.error("********* purchase Return list controller *********");
         model.addAttribute("opt", 1);
         return "common/purchaseList";
     }
 
     @RequestMapping(value = "/superAdmin/generateKey.do", method = RequestMethod.POST)
     public String generateKey(HttpServletRequest request, @ModelAttribute("productKey") ProductKey productKey, Model model) {
-        logger.error("SMNLOG: :: generateKey controller :: ");
+        logger.error("********* generateKey controller *********");
         logger.error("SMNLOG: :: productKey:: " + productKey);
         Long productKeyId = productKey.getId();
         try {
@@ -1734,7 +1734,7 @@ public class AdminController {
 
     @RequestMapping(value = "/*/upsertSales.do", method = RequestMethod.GET)
     public String getupsertSales(HttpServletRequest request, Model model) {
-        logger.error("SMNLOG:: upsert Sales view controller ::");
+        logger.error("********* upsert Sales view controller *********");
         Sales sales = new Sales();
         List<SalesItem> salesItemList = null;
         List<Sales> salesList = new ArrayList<Sales>();
@@ -1799,14 +1799,16 @@ public class AdminController {
 
         sales.setSalesItemList(salesItemList);
         model.addAttribute("sales", sales);
+        model.addAttribute("salesId", salesId);
         return "common/sales";
     }
 
     @RequestMapping(value = "/*/upsertSales.do", method = RequestMethod.POST)
     public String upsertSales(HttpServletRequest request, @ModelAttribute("sales") Sales sales) {
-        logger.debug("SMNLOG:: sales POST Controller::");
+        logger.debug("********* sales POST Controller *********");
         logger.debug("SMNLOG:: sales::" + sales);
         Long salesId = sales.getId();
+        List<SalesItem> salesItemList = new ArrayList<SalesItem>();
         try {
             logger.debug("SMNLOG:: salesId:: " + salesId);
             if (salesId != null) { // when to update
@@ -1814,6 +1816,24 @@ public class AdminController {
                 sales.setUnposted(false);
                 if (Utils.isEmpty(sales.getSalesTokenNo()))
                     sales.setSalesTokenNo(Utils.generateUniqueId("S"));
+
+                // update purchase li
+                salesItemList = adminService.getSalesItemListBySalesId(salesId);
+                if(salesItemList!= null && salesItemList.size() > 0){
+                    for(SalesItem salesItem: salesItemList){
+                        logger.debug("## -- pid:"+salesItem.getProduct().getId()+" Qty:"+salesItem.getQuantity());
+                        if(updatePurchaseItem(salesItem.getProduct().getId(), salesItem.getQuantity(), salesItem)){
+                            logger.debug("SMNLOG:----------- updatePurchaseItem in Li --------------SUCCESS");
+                        }else{
+                            logger.debug("SMNLOG:----------- updatePurchaseItem in Li --------------FAILED");
+                            Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("sales.save.failed.msg"));
+                            return "redirect:./upsertSales.do";
+                        }
+                    }
+
+                }
+
+
             } else { // when to save
                 sales.setSalesDate(new Date());
                 sales.setSalesReturn(false);// as it is sales not sales return
@@ -1845,7 +1865,7 @@ public class AdminController {
     public
     @ResponseBody
     DataModelBean getSales(HttpServletRequest request) throws Exception {
-        logger.info(":: Get Sales List Ajax Controller ::");
+        logger.info("********* Get Sales List Ajax Controller *********");
         DataModelBean dataModelBean = new DataModelBean();
         /* this params is for dataTables */
         String[] tableColumns = "sales_token_no,sales_date,total_amount,discount,userName".split(",");
@@ -1900,14 +1920,14 @@ public class AdminController {
 
     @RequestMapping(value = "/*/salesList.do", method = RequestMethod.GET)
     public String salesListView(HttpServletRequest request, Model model) {
-        logger.error("SMNLOG: :: sales view controller :: ");
+        logger.error("********* sales view controller *********");
         model.addAttribute("opt", 0);
         return "common/salesList";
     }
 
     @RequestMapping(value = "/*/deleteSales.do", method = RequestMethod.GET)
     public String deleteSales(HttpServletRequest request, Model model) {
-        logger.error("SMNLOG: :: delete Sales controller :: ");
+        logger.error("********* delete Sales controller *********");
         Long salesId = request.getParameter("salesId") != null ? Long.parseLong(request.getParameter("salesId")) : 0;
         Long opt = request.getParameter("opt") != null ? Long.parseLong(request.getParameter("opt")) : 0;
         logger.error("SMNLOG: :: salesId :: " + salesId);
@@ -1970,7 +1990,7 @@ public class AdminController {
 
     @RequestMapping(value = "/*/upsertSalesReturn.do", method = RequestMethod.GET)
     public String salesReturn(HttpServletRequest request, Model model) {
-        logger.error("SMNLOG:: Sales return view controller ::");
+        logger.error("********* Sales return view controller *********");
         Sales sales = new Sales();
         List<SalesItem> salesItemList = null;
         Long salesId = request.getParameter("salesId") != null ? Long.parseLong(request.getParameter("salesId")) : 0;
@@ -2025,7 +2045,7 @@ public class AdminController {
 
     @RequestMapping(value = "/*/upsertSalesReturn.do", method = RequestMethod.POST)
     public String upsertSalesReturn(HttpServletRequest request, @ModelAttribute("sales") Sales sales) {
-        logger.debug("SMNLOG:: sales return POST Controller::");
+        logger.debug("********* sales return POST Controller *********");
         logger.debug("SMNLOG:: sales::" + sales);
         boolean status = false;
         Long salesId = sales.getId();
@@ -2038,6 +2058,7 @@ public class AdminController {
             sales.setSalesTokenNo(Utils.generateUniqueId("SR"));
             sales.setUser(user);
             sales.setSalesReturn(true); // As this is for sales return
+            sales.setUnposted(false);
             status = adminService.saveOrUpdateSalesReturn(sales);
             if (status == false) {
                 Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("sales.nothing.save.msg"));
@@ -2062,7 +2083,7 @@ public class AdminController {
 
     @RequestMapping(value = "/*/salesReturnList.do", method = RequestMethod.GET)
     public String salesReturnListView(HttpServletRequest request, Model model) {
-        logger.error("SMNLOG: :: sales Return list controller :: ");
+        logger.error("********* sales Return list controller *********");
         model.addAttribute("opt", 1);
         return "common/salesList";
     }
@@ -2071,7 +2092,7 @@ public class AdminController {
     public
     @ResponseBody
     String addSalesItem(HttpServletRequest request, Model model) {
-        logger.error("SMNLOG:: add Sales items AJAX controller ::");
+        logger.debug("********* add Sales items AJAX controller *********");
         SalesItem salesItem = new SalesItem();
 
         try {
@@ -2144,8 +2165,7 @@ public class AdminController {
     public
     @ResponseBody
     String deleteSalesItemsAndSReturnItems(HttpServletRequest request) {
-        logger.error("SMNLOG:: delete SalesItems And SReturn Items AJAX Controller ::");
-        logger.error("SMNLOG:: add Sales items AJAX controller ::");
+        logger.debug("********* delete SalesItems And SReturn Items AJAX Controller *********");
         try {
             SalesItem salesItem = new SalesItem();
             Long sId = request.getParameter("sId") != null ? Long.parseLong(request.getParameter("sId")) : 0;
@@ -2181,10 +2201,12 @@ public class AdminController {
         return "true";
     }
 
-    public boolean updatePurchaseItem(Long pId, Double qty) {
+    public boolean updatePurchaseItem(Long pId, Double qty, SalesItem salesItem) {
+        logger.debug("******************* Update purchase item ****************** ");
         List<PurchaseItem> purchaseItemList = new ArrayList<PurchaseItem>();
         PurchaseItem purchaseItem = new PurchaseItem();
         Double restQty = qty;
+        Double totalPurchasePrice =  0d;
         try {
             purchaseItemList = adminService.getPurchaseItemList(pId);
             logger.debug("SMNLOG:purchaseItemList:" + purchaseItemList);
@@ -2194,15 +2216,56 @@ public class AdminController {
                     purchaseItem = purchaseItemList.get(i);
                     logger.debug("SMNLOG:purchaseItem------:" + purchaseItem);
                     if (restQty > 0 && purchaseItem.getRestQuantity() <= restQty) {
-                        logger.debug("------:if :: getRestQuantity:" + purchaseItem.getRestQuantity() + " to update:" + restQty);
+                        totalPurchasePrice = purchaseItem.getRestQuantity()*purchaseItem.getPurchaseRate();
+                        salesItem.setPurchaseRate(purchaseItem.getPurchaseRate());
+
+                        if(!Utils.isEmpty(salesItem.getTotalPurchaseDetails())){
+                            logger.debug(" 1111 TotalPurchasePrice before:"+salesItem.getTotalPurchasePrice()+" totalPurchasePrice:"+totalPurchasePrice);
+                            salesItem.setTotalPurchasePrice(salesItem.getTotalPurchasePrice()+totalPurchasePrice);
+                            logger.debug(" 1111 TotalPurchasePrice after:"+salesItem.getTotalPurchasePrice());
+                            salesItem.setTotalPurchaseDetails(salesItem.getTotalPurchaseDetails()
+                                    + (!Utils.isEmpty(salesItem.getTotalPurchaseDetails())? ",":"" )+purchaseItem.getRestQuantity()+"*"+purchaseItem.getPurchaseRate());
+                        }else {
+                            logger.debug(" 222 TotalPurchasePrice before:" + salesItem.getTotalPurchasePrice());
+                            salesItem.setTotalPurchasePrice(totalPurchasePrice);
+                            salesItem.setTotalPurchaseDetails(purchaseItem.getRestQuantity() + "*" + purchaseItem.getPurchaseRate());
+                            logger.debug(" 222 TotalPurchasePrice after:" + salesItem.getTotalPurchasePrice());
+                        }
+
+                        logger.debug("******:if :: getRestQuantity:" + purchaseItem.getRestQuantity() + " to update:"
+                                + restQty+" totalPurchasePrice:"+totalPurchasePrice);
+
                         restQty = restQty - purchaseItem.getRestQuantity();
+                        logger.debug("SMNLOG:restQty:" + restQty);
                         purchaseItem.setRestQuantity(0d);
+                        salesItem.setBenefit(Utils.roundDouble(salesItem.getTotalPrice() - salesItem.getTotalPurchasePrice(),Constants.TWO_DECIMAL_GLOBAL_ROUND));
                         adminService.saveOrUpdateObject(purchaseItem);
+                        adminService.saveOrUpdateObject(salesItem);
+
                     } else if (restQty > 0 && purchaseItem.getRestQuantity() > restQty) {
-                        logger.debug("-----------:else if :: getRestQuantity:" + purchaseItem.getRestQuantity() + " to update:" + restQty);
+                        logger.debug("################ :else if :: getRestQuantity:" + purchaseItem.getRestQuantity() + " to update:"
+                                + restQty+" totalPurchasePrice:"+totalPurchasePrice);
                         purchaseItem.setRestQuantity(purchaseItem.getRestQuantity() - restQty);
+                        totalPurchasePrice = restQty*purchaseItem.getPurchaseRate();
+
+                        salesItem.setPurchaseRate(purchaseItem.getPurchaseRate());
+
+                        if(!Utils.isEmpty(salesItem.getTotalPurchaseDetails())){
+                            logger.debug(" 3333 TotalPurchasePrice before:"+salesItem.getTotalPurchasePrice()+" totalPurchasePrice:"+totalPurchasePrice);
+                            totalPurchasePrice = restQty*purchaseItem.getPurchaseRate();
+                            salesItem.setTotalPurchasePrice(salesItem.getTotalPurchasePrice()+totalPurchasePrice);
+                            logger.debug(" 3333 TotalPurchasePrice after:"+salesItem.getTotalPurchasePrice());
+                            salesItem.setTotalPurchaseDetails(salesItem.getTotalPurchaseDetails()
+                                    + (!Utils.isEmpty(salesItem.getTotalPurchaseDetails())? ",":"" )+restQty+"*"+purchaseItem.getPurchaseRate());
+                        }else{
+                            logger.debug(" 4444 ");
+                            salesItem.setTotalPurchasePrice(totalPurchasePrice);
+                            salesItem.setTotalPurchaseDetails(restQty+"*"+purchaseItem.getPurchaseRate());
+                        }
                         restQty = 0d;
+                        salesItem.setBenefit(Utils.roundDouble(salesItem.getTotalPrice() - salesItem.getTotalPurchasePrice(),Constants.TWO_DECIMAL_GLOBAL_ROUND));
                         adminService.saveOrUpdateObject(purchaseItem);
+                        adminService.saveOrUpdateObject(salesItem);
                         return true;
                     }
 
@@ -2219,7 +2282,7 @@ public class AdminController {
 
     @RequestMapping(value = "/*/settings.do", method = RequestMethod.GET)
     public String settingsView(HttpServletRequest request, Model model) {
-        logger.error("SMNLOG: :: Settings view  controller :: ");
+        logger.error("********* Settings view  controller *********");
         List<Settings> settingsList = new ArrayList<Settings>();
         Settings settings = null;
         try {
@@ -2244,7 +2307,7 @@ public class AdminController {
 
     @RequestMapping(value = "/*/settings.do", method = RequestMethod.POST)
     public String savesettingsView(HttpServletRequest request, @ModelAttribute("settings") Settings settings) {
-        logger.debug("SMNLOG:: Settings POST Controller::");
+        logger.debug("********* Settings POST Controller *********");
         Long settingsId = settings.getId();
         try {
             logger.debug("SMNLOG:: unitOfMeasureId:: " + settingsId);
@@ -2269,7 +2332,7 @@ public class AdminController {
     public
     @ResponseBody
     DataModelBean v(HttpServletRequest request) throws Exception {
-        logger.info(":: Get Unposted Sales List Ajax Controller ::");
+        logger.info("********* Get Unposted Sales List Ajax Controller *********");
         DataModelBean dataModelBean = new DataModelBean();
         /* this params is for dataTables */
         String[] tableColumns = "sales_token_no,sales_date,total_amount,discount,userName".split(",");
@@ -2335,7 +2398,7 @@ public class AdminController {
 
     @RequestMapping(value = "/*/unpostedSale.do", method = RequestMethod.GET)
     public String unpostedSale(HttpServletRequest request, Model model) {
-        logger.error("SMNLOG: :: Un-posted Sale  controller :: ");
+        logger.error("********* Un-posted Sale  controller *********");
         Long userId = request.getParameter("userId") != null ? Long.parseLong(request.getParameter("userId")) : 0;
         User user = (User) adminService.getAbstractBaseEntityByString(Constants.USER, "userName", Utils.getLoggedUserName());
         try{
@@ -2363,10 +2426,10 @@ public class AdminController {
     public
     @ResponseBody
     DataModelBean getSaleReport(HttpServletRequest request) throws Exception {
-        logger.info(":: Get Sale Report List Ajax Controller ::");
+        logger.info("********* Get Sale Report List Ajax Controller *********");
         DataModelBean dataModelBean = new DataModelBean();
         /* this params is for dataTables */
-        String[] tableColumns = "sales_token_no,sales_date,p.name,c.name,si.purchase_rate,si.sales_rate,si.quantity,si.total_price,userName".split(",");
+        String[] tableColumns = "sales_token_no,sales_date,p.name,c.name,si.purchase_rate,si.sales_rate,si.quantity,sItemTotalPrice,userName".split(",");
         int start = request.getParameter(Constants.IDISPLAY_START) != null ? Integer.parseInt(request.getParameter(Constants.IDISPLAY_START)) : 0;
         int length = request.getParameter(Constants.IDISPLAY_LENGTH) != null ? Integer.parseInt(request.getParameter(Constants.IDISPLAY_LENGTH)) : 5;
         int sEcho = request.getParameter(Constants.sEcho) != null ? Integer.parseInt(request.getParameter(Constants.sEcho)) : 0;
@@ -2376,7 +2439,22 @@ public class AdminController {
         String fromDate = request.getParameter("fromDate") != null ? request.getParameter("fromDate") : "";
         String toDate = request.getParameter("toDate") != null ? request.getParameter("toDate") : "";
         Long userId = request.getParameter("userId") != null ? Long.parseLong(request.getParameter("userId")) : 0;
-        Integer salesReturn = 0;
+        // to support sales return, sales and unposted sales report at he same time
+        int opt = request.getParameter("opt") != null ? Integer.parseInt(request.getParameter("opt")) : 0;
+        int salesReturn = 0;
+        int unposted = 0;
+        if(opt == 0){
+            logger.debug("----- :this is a sales report");
+        }else if(opt == 1){
+            logger.debug("----- :this is a sales Return report");
+            salesReturn = 1;
+            unposted = 0;
+        }else if(opt == 2 ){
+            logger.debug("----- :this is a unposted sales report");
+            salesReturn = 0;
+            unposted = 1;
+        }
+        logger.debug("----- FINAL:salesReturn:"+salesReturn+" unposted:"+unposted);
         String sortColName = "";
         logger.debug("SMNLOG:iSortColIndex:" + iSortColIndex + " sortType:" + sortType + " searchKey:" + searchKey);
         logger.debug("SMNLOG:fromDateStr:" + fromDate + " toDateStr:" + toDate + " userId:" + userId);
@@ -2387,8 +2465,6 @@ public class AdminController {
             tDate = Utils.endOfDate(fmDate);
 
         logger.debug("SMNLOG:fmDate:" + fmDate + " tDate:" + tDate + " userId:" + userId);
-        int unposted = 1;
-        // sorting related operation for data Tables
 
         sortColName = tableColumns[iSortColIndex];
         logger.debug("SMNLOG:sortColName:" + sortColName);
@@ -2396,12 +2472,12 @@ public class AdminController {
         String trackingDetailsDataStr = null;
         Map<String, Object> userDataMap;
         try {
-            int totalRecords = adminJdbcService.getUnpostedSalesCount(salesReturn, fmDate, tDate, userId, unposted);// 0 for sales and 1 for sales Return
+            int totalRecords = adminJdbcService.getSalesReportCount(searchKey, salesReturn, fmDate, tDate, userId,unposted);
             logger.debug("SMNLOG: totalRecords:" + totalRecords);
             if (length < 0) {
-                userDataMap = adminJdbcService.getSalesReport(start, totalRecords, sortColName, sortType, searchKey, salesReturn, fmDate, tDate, userId);
+                userDataMap = adminJdbcService.getSalesReport(start, totalRecords, sortColName, sortType, searchKey, salesReturn, fmDate, tDate, userId,unposted);
             } else {
-                userDataMap = adminJdbcService.getSalesReport(start, length, sortColName, sortType, searchKey, salesReturn, fmDate, tDate, userId);
+                userDataMap = adminJdbcService.getSalesReport(start, length, sortColName, sortType, searchKey, salesReturn, fmDate, tDate, userId,unposted);
             }
 
                 /*
@@ -2429,23 +2505,60 @@ public class AdminController {
 
     @RequestMapping(value = "/*/saleReport.do", method = RequestMethod.GET)
     public String saleReportView(HttpServletRequest request, Model model) {
-        logger.error("SMNLOG: :: Sale Report controller :: ");
-        SearchBean searchBean = new SearchBean();
-//        User user = (User) adminService.getAbstractBaseEntityByString(Constants.USER, "userName", Utils.getLoggedUserName());
+        logger.debug("******  Sale Report controller ********* ");
+        SearchBean searchBean = request.getSession().getAttribute("searchBean") != null ? (SearchBean)request.getSession().getAttribute("searchBean"): new SearchBean();
+        int opt = request.getParameter("opt") != null ? Integer.parseInt(request.getParameter("opt")) :searchBean.getOpt();
+        int salesReturn = 0;
+        int unposted = 0;
+        if(opt == 0){
+            logger.debug("----- :this is a sales report");
+
+        }else if(opt == 1){
+            logger.debug("----- :this is a sales Return report");
+            salesReturn = 1;
+            unposted = 0;
+        }else if(opt == 2 ){
+            logger.debug("----- :this is a unposted sales report");
+            salesReturn = 0;
+            unposted = 1;
+        }
+        logger.debug("SMNLOG:searchBean:"+searchBean);
+        List totalSaleList = new ArrayList();
         try{
             if ((Utils.isInRole(Role.ROLE_ADMIN.getLabel()) || Utils.isInRole(Role.ROLE_SUPER_ADMIN.getLabel()))) {
-                searchBean.setFromDateStr(Utils.getStringFromDate(Constants.DATE_FORMAT, new Date()));
-                List<User> userList = adminService.getAllUserList();
 
+                if(Utils.isEmpty(searchBean.getFromDateStr()))
+                searchBean.setFromDateStr(Utils.getStringFromDate(Constants.DATE_FORMAT, new Date()));
+
+                Date fmDate = Utils.startOfDate(Utils.getDateFromString(Constants.DATE_FORMAT, searchBean.getFromDateStr()));
+                Date tDate = !Utils.isEmpty(searchBean.getToDateStr()) ? Utils.endOfDate(Utils.getDateFromString(Constants.DATE_FORMAT, searchBean.getToDateStr())) : null;
+                logger.debug("SMNLOG:FromDate:"+fmDate+" toDate:"+tDate);
+                List<User> userList = adminService.getAllUserList();
+                totalSaleList = adminJdbcService.getTotalSaleByDateAndUserId( fmDate, tDate, searchBean.getUserId() != null? searchBean.getUserId(): 0,salesReturn,unposted);
+                logger.debug("SMNLOG:totalSaleList:"+totalSaleList);
+                searchBean.setOpt(opt);
+                searchBean.setUserList(userList);
+                searchBean.setTotalSaleList(totalSaleList);
+
+                model.addAttribute("searchBean", searchBean);
                 return "common/saleReport";
             }else{
                 Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("accessDenied.AccessDeniedMessage"));
                 return "redirect:./landingPage.do";
             }
         }catch(Exception e){
+            logger.debug("SMNLOG:ERROR: Sale report:"+e);
             Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("accessDenied.AccessDeniedMessage"));
             return "redirect:./landingPage.do";
         }
+    }
+
+    @RequestMapping(value = "/*/saleReport.do", method = RequestMethod.POST)
+    public String saleReportPost(HttpServletRequest request, @ModelAttribute("searchBean") SearchBean searchBean, Model model) {
+        logger.debug("SMNLOG:: Sale Report POST Controller::");
+        logger.debug("SMNLOG:searchBean:"+searchBean);
+        request.getSession().setAttribute("searchBean",searchBean);
+        return "redirect:./saleReport.do";
     }
 
 }

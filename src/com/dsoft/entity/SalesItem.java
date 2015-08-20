@@ -35,6 +35,15 @@ public class SalesItem {
     @Column(name = "total_price")
     private Double totalPrice;
 
+    @Column(name = "total_purchase_price")
+    private Double totalPurchasePrice;
+
+    @Column(name = "total_purchase_details")
+    private String totalPurchaseDetails;
+
+
+    @Column(name = "benefit")
+    private Double benefit;
 
     @Transient
     private Double prevQuantity;
@@ -95,12 +104,36 @@ public class SalesItem {
         this.totalPrice = totalPrice;
     }
 
+    public Double getTotalPurchasePrice() {
+        return totalPurchasePrice;
+    }
+
+    public void setTotalPurchasePrice(Double totalPurchasePrice) {
+        this.totalPurchasePrice = totalPurchasePrice;
+    }
+
+    public String getTotalPurchaseDetails() {
+        return totalPurchaseDetails;
+    }
+
+    public void setTotalPurchaseDetails(String totalPurchaseDetails) {
+        this.totalPurchaseDetails = totalPurchaseDetails;
+    }
+
     public Double getPrevQuantity() {
         return prevQuantity;
     }
 
     public void setPrevQuantity(Double prevQuantity) {
         this.prevQuantity = prevQuantity;
+    }
+
+    public Double getBenefit() {
+        return benefit;
+    }
+
+    public void setBenefit(Double benefit) {
+        this.benefit = benefit;
     }
 
     @Override
@@ -113,6 +146,9 @@ public class SalesItem {
                 ", purchaseRate=" + purchaseRate +
                 ", salesRate=" + salesRate +
                 ", totalPrice=" + totalPrice +
+                ", totalPurchasePrice=" + totalPurchasePrice +
+                ", totalPurchaseDetails='" + totalPurchaseDetails + '\'' +
+                ", benefit=" + benefit +
                 ", prevQuantity=" + prevQuantity +
                 '}';
     }
