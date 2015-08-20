@@ -8,12 +8,12 @@ $(document).ready(function() {
     var total = 0;
     $(".salesTotalByUser tbody tr").each(function(){
        $(this).find("td:last").find("div.legentRect").css("background-color",colorArr[i++]);
-        total += +$(this).find("td").eq(2).html();
+        //total += +$(this).find("td").eq(2).html();
     });
 
-    $(".salesTotalByUser tbody").append('<tr><td></td><td class="italicFont">Total: </td><td class="italicFont grandTotal"><label>'
+   /* $(".salesTotalByUser tbody").append('<tr><td></td><td class="italicFont">Total: </td><td class="italicFont grandTotal"><label>'
     +getRoundNDigits(total,globalRoundDigits)+'</label></td><td></td></tr>')
-
+*/
     console.log("total:"+total);
 
     $('#dp1-1').datepicker();

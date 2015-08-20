@@ -101,6 +101,9 @@
                     <li>
                            <a href="./saleReport.do?opt=2"><spring:message code="menu.reporting.unposted.sale"/></a>
                        </li>
+                   <li>
+                           <a href="./incomeReport.do"><spring:message code="income.report.header"/></a>
+                       </li>
                    </ul>
                    <!-- /.nav-second-level -->
                </li>

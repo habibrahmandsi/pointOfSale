@@ -123,4 +123,15 @@ public class AdminJdbcServiceImpl implements AdminJdbcService {
         return adminJdbcDao.getTotalSaleByDateAndUserId(fromDate, toDate, userId,salesReturn,unposted);
     }
 
+    @Override
+    public int getIncomeReportCount(String searchKey, int salesReturn, Date fromDate, Date toDate, Long userId,int unposted) throws Exception{
+        return adminJdbcDao.getIncomeReportCount(searchKey, salesReturn, fromDate, toDate, userId, unposted);
+    }
+
+    @Override
+    public List getTotalIncomeByDateAndUserId(Date fromDate, Date toDate, Long userId,int salesReturn,int unposted) throws Exception{
+        return adminJdbcDao.getTotalIncomeByDateAndUserId(fromDate, toDate, userId, salesReturn, unposted);
+    }
+
+
 }

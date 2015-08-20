@@ -12,6 +12,7 @@
     final String loggedUserName = (String)request.getSession().getAttribute("loggedUserName");
 %>
 
+<c:set var="maxFractionNum" value="<%=Constants.TWO_DECIMAL_GLOBAL_ROUND%>" scope="session"/>
 <c:set var="loggedUserName" value="<%=loggedUserName%>" scope="session"/>
 <c:set var="dateFormateForJstlTag" value="<%=Constants.DATE_FORMAT%>" scope="session"/>
 <c:set var="dateFormateForJs" value="<%=Constants.DATE_FORMAT_JS%>" scope="session"/>

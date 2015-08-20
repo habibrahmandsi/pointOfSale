@@ -9,8 +9,7 @@
 %>
 <title><spring:message code="sale.report.header"/></title>
 
-<script src="<%= contextPath %>/resources/js/common/saleReport.js"  type="text/javascript"></script>
-<script src="<%= contextPath %>/resources/js/d3js/d3.v3.min.js"  type="text/javascript"></script>
+<script src="<%= contextPath %>/resources/js/common/incomeReport.js"  type="text/javascript"></script>
 
 <!-- ==================== COMMON ELEMENTS ROW ==================== -->
 
@@ -19,15 +18,7 @@
         <div class="col-lg-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <c:if test="${searchBean.opt == 0}">
-                        <spring:message code="sale.report.header"/>
-                    </c:if>
-                    <c:if test="${searchBean.opt == 1}">
-                        <spring:message code="sale.return.report.header"/>
-                    </c:if>
-                    <c:if test="${searchBean.opt == 2}">
-                        <spring:message code="unposted.sales.header"/>
-                    </c:if>
+                        <spring:message code="income.report.header"/>
                 </div>
                 <div class="panel-body">
                     <form:form method="post" commandName="searchBean">
@@ -79,50 +70,72 @@
                             <button class="btn btn-success search" type="submit"><spring:message
                                     code="button.serch"/></button>
                         </div>
-                        <div class="col-lg-5">
-                            <c:if test="${not empty searchBean.totalSaleList}">
-                                <table class="table table-striped salesTotalByUser">
+                        <div class="col-lg-8">
+                            <c:if test="${not empty searchBean.totalIncomeList}">
+                                <table class="table table-striped incomeTotalByUser">
                                     <thead>
                                     <tr>
                                         <th>#</th>
                                         <th>User Name</th>
-                                        <th style="text-align: right">Amount</th>
+                                        <th style="text-align: right">Purchase Expense</th>
+                                        <th style="text-align: right">Sale Total</th>
+                                        <th style="text-align: right">Discounts</th>
+                                        <th style="text-align: right">Income</th>
                                         <th></th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <c:set var="total" value="${0}"/>
-                                    <c:forEach items="${searchBean.totalSaleList}" var="data" varStatus="idx">
-                                        <c:set var="total" value="${total + data.totalSaleAmount}" />
+
+                                    <c:set var="totalPurchase" value="${0}" />
+                                    <c:set var="totalSale" value="${0}" />
+                                    <c:set var="totalDiscounts" value="${0}" />
+                                    <c:set var="totalIncome" value="${0}" />
+                                    <c:forEach items="${searchBean.totalIncomeList}" var="data" varStatus="idx">
+                                        <c:set var="totalPurchase" value="${totalPurchase + data.totalPurchasePrice}" />
+                                        <c:set var="totalSale" value="${totalSale + data.totalSaleAmount}" />
+                                        <c:set var="totalDiscounts" value="${totalDiscounts + data.totalDiscount}" />
+                                        <c:set var="totalIncome" value="${totalIncome + data.benefit}" />
+
                                         <tr>
                                             <td style="min-width: 10px;">${idx.index+1}</td>
                                             <td>${data.userName}</td>
+                                            <td style="text-align: right"><fmt:formatNumber type="number" value="${data.totalPurchasePrice}" minFractionDigits="${maxFractionNum}" maxFractionDigits="${maxFractionNum}" /></td>
                                             <td style="text-align: right"><fmt:formatNumber type="number" value="${data.totalSaleAmount}" minFractionDigits="${maxFractionNum}" maxFractionDigits="${maxFractionNum}" /></td>
-                                            <td style="padding-left:5px;min-width: 10px;"><div class="legentRect"></div></td>
+                                            <td style="text-align: right"><fmt:formatNumber type="number" value="${data.totalDiscount}" minFractionDigits="${maxFractionNum}" maxFractionDigits="${maxFractionNum}" /></td>
+                                            <td style="text-align: right"><fmt:formatNumber type="number" value="${data.benefit}" minFractionDigits="${maxFractionNum}" maxFractionDigits="${maxFractionNum}" /></td>
+                                            <td style="padding-left:5px;min-width: 10px;"></td>
                                         </tr>
                                     </c:forEach>
-                                    <tr><td></td><td class="italicFont">Total: </td><td class="italicFont grandTotal"><label>
-                                        <fmt:formatNumber type="number" value="${total}" minFractionDigits="${maxFractionNum}" maxFractionDigits="${maxFractionNum}" />
-                                    </label></td><td></td></tr>
+                                    <tr>
+                                        <td></td>'
+                                        <td class="italicFont">Total: </td>
+                                        <td class="italicFont grandTotal"><label><fmt:formatNumber type="number" value="${totalPurchase}" minFractionDigits="${maxFractionNum}" maxFractionDigits="${maxFractionNum}" /></label></td>
+                                        <td class="italicFont grandTotal"><label><fmt:formatNumber type="number" value="${totalSale}" minFractionDigits="${maxFractionNum}" maxFractionDigits="${maxFractionNum}" /></label></td>
+                                        <td class="italicFont grandTotal"><label><fmt:formatNumber type="number" value="${totalDiscounts}" minFractionDigits="${maxFractionNum}" maxFractionDigits="${maxFractionNum}" /></label></td>
+                                        <td class="italicFont grandTotal"><label><fmt:formatNumber type="number" value="${totalIncome}" minFractionDigits="${maxFractionNum}" maxFractionDigits="${maxFractionNum}" /></label></td>
+                                        <td></td></tr>
+
+                                         <tr>
+                                        <td></td>
+                                        <td class="italicFont">Total Income: </td>
+                                        <td colspan="4" class="italicFont grandTotal"><label>
+                                            <fmt:formatNumber type="number" value="${totalSale}" minFractionDigits="${maxFractionNum}" maxFractionDigits="${maxFractionNum}" />
+                                            - (<fmt:formatNumber type="number" value="${totalPurchase}" minFractionDigits="${maxFractionNum}" maxFractionDigits="${maxFractionNum}" />
+                                            + <fmt:formatNumber type="number" value="${totalDiscounts}" minFractionDigits="${maxFractionNum}" maxFractionDigits="${maxFractionNum}" />
+                                            ) = <fmt:formatNumber type="number" value="${totalIncome}" minFractionDigits="${maxFractionNum}" maxFractionDigits="${maxFractionNum}" />
+                                            </label></td></tr>
                                     </tbody>
                                 </table>
                             </c:if>
 
                         </div>
-
-                        <div class="col-lg-3">
-                            <div id="chartByUserTotalSales"></div>
-                            <c:if test="${not empty searchBean.totalSaleList}"><p class="chartDesc">N.B. This is a donut chart showing percentage by users.</p></c:if>
-
-                        </div>
-
                         <!-- /.col-lg-6 (nested) -->
                     </div>
                     </form:form>
                     <br>
                     <div class="row">
                         <div class="col-lg-12 unpostedSalesWrapperDiv">
-                            <table id="salesReportList" class="table table-striped table-hover dataTable">
+                            <table id="incomeReportList" class="table table-striped table-hover dataTable">
                             </table>
 
                         </div>

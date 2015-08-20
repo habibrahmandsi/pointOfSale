@@ -886,4 +886,82 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
         return null;
     }
 
+    @Override
+    public int getIncomeReportCount(String searchKey, int salesReturn, Date fromDate, Date toDate, Long userId,int unposted) throws Exception{
+        String sql = this.getSaleReportSql("", "", searchKey,fromDate, toDate, userId);
+        sql = sql.substring(sql.indexOf("FROM"));
+        logger.debug("SMNLOG:sql 11:"+sql);
+        sql = "SELECT COUNT(*) "+sql;
+        logger.debug("SMNLOG:sql 22:"+sql);
+        List paramList = new ArrayList();
+        paramList.add(salesReturn);
+        paramList.add(unposted);
+        if (!Utils.isEmpty(searchKey)) {
+            paramList.add(searchKey + "%");
+            paramList.add(searchKey + "%");
+            paramList.add(searchKey + "%");
+            paramList.add(searchKey + "%");
+            paramList.add(searchKey + "%");
+            paramList.add(searchKey + "%");
+            paramList.add(searchKey + "%");
+            paramList.add(searchKey + "%");
+            paramList.add(searchKey + "%");
+        }
+
+        if(fromDate != null && toDate != null){
+            paramList.add(fromDate);
+            paramList.add(toDate);
+        }else if(fromDate != null && toDate == null){
+            paramList.add(fromDate);
+            paramList.add(Utils.endOfDate(fromDate));
+        }
+
+        if(userId > 0){
+            paramList.add(userId);
+        }
+        logger.debug("SMNLOG:sql:" + sql);
+        return jdbcTemplate.queryForInt(sql, paramList.toArray());
+    }
+
+    @Override
+    public List getTotalIncomeByDateAndUserId(Date fromDate, Date toDate, Long userId,int salesReturn,int unposted) throws Exception{
+        logger.debug("SMNLOG:fromDate:"+fromDate+" toDate:"+toDate+" userId:"+userId+" salesReturn:"+salesReturn);
+        String sql = "SELECT SUM(si.total_price) totalSaleAmount,SUM(si.total_purchase_price) totalPurchasePrice,"
+                + "SUM(si.benefit) benefit, SUM(s.discount) totalDiscount, u.name userName "
+                + "FROM sales s "
+                + "JOIN sales_item si ON(s.id = si.sales_id) "
+                + "JOIN product p ON(p.id = si.product_id) "
+                + "LEFT JOIN company c ON(p.company_id = c.id) "
+                + "LEFT JOIN user u ON(u.id = s.sale_by_id) WHERE si.benefit IS NOT NULL AND s.sale_return = ? AND s.unposted=?";
+
+
+        sql = sql + " AND s.sales_date >= ? AND s.sales_date <= ? ";
+        if(userId > 0){
+            sql = sql + " AND s.sale_by_id = ? ";
+        }
+        sql +=" GROUP BY u.name ";
+
+        logger.debug("SMNLOG:sql:" + sql);
+        List paramList = new ArrayList();
+        paramList.add(salesReturn);
+        paramList.add(unposted);
+
+        if(fromDate != null && toDate != null){
+            paramList.add(fromDate);
+            paramList.add(toDate);
+        }else if(fromDate != null && toDate == null){
+            paramList.add(fromDate);
+            paramList.add(Utils.endOfDate(fromDate));
+        }
+
+        if(userId > 0){
+            paramList.add(userId);
+        }
+
+        List list = jdbcTemplate.queryForList(sql, paramList.toArray());
+        if(list != null && list.size() > 0)
+            return list;
+        return null;
+    }
+
 }

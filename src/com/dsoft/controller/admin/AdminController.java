@@ -2561,6 +2561,64 @@ public class AdminController {
         return "redirect:./saleReport.do";
     }
 
+    @RequestMapping(value = "/*/incomeReport.do", method = RequestMethod.GET)
+    public String incomeReportView(HttpServletRequest request, Model model) {
+        logger.debug("******  Income Report controller ********* ");
+        SearchBean searchBean = request.getSession().getAttribute("searchBean") != null ? (SearchBean)request.getSession().getAttribute("searchBean"): new SearchBean();
+        int opt = request.getParameter("opt") != null ? Integer.parseInt(request.getParameter("opt")) :searchBean.getOpt();
+        int salesReturn = 0;
+        int unposted = 0;
+        if(opt == 0){
+            logger.debug("----- :this is a sales report");
+
+        }else if(opt == 1){
+            logger.debug("----- :this is a sales Return report");
+            salesReturn = 1;
+            unposted = 0;
+        }else if(opt == 2 ){
+            logger.debug("----- :this is a unposted sales report");
+            salesReturn = 0;
+            unposted = 1;
+        }
+        logger.debug("SMNLOG:searchBean:"+searchBean);
+        List totalIncomeList = new ArrayList();
+        try{
+            if ((Utils.isInRole(Role.ROLE_ADMIN.getLabel()) || Utils.isInRole(Role.ROLE_SUPER_ADMIN.getLabel()))) {
+
+                if(Utils.isEmpty(searchBean.getFromDateStr()))
+                searchBean.setFromDateStr(Utils.getStringFromDate(Constants.DATE_FORMAT, new Date()));
+
+                Date fmDate = Utils.startOfDate(Utils.getDateFromString(Constants.DATE_FORMAT, searchBean.getFromDateStr()));
+                Date tDate = !Utils.isEmpty(searchBean.getToDateStr()) ? Utils.endOfDate(Utils.getDateFromString(Constants.DATE_FORMAT, searchBean.getToDateStr())) : null;
+                logger.debug("SMNLOG:FromDate:"+fmDate+" toDate:"+tDate);
+                List<User> userList = adminService.getAllUserList();
+                totalIncomeList = adminJdbcService.getTotalIncomeByDateAndUserId(fmDate, tDate, searchBean.getUserId() != null ? searchBean.getUserId() : 0, salesReturn, unposted);
+                logger.debug("SMNLOG:totalIncomeList:"+totalIncomeList);
+                searchBean.setOpt(opt);
+                searchBean.setUserList(userList);
+                searchBean.setTotalIncomeList(totalIncomeList);
+
+                model.addAttribute("searchBean", searchBean);
+                return "common/incomeReport";
+            }else{
+                Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("accessDenied.AccessDeniedMessage"));
+                return "redirect:./landingPage.do";
+            }
+        }catch(Exception e){
+            logger.debug("SMNLOG:ERROR: Sale report:"+e);
+            Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("accessDenied.AccessDeniedMessage"));
+            return "redirect:./landingPage.do";
+        }
+    }
+
+    @RequestMapping(value = "/*/incomeReport.do", method = RequestMethod.POST)
+    public String incomeReportPost(HttpServletRequest request, @ModelAttribute("searchBean") SearchBean searchBean, Model model) {
+        logger.debug("SMNLOG:: income Report POST Controller::");
+        logger.debug("SMNLOG:searchBean:"+searchBean);
+        request.getSession().setAttribute("searchBean",searchBean);
+        return "redirect:./incomeReport.do";
+    }
+
 }
 
 

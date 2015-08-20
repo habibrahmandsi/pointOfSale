@@ -17,6 +17,7 @@ public class SearchBean {
     private Long userId;
     private List<User> userList;
     private List totalSaleList;
+    private List totalIncomeList;
     private int opt;
 
 
@@ -84,6 +85,14 @@ public class SearchBean {
         this.opt = opt;
     }
 
+    public List getTotalIncomeList() {
+        return totalIncomeList;
+    }
+
+    public void setTotalIncomeList(List totalIncomeList) {
+        this.totalIncomeList = totalIncomeList;
+    }
+
     @Override
     public String toString() {
         return "SearchBean{" +
@@ -94,6 +103,7 @@ public class SearchBean {
                 ", userId=" + userId +
                 ", userList=" + userList +
                 ", totalSaleList=" + totalSaleList +
+                ", totalIncomeList=" + totalIncomeList +
                 ", opt=" + opt +
                 '}';
     }
