@@ -1,6 +1,7 @@
 package com.dsoft.dao;
 
 
+import com.dsoft.entity.PurchaseItem;
 import com.dsoft.entity.SearchBean;
 
 import java.util.Date;
@@ -26,8 +27,8 @@ public interface AdminJdbcDao {
     void deleteEntityByAnyColValue(String tableName,String colName, String colValue) throws Exception;
 
     Map<String, Object> getPurchases(Integer start, Integer length, String sortColName, String sortType, String searchKey, int purchaseReturn) throws Exception ;
-    Map<String, Object> getSales(Integer start, Integer length, String sortColName, String sortType, String searchKey, int salesReturn) throws Exception ;
-    int getSalesCount(int salesReturn) throws Exception;
+    Map<String, Object> getSales(Integer start, Integer length, String sortColName, String sortType, String searchKey,Long userId, int salesReturn,int unposted) throws Exception ;
+    int getSalesCount(Long userId,int salesReturn,int unposted) throws Exception;
     int getPurchaseCount(int purchaseReturn) throws Exception;
     Map<String, Object> getProductsForAutoComplete(String sortColName, String sortType, String searchKey) throws Exception;
 
@@ -40,4 +41,12 @@ public interface AdminJdbcDao {
 
     int getIncomeReportCount(String searchKey, int salesReturn, Date fromDate, Date toDate, Long userId,int unposted) throws Exception;
     List getTotalIncomeByDateAndUserId(Date fromDate, Date toDate, Long userId,int salesReturn,int unposted) throws Exception;
+
+    Map getLatestPurchaseItemByProductId(Long productId) throws Exception;
+
+    List getTotalPurchaseByDateAndUserId(Date fromDate, Date toDate, Long userId,int purchaseReturn,int unposted) throws Exception;
+
+    Map<String, Object> getPurchaseReport(Integer start, Integer length, String sortColName, String sortType, String searchKey, int purchaseReturn, Date fromDate, Date toDate, Long userId,int unposted) throws Exception ;
+    int getPurchaseReportCount(String searchKey, int purchaseReturn, Date fromDate, Date toDate, Long userId,int unposted) throws Exception;
+
 }

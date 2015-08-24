@@ -6,12 +6,13 @@ $(document).ready(function() {
     $('#dp1-1').datepicker();
     $('#dp1-2').datepicker();
 
-    url = "./getUnpostedSales.do";
+    url = "./getSales.do?opt="+optFromQparam;
+    //url = "./getUnpostedSales.do";
     console.log("SMNLOG:------------------userIdFromQparam :"+userIdFromQparam);
-    if(userIdFromQparam > 0){
+    if(typeof userIdFromQparam != 'undefined' && userIdFromQparam > 0){
         $("#userId").attr("disabled",'disabled');
         $("#userId").val(userIdFromQparam);
-        url +="?userId="+userIdFromQparam;
+        url +="&userId="+userIdFromQparam;
     }
 
 
@@ -26,8 +27,8 @@ $(document).ready(function() {
         userId = $("#userId").val();
         console.log("SMNLOG:update fromDate:"+fromDate+" toDate:"+toDate+" userId:"+userId);
 
-     url =  "./getUnpostedSales.do"
-                +"?fromDate="+$("#fromDate").val()
+        url = "./getSales.do?opt="+optFromQparam
+                +"&fromDate="+$("#fromDate").val()
                 +"&toDate="+$("#toDate").val()
                 +"&userId="+$("#userId").val();
         initializeDataTable("#unpostedSalesList", url);

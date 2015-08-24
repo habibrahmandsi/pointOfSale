@@ -9,6 +9,7 @@ import java.util.List;
  */
 
 @Entity
+
 @Table(name = "sales")
 public class Sales extends AbstractBaseEntity{
 

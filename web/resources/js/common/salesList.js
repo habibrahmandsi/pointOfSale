@@ -16,7 +16,15 @@ $(document).ready(function() {
 
         }
         },
-        {"sTitle": "Total Amount", "mData": "total_amount", "bSortable": true},
+        {"sTitle": "Total Amount", "mData": null, "bSortable": true, "render": function (data) {
+            var date= new Date(data.sales_date);
+            var totalAmount = +data.total_amount;
+            var discount = +data.discount;
+
+            return  (totalAmount+discount)
+
+        }
+        },
         {"sTitle": "Discount", "mData": "discount", "bSortable": true},
         {"sTitle": "Sold By", "mData": "userName", "bSortable": true},
         {"sTitle": "", "mData": null,"bSortable": false, "render": function (data) {

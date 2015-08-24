@@ -21,7 +21,7 @@ $(document).ready(function () {
         })
 
         /*Auto complete for company name*/
-        $.ajax({
+      /*  $.ajax({
             url: makeAjaxUrlForTypeAhead('./getProducts.do', 0, "", -1),
             type: 'get',
             data: {},
@@ -31,6 +31,12 @@ $(document).ready(function () {
                 makeAutoComplete('.productName', dataList, "productName", "1");
                 $(".productName").focus();
             }
+        });*/
+
+        makeTabularAutoCompleteForPurchase(".productName", './getProductsForAutoComplete.do', function (data) {
+            console.log("SMNLOG:this is call back:" + JSON.stringify(data));
+            productObject = data
+            console.log("SMNLOG:product id:" + productObject.productId);
         });
 
         $(document).on("keyup", '.discount input', function () {
@@ -59,6 +65,23 @@ $(document).ready(function () {
             reCalculatePurchaseTotal();
         });
 
+        $(".purchaseRateInput").keypress(function (event) {
+            //console.log("SMNLOG:writting in qty");
+            var keycode = (event.keyCode ? event.keyCode : event.which);
+            if (keycode == '13') {
+                $(".saleRateInput").focus();
+            }
+        });
+
+
+        $(".saleRateInput").keypress(function (event) {
+            //console.log("SMNLOG:writting in qty");
+            var keycode = (event.keyCode ? event.keyCode : event.which);
+            if (keycode == '13') {
+                $(".qty").focus();
+            }
+        });
+
         $(".qty").keypress(function (event) {
             //console.log("SMNLOG:writting in qty");
             var keycode = (event.keyCode ? event.keyCode : event.which);
@@ -81,6 +104,7 @@ $(document).ready(function () {
                 $(this).find('td').eq(0).find("input.itemId").attr('name', "purchaseItemList[" + index + "].id");
                 $(this).find('td').eq(0).find("input.purchaseId").attr('name', "purchaseItemList[" + index + "].purchase.id");
                 $(this).find('td').eq(0).find("input.prevQuantity").attr('name', "purchaseItemList[" + index + "].prevQuantity");
+                $(this).find('td').eq(0).find("input.saleRate").attr('name', "purchaseItemList[" + index + "].saleRate");
                 $(this).find('td').eq(3).find("input.purchaseRate").attr('name', "purchaseItemList[" + index + "].purchaseRate");
                 $(this).find('td').eq(4).find("input.qunatityInput").attr('name', "purchaseItemList[" + index + "].quantity");
                 $(this).find('td').eq(5).find("input.totalPrice").attr('name', "purchaseItemList[" + index + "].totalPrice");
@@ -154,12 +178,14 @@ $(document).ready(function () {
 
             var serialNo = +$(".purchaseLineItemsDiv table tbody tr").length + 1;
             var purchaseRate = +$(".purchaseRateInput").val();
+            var saleRate = +$(".saleRateInput").val();
             var quantity = +$(".qty").val();
             var lineTotal = quantity * purchaseRate;
             console.log("SMNLOG:quantity:" + quantity + " purchaseRate:" + purchaseRate + " lineTotal:" + lineTotal);
             var row = '<tr id="' + productObject.productId + '">'
                 + '<td><label>' + serialNo + '</label>'
                 + '<input type="text" name="purchaseItemList[].product.id" class="productId hidden" value="' + productObject.productId + '">'
+                + '<input type="text" name="purchaseItemList[].saleRate" class="saleRate hidden" value="'+saleRate+'">'
                 + '<input type="text" name="purchaseItemList[].prevQuantity" class="prevQuantity hidden" value="0">'
                 + '</td>'
                 + '<td>' + productObject.productName + '</td>'
@@ -173,13 +199,13 @@ $(document).ready(function () {
             console.log("SMNLOG:productObject.id" + productObject.productId);
 
             //$(".purchaseLineItemsDiv").find("table").find("tbody").find("tr").each(function () {
-            if ($("#" + productObject.productId).length > 0) { // same product row is already exist
-                console.log("SMNLOG:FOUND......");
-                var newQty = +$("#" + productObject.productId).find("input.qunatityInput").val();
-                $("#" + productObject.productId).find("input.qunatityInput").val(quantity + newQty).keyup();
-            } else {
+            //if ($("#" + productObject.productId).length > 0) { // same product row is already exist
+            //    console.log("SMNLOG:FOUND......");
+            //    var newQty = +$("#" + productObject.productId).find("input.qunatityInput").val();
+            //    $("#" + productObject.productId).find("input.qunatityInput").val(quantity + newQty).keyup();
+            //} else {
                 $(".purchaseLineItemsDiv").find("table").find("tbody").append(row);
-            }
+            //}
             //});
 
 

@@ -25,7 +25,13 @@
     <div class="col-lg-12 zeroPaddingForm">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <spring:message code="sales.header"/> Form
+                <c:if test="${sales.salesReturn == true}">
+                    <spring:message code="sales.header"/> Return Form
+                </c:if>
+                <c:if test="${sales.salesReturn == false}">
+                    <spring:message code="sales.header"/> Form
+
+                </c:if>
             </div>
             <div class="panel-body">
                 <div class="row">
@@ -148,9 +154,16 @@
                             </table>
                             </br>
                             <div style="text-align: right;">
+
                                 <button class="btn btn-danger" type="reset">Cancel</button>
                                 &nbsp;
-                                <button class="btn btn-success salesSave" type="button">Purchase</button>
+
+                                <c:if test="${sales.salesReturn == true}">
+                                    <button class="btn btn-success salesSave" type="button">Sales Return</button>
+                                </c:if>
+                                <c:if test="${sales.salesReturn == false}">
+                                    <button class="btn btn-success salesSave" type="button">Sale</button>
+                                </c:if>
                             </div>
 
                         </c:if>
@@ -161,12 +174,29 @@
             <!-- /.panel -->
         </div>
         <div class="row">
-            <div class="col-lg-4 zeroPaddingForm"></div>
             <div class="col-lg-4 zeroPaddingForm">
-                <a href="./unpostedSale.do?userId=${sales.user.id}" class="btn btn-primary btn-block unpostedSaleLnk" >My Un-posted Sale</a>
+                <c:if test="${sales.salesReturn == false}">
+                    <a href="./upsertSales.do" class="btn btn-primary btn-block unpostedSaleLnk" >New Sale</a>
+                </c:if>
+                <c:if test="${sales.salesReturn == true}">
+                    <a href="./upsertSales.do?salesReturn=1" class="btn btn-primary btn-block unpostedSaleLnk" >New Sale Return</a>
+                </c:if>
             </div>
             <div class="col-lg-4 zeroPaddingForm"></div>
+            <div class="col-lg-4 zeroPaddingForm">
+                <c:if test="${sales.salesReturn == false}">
+                    <a href="./unpostedSale.do?userId=${sales.user.id}&opt=2" class="btn btn-primary btn-block unpostedSaleLnk" >My Un-posted Sale</a>
+                </c:if>
+                <c:if test="${sales.salesReturn == true}">
+                    <a href="./unpostedSale.do?userId=${sales.user.id}&opt=3" class="btn btn-primary btn-block unpostedSaleLnk" >My Un-posted Sale Return</a>
+                </c:if>
+            </div>
+
         </div>
+
+
+
+
         <!-- /.col-lg-12 -->
     </div>
     </form:form>

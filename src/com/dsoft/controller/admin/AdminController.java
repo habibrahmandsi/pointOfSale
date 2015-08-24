@@ -402,7 +402,10 @@ public class AdminController {
         logger.debug("SMNLOG:: Product POST Controller::");
         Long productId = product.getId();
         try {
-            logger.debug("SMNLOG:: productId:: " + productId);
+            if(product.getProductGroup() != null && (product.getProductGroup().getId() == null || product.getProductGroup().getId() == 0)){
+                product.setProductGroup(null);
+            }
+            logger.debug("SMNLOG:: product:: " + product);
             //if(user.getJoiningDate() == null)user.setJoiningDate(new Date());
 
             adminService.saveOrUpdateProduct(product);
@@ -1402,6 +1405,7 @@ public class AdminController {
             }
             User user = (User) adminService.getAbstractBaseEntityByString(Constants.USER, "userName", Utils.getLoggedUserName());
             purchase.setUser(user);
+            purchase.setUnposted(false);
             if (purchase.getPurchaseReturn())
                 adminService.saveOrUpdatePurchaseReturn(purchase);
             else
@@ -1781,9 +1785,15 @@ public class AdminController {
                     }
 
                 }
+                if (salesReturn == 1){
+                    sales.setSalesReturn(true);
+                    sales.setSalesTokenNo(Utils.generateUniqueId("SR"));
+                }else{
+                    sales.setSalesReturn(false);
+                    sales.setSalesTokenNo(Utils.generateUniqueId("S"));
+                }
 
                 sales.setUser(user);
-                sales.setSalesTokenNo(Utils.generateUniqueId("S"));
                 sales.setSalesDate(new Date());
                 logger.debug("SMNLOG:-------1 sales id:" + sales.getId());
                 adminService.saveOrUpdateObject(sales);
@@ -1794,8 +1804,7 @@ public class AdminController {
             logger.debug("ERROR:" + e);
 
         }
-        if (salesReturn == 1)
-            sales.setSalesReturn(true);
+
 
         sales.setSalesItemList(salesItemList);
         model.addAttribute("sales", sales);
@@ -1809,6 +1818,9 @@ public class AdminController {
         logger.debug("SMNLOG:: sales::" + sales);
         Long salesId = sales.getId();
         List<SalesItem> salesItemList = new ArrayList<SalesItem>();
+        String redirectUrl = "./upsertSales.do";
+        if(sales.getSalesReturn())
+            redirectUrl += "?salesReturn=1";
         try {
             logger.debug("SMNLOG:: salesId:: " + salesId);
             if (salesId != null) { // when to update
@@ -1822,18 +1834,22 @@ public class AdminController {
                 if(salesItemList!= null && salesItemList.size() > 0){
                     for(SalesItem salesItem: salesItemList){
                         logger.debug("## -- pid:"+salesItem.getProduct().getId()+" Qty:"+salesItem.getQuantity());
-                        if(updatePurchaseItem(salesItem.getProduct().getId(), salesItem.getQuantity(), salesItem)){
-                            logger.debug("SMNLOG:----------- updatePurchaseItem in Li --------------SUCCESS");
+                        if(sales.getSalesReturn()){ // add an sales item for sale return
+                            logger.debug("SMNLOG:-----------add an sales item for sale return --------------");
+
                         }else{
-                            logger.debug("SMNLOG:----------- updatePurchaseItem in Li --------------FAILED");
-                            Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("sales.save.failed.msg"));
-                            return "redirect:./upsertSales.do";
+                            if(updatePurchaseItem(salesItem.getProduct().getId(), salesItem.getQuantity(), salesItem)){
+                                logger.debug("SMNLOG:----------- updatePurchaseItem in Li --------------SUCCESS");
+                            }else{
+                                logger.debug("SMNLOG:----------- updatePurchaseItem in Li --------------FAILED");
+                                Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("sales.save.failed.msg"));
+                                return "redirect:"+redirectUrl;
+                            }
                         }
+
                     }
 
                 }
-
-
             } else { // when to save
                 sales.setSalesDate(new Date());
                 sales.setSalesReturn(false);// as it is sales not sales return
@@ -1845,19 +1861,35 @@ public class AdminController {
             sales.setSalesItemList(null);
             adminService.saveOrUpdateSales(sales);
 
-            if (salesId != null)
-                Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("sales.update.success.msg"));
-            else
-                Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("sales.save.success.msg") + "<b>&nbsp;SALES INVOICE NO:</b>&nbsp;<b style='color:red'>" + sales.getSalesTokenNo() + "</b>");
-        } catch (Exception ex) {
+            if(sales.getSalesReturn()){
+               /* if (salesId != null)
+                    Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("sales.return.update.success.msg"));
+                else*/
+                    Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("sales.return.save.success.msg") + "<b>&nbsp;SALES RETURN INVOICE NO:</b>&nbsp;<b style='color:red'>" + sales.getSalesTokenNo() + "</b>");
+
+              }else{
+                /*if (salesId != null)
+                    Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("sales.update.success.msg"));
+                else*/
+                    Utils.setGreenMessage(request, Utils.getMessageBundlePropertyValue("sales.save.success.msg") + "<b>&nbsp;SALES INVOICE NO:</b>&nbsp;<b style='color:red'>" + sales.getSalesTokenNo() + "</b>");
+            }
+           } catch (Exception ex) {
             logger.error("Save sales exception:: " + ex);
-            if (salesId != null)
-                Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("sales.update.failed.msg"));
-            else
-                Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("sales.save.failed.msg"));
+            if(sales.getSalesReturn()){
+                /*if (sales.getId() != null)
+                    Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("sales.return.update.failed.msg"));
+                else*/
+                    Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("sales.return.save.failed.msg"));
+
+              }else{
+               /* if (salesId != null)
+                    Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("sales.update.failed.msg"));
+                else*/
+                    Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("sales.save.failed.msg"));
+            }
 
         }
-        return "redirect:./upsertSales.do";
+        return "redirect:"+redirectUrl;
     }
 
 
@@ -1875,10 +1907,27 @@ public class AdminController {
         int iSortColIndex = request.getParameter(Constants.iSortCOL) != null ? Integer.parseInt(request.getParameter(Constants.iSortCOL)) : 0;
         String searchKey = request.getParameter(Constants.sSearch) != null ? request.getParameter(Constants.sSearch) : "";
         String sortType = request.getParameter(Constants.sortType) != null ? request.getParameter(Constants.sortType) : "asc";
-        Integer salesReturn = request.getParameter("opt") != null ? Integer.parseInt(request.getParameter("opt")) : 0;
+        int opt = request.getParameter("opt") != null ? Integer.parseInt(request.getParameter("opt")) : 0;
+        Long userId = request.getParameter("userId") != null ? Long.parseLong(request.getParameter("userId")) : 0;
         String sortColName = "";
         logger.debug("SMNLOG:iSortColIndex:" + iSortColIndex + " sortType:" + sortType + " searchKey:" + searchKey);
-
+        int salesReturn = 0;
+        int unposted = 0;
+        if(opt == 0){
+            logger.debug("----- :this is a sales report");
+        }else if(opt == 1){
+            logger.debug("----- :this is a sales Return report");
+            salesReturn = 1;
+            unposted = 0;
+        }else if(opt == 2 ){
+            logger.debug("----- :this is a unposted sales report");
+            salesReturn = 0;
+            unposted = 1;
+        }else if(opt == 3 ){
+            logger.debug("----- :this is a unposted sales return report");
+            salesReturn = 1;
+            unposted = 1;
+        }
         // sorting related operation for data Tables
 
         sortColName = tableColumns[iSortColIndex];
@@ -1887,11 +1936,11 @@ public class AdminController {
         String trackingDetailsDataStr = null;
         Map<String, Object> userDataMap;
         try {
-            int totalRecords = adminJdbcService.getSalesCount(salesReturn);// 0 for sales and 1 for sales Return
+            int totalRecords = adminJdbcService.getSalesCount(userId,salesReturn,unposted);// 0 for sales and 1 for sales Return
             if (length < 0) {
-                userDataMap = adminJdbcService.getSales(start, totalRecords, sortColName, sortType, searchKey, salesReturn);
+                userDataMap = adminJdbcService.getSales(start, totalRecords, sortColName, sortType, searchKey, userId,salesReturn, unposted);
             } else {
-                userDataMap = adminJdbcService.getSales(start, length, sortColName, sortType, searchKey, salesReturn);
+                userDataMap = adminJdbcService.getSales(start, length, sortColName, sortType, searchKey,userId, salesReturn, unposted);
             }
 
 
@@ -1921,7 +1970,8 @@ public class AdminController {
     @RequestMapping(value = "/*/salesList.do", method = RequestMethod.GET)
     public String salesListView(HttpServletRequest request, Model model) {
         logger.error("********* sales view controller *********");
-        model.addAttribute("opt", 0);
+        Long opt = request.getParameter("opt") != null ? Long.parseLong(request.getParameter("opt")) : 0;
+        model.addAttribute("opt", opt);
         return "common/salesList";
     }
 
@@ -2110,7 +2160,7 @@ public class AdminController {
             Double prevQty = 0d;
             int salesReturn = request.getParameter("salesReturn") != null ? Integer.parseInt(request.getParameter("salesReturn")) : 0;
             logger.debug("sId:" + sId + " pId:" + pId + " sItemId" + sItemId + " qty" + qty + " pRate:" + pRate
-                    + " sRate:" + sRate + " totalPrice:" + totalPrice + " grandTotal:" + grandTotal + " discount:" + discount);
+                    + " sRate:" + sRate + " totalPrice:" + totalPrice + " grandTotal:" + grandTotal + " discount:" + discount+" salesReturn:"+salesReturn);
 //        int salesReturn = 0; // for sales
 
             if (sId > 0 && pId > 0) {
@@ -2144,6 +2194,10 @@ public class AdminController {
 
                 adminService.saveOrUpdateObject(sales);
                 adminService.saveOrUpdateObject(salesItem);
+                if(salesReturn == 1){
+                    logger.debug("salesReturn ::"+salesReturn);
+                    qty = qty*(-1);
+                }
                 if (sItemId > 0) {
                     logger.debug("SMNLOG:-------QTY :--------:" + prevQty);
                     logger.debug("SMNLOG:-------QTY TO UPDATE--------:" + (qty - prevQty));
@@ -2401,6 +2455,7 @@ public class AdminController {
         logger.error("********* Un-posted Sale  controller *********");
         Long userId = request.getParameter("userId") != null ? Long.parseLong(request.getParameter("userId")) : 0;
         User user = (User) adminService.getAbstractBaseEntityByString(Constants.USER, "userName", Utils.getLoggedUserName());
+        Long opt = request.getParameter("opt") != null ? Long.parseLong(request.getParameter("opt")) : 0;
         try{
             if ((Utils.isInRole(Role.ROLE_ADMIN.getLabel()) || Utils.isInRole(Role.ROLE_SUPER_ADMIN.getLabel())) || user.getId() == userId) {
 
@@ -2408,6 +2463,7 @@ public class AdminController {
                 model.addAttribute("userList", userList);
                 model.addAttribute("fromDate", Utils.getStringFromDate(Constants.DATE_FORMAT, new Date()));
                 model.addAttribute("toDate", "");
+                model.addAttribute("opt", opt);
                 model.addAttribute("userId", userId);
                 return "common/unpostedSales";
             }else{
@@ -2452,6 +2508,10 @@ public class AdminController {
         }else if(opt == 2 ){
             logger.debug("----- :this is a unposted sales report");
             salesReturn = 0;
+            unposted = 1;
+        }else if(opt == 3 ){
+            logger.debug("----- :this is a unposted sales return report");
+            salesReturn = 1;
             unposted = 1;
         }
         logger.debug("----- FINAL:salesReturn:"+salesReturn+" unposted:"+unposted);
@@ -2503,10 +2563,97 @@ public class AdminController {
     }
 
 
+    @RequestMapping(value = "/*/getPurchaseReport.do", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    DataModelBean getPurchaseReport(HttpServletRequest request) throws Exception {
+        logger.info("********* Get Purchase Report List Ajax Controller *********");
+        DataModelBean dataModelBean = new DataModelBean();
+        /* this params is for dataTables */
+        String[] tableColumns = "purchase_token_no,purchase_date,p.name,c.name,pi.purchase_rate,pi.sales_rate,pi.quantity,pItemTotalPrice,userName".split(",");
+        int start = request.getParameter(Constants.IDISPLAY_START) != null ? Integer.parseInt(request.getParameter(Constants.IDISPLAY_START)) : 0;
+        int length = request.getParameter(Constants.IDISPLAY_LENGTH) != null ? Integer.parseInt(request.getParameter(Constants.IDISPLAY_LENGTH)) : 5;
+        int sEcho = request.getParameter(Constants.sEcho) != null ? Integer.parseInt(request.getParameter(Constants.sEcho)) : 0;
+        int iSortColIndex = request.getParameter(Constants.iSortCOL) != null ? Integer.parseInt(request.getParameter(Constants.iSortCOL)) : 0;
+        String searchKey = request.getParameter(Constants.sSearch) != null ? request.getParameter(Constants.sSearch) : "";
+        String sortType = request.getParameter(Constants.sortType) != null ? request.getParameter(Constants.sortType) : "asc";
+        String fromDate = request.getParameter("fromDate") != null ? request.getParameter("fromDate") : "";
+        String toDate = request.getParameter("toDate") != null ? request.getParameter("toDate") : "";
+        Long userId = request.getParameter("userId") != null ? Long.parseLong(request.getParameter("userId")) : 0;
+        // to support sales return, sales and unposted sales report at he same time
+        int opt = request.getParameter("opt") != null ? Integer.parseInt(request.getParameter("opt")) : 0;
+        int purchaseReturn = 0;
+        int unposted = 0;
+        if(opt == 0){
+            logger.debug("----- :this is a sales report");
+        }else if(opt == 1){
+            logger.debug("----- :this is a sales Return report");
+            purchaseReturn = 1;
+            unposted = 0;
+        }else if(opt == 2 ){
+            logger.debug("----- :this is a unposted sales report");
+            purchaseReturn = 0;
+            unposted = 1;
+        }else if(opt == 3 ){
+            logger.debug("----- :this is a unposted sales return report");
+            purchaseReturn = 1;
+            unposted = 1;
+        }
+        logger.debug("----- FINAL:purchaseReturn:"+purchaseReturn+" unposted:"+unposted);
+        String sortColName = "";
+        logger.debug("SMNLOG:iSortColIndex:" + iSortColIndex + " sortType:" + sortType + " searchKey:" + searchKey);
+        logger.debug("SMNLOG:fromDateStr:" + fromDate + " toDateStr:" + toDate + " userId:" + userId);
+
+        Date fmDate = !Utils.isEmpty(fromDate) ? Utils.startOfDate(Utils.getDateFromString(Constants.DATE_FORMAT, fromDate)) : Utils.startOfDate(new Date());
+        Date tDate = !Utils.isEmpty(toDate) ? Utils.endOfDate(Utils.getDateFromString(Constants.DATE_FORMAT, toDate)) : null;
+        if (tDate == null)
+            tDate = Utils.endOfDate(fmDate);
+
+        logger.debug("SMNLOG:fmDate:" + fmDate + " tDate:" + tDate + " userId:" + userId);
+
+        sortColName = tableColumns[iSortColIndex];
+        logger.debug("SMNLOG:sortColName:" + sortColName);
+
+        String trackingDetailsDataStr = null;
+        Map<String, Object> userDataMap;
+        try {
+            int totalRecords = adminJdbcService.getPurchaseReportCount(searchKey, purchaseReturn, fmDate, tDate, userId,unposted);
+            logger.debug("SMNLOG: totalRecords:" + totalRecords);
+            if (length < 0) {
+                userDataMap = adminJdbcService.getPurchaseReport(start, totalRecords, sortColName, sortType, searchKey, purchaseReturn, fmDate, tDate, userId,unposted);
+            } else {
+                userDataMap = adminJdbcService.getPurchaseReport(start, length, sortColName, sortType, searchKey, purchaseReturn, fmDate, tDate, userId,unposted);
+            }
+
+                /*
+                * DataModelBean is a bean of Data table to
+                * handle data Table search, paginatin operation very simply
+                */
+            dataModelBean.setAaData((List) userDataMap.get("data"));
+            if (!Utils.isEmpty(searchKey)) {
+                dataModelBean.setiTotalDisplayRecords((Integer) userDataMap.get("total"));
+            } else {
+                dataModelBean.setiTotalDisplayRecords(totalRecords);
+            }
+            dataModelBean.setiTotalRecords(totalRecords);
+            dataModelBean.setsEcho(sEcho);
+            dataModelBean.setiDisplayStart(start);
+            dataModelBean.setiDisplayLength(totalRecords);
+
+        } catch (Exception ex) {
+            logger.error(":: ERROR:: Failed to load Purchase Report details data:: " + ex);
+        }
+
+        return dataModelBean;
+    }
+
+
     @RequestMapping(value = "/*/saleReport.do", method = RequestMethod.GET)
     public String saleReportView(HttpServletRequest request, Model model) {
         logger.debug("******  Sale Report controller ********* ");
         SearchBean searchBean = request.getSession().getAttribute("searchBean") != null ? (SearchBean)request.getSession().getAttribute("searchBean"): new SearchBean();
+        User user = (User) adminService.getAbstractBaseEntityByString(Constants.USER, "userName", Utils.getLoggedUserName());
+
         int opt = request.getParameter("opt") != null ? Integer.parseInt(request.getParameter("opt")) :searchBean.getOpt();
         int salesReturn = 0;
         int unposted = 0;
@@ -2521,25 +2668,30 @@ public class AdminController {
             logger.debug("----- :this is a unposted sales report");
             salesReturn = 0;
             unposted = 1;
+        }else if(opt == 3 ){
+            logger.debug("----- :this is a unposted sales return report");
+            salesReturn = 1;
+            unposted = 1;
         }
         logger.debug("SMNLOG:searchBean:"+searchBean);
         List totalSaleList = new ArrayList();
         try{
             if ((Utils.isInRole(Role.ROLE_ADMIN.getLabel()) || Utils.isInRole(Role.ROLE_SUPER_ADMIN.getLabel()))) {
-
                 if(Utils.isEmpty(searchBean.getFromDateStr()))
                 searchBean.setFromDateStr(Utils.getStringFromDate(Constants.DATE_FORMAT, new Date()));
-
                 Date fmDate = Utils.startOfDate(Utils.getDateFromString(Constants.DATE_FORMAT, searchBean.getFromDateStr()));
                 Date tDate = !Utils.isEmpty(searchBean.getToDateStr()) ? Utils.endOfDate(Utils.getDateFromString(Constants.DATE_FORMAT, searchBean.getToDateStr())) : null;
                 logger.debug("SMNLOG:FromDate:"+fmDate+" toDate:"+tDate);
-                List<User> userList = adminService.getAllUserList();
-                totalSaleList = adminJdbcService.getTotalSaleByDateAndUserId( fmDate, tDate, searchBean.getUserId() != null? searchBean.getUserId(): 0,salesReturn,unposted);
-                logger.debug("SMNLOG:totalSaleList:"+totalSaleList);
-                searchBean.setOpt(opt);
-                searchBean.setUserList(userList);
-                searchBean.setTotalSaleList(totalSaleList);
+                if(searchBean.getUserList() == null || (searchBean.getUserList() != null && searchBean.getUserList().size() < 1)){
+                    List<User> userList = adminService.getAllUserList();
+                    searchBean.setUserList(userList);
+                }
 
+                totalSaleList = adminJdbcService.getTotalSaleByDateAndUserId( fmDate, tDate, searchBean.getUserId() != null? searchBean.getUserId(): 0,salesReturn,unposted);
+                logger.debug("SMNLOG:totalSaleList:" + totalSaleList);
+                searchBean.setOpt(opt);
+                searchBean.setTotalSaleList(totalSaleList);
+                model.addAttribute("userId", searchBean.getUserId());
                 model.addAttribute("searchBean", searchBean);
                 return "common/saleReport";
             }else{
@@ -2591,11 +2743,15 @@ public class AdminController {
                 Date fmDate = Utils.startOfDate(Utils.getDateFromString(Constants.DATE_FORMAT, searchBean.getFromDateStr()));
                 Date tDate = !Utils.isEmpty(searchBean.getToDateStr()) ? Utils.endOfDate(Utils.getDateFromString(Constants.DATE_FORMAT, searchBean.getToDateStr())) : null;
                 logger.debug("SMNLOG:FromDate:"+fmDate+" toDate:"+tDate);
-                List<User> userList = adminService.getAllUserList();
+                if(searchBean.getUserList() == null || (searchBean.getUserList() != null && searchBean.getUserList().size() < 1)){
+                    List<User> userList = adminService.getAllUserList();
+                    searchBean.setUserList(userList);
+                }
+
                 totalIncomeList = adminJdbcService.getTotalIncomeByDateAndUserId(fmDate, tDate, searchBean.getUserId() != null ? searchBean.getUserId() : 0, salesReturn, unposted);
-                logger.debug("SMNLOG:totalIncomeList:"+totalIncomeList);
+
+                logger.debug("SMNLOG:totalIncomeList:" + totalIncomeList);
                 searchBean.setOpt(opt);
-                searchBean.setUserList(userList);
                 searchBean.setTotalIncomeList(totalIncomeList);
 
                 model.addAttribute("searchBean", searchBean);
@@ -2617,6 +2773,164 @@ public class AdminController {
         logger.debug("SMNLOG:searchBean:"+searchBean);
         request.getSession().setAttribute("searchBean",searchBean);
         return "redirect:./incomeReport.do";
+    }
+
+
+    @RequestMapping(value = "/*/incomeReportChart.do", method = RequestMethod.GET)
+    public String incomeReportAsChartView(HttpServletRequest request, Model model) {
+        logger.debug("******  Income Report Chart controller ********* ");
+        SearchBean searchBean = request.getSession().getAttribute("searchBean") != null ? (SearchBean)request.getSession().getAttribute("searchBean"): new SearchBean();
+        int opt = request.getParameter("opt") != null ? Integer.parseInt(request.getParameter("opt")) :searchBean.getOpt();
+        int salesReturn = 0;
+        int unposted = 0;
+        if(opt == 0){
+            logger.debug("----- :this is a sales report");
+
+        }else if(opt == 1){
+            logger.debug("----- :this is a sales Return report");
+            salesReturn = 1;
+            unposted = 0;
+        }else if(opt == 2 ){
+            logger.debug("----- :this is a unposted sales report");
+            salesReturn = 0;
+            unposted = 1;
+        }
+        logger.debug("SMNLOG:searchBean:"+searchBean);
+        List totalIncomeList = new ArrayList();
+        try{
+            if ((Utils.isInRole(Role.ROLE_ADMIN.getLabel()) || Utils.isInRole(Role.ROLE_SUPER_ADMIN.getLabel()))) {
+
+                if(Utils.isEmpty(searchBean.getFromDateStr()))
+                    searchBean.setFromDateStr(Utils.getStringFromDate(Constants.DATE_FORMAT, new Date()));
+
+                Date fmDate = Utils.startOfDate(Utils.getDateFromString(Constants.DATE_FORMAT, searchBean.getFromDateStr()));
+                Date tDate = !Utils.isEmpty(searchBean.getToDateStr()) ? Utils.endOfDate(Utils.getDateFromString(Constants.DATE_FORMAT, searchBean.getToDateStr())) : null;
+                logger.debug("SMNLOG:FromDate:"+fmDate+" toDate:"+tDate);
+                if(searchBean.getUserList() == null || (searchBean.getUserList() != null && searchBean.getUserList().size() < 1)){
+                    List<User> userList = adminService.getAllUserList();
+                    searchBean.setUserList(userList);
+                }
+
+                totalIncomeList = adminJdbcService.getTotalIncomeByDateAndUserId(fmDate, tDate, searchBean.getUserId() != null ? searchBean.getUserId() : 0, salesReturn, unposted);
+
+                logger.debug("SMNLOG:totalIncomeList:" + totalIncomeList);
+                searchBean.setOpt(opt);
+                searchBean.setTotalIncomeList(totalIncomeList);
+
+                model.addAttribute("searchBean", searchBean);
+                return "common/incomeReport";
+            }else{
+                Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("accessDenied.AccessDeniedMessage"));
+                return "redirect:./landingPage.do";
+            }
+        }catch(Exception e){
+            logger.debug("SMNLOG:ERROR: Sale report:"+e);
+            Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("accessDenied.AccessDeniedMessage"));
+            return "redirect:./landingPage.do";
+        }
+    }
+
+    @RequestMapping(value = "/*/incomeReportChart.do", method = RequestMethod.POST)
+    public String incomeReportAsChartPost(HttpServletRequest request, @ModelAttribute("searchBean") SearchBean searchBean, Model model) {
+        logger.debug("SMNLOG:: income ReportChart POST Controller::");
+        logger.debug("SMNLOG:searchBean:"+searchBean);
+        request.getSession().setAttribute("searchBean",searchBean);
+        return "redirect:./incomeReport.do";
+    }
+
+
+    @RequestMapping(value = "/*/updateSalesDiscounts.do", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    String updateSalesDiscounts(HttpServletRequest request) {
+        logger.debug("********* Update Sales Discounts AJAX Controller *********");
+        try {
+            Long sId = request.getParameter("sId") != null ? Long.parseLong(request.getParameter("sId")) : 0;
+            Double totalPrice = request.getParameter("totalPrice") != null ? Double.parseDouble(request.getParameter("totalPrice")) : 0;
+            Double discount = request.getParameter("discount") != null ? Double.parseDouble(request.getParameter("discount")) : 0;
+            int salesReturn = request.getParameter("salesReturn") != null ? Integer.parseInt(request.getParameter("salesReturn")) : 0;
+
+            logger.debug(" sId:" + sId + " totalPrice:" + totalPrice+" salesReturn:"+salesReturn);
+            if (sId > 0) {
+                Sales sales = adminService.getSale(sId, salesReturn);
+                sales.setTotalAmount(totalPrice);
+                sales.setDiscount(discount);
+                adminService.saveOrUpdateObject(sales);
+            } else {
+                return "false";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.debug("SMNLOG:ERROR: Update Sales Discounts:" + e);
+            return "false";
+        }
+        return "true";
+    }
+
+
+    @RequestMapping(value = "/*/purchaseReport.do", method = RequestMethod.GET)
+    public String purchaseReportView(HttpServletRequest request, Model model) {
+        logger.debug("******  Purchase Report controller ********* ");
+        SearchBean searchBean = request.getSession().getAttribute("searchBean") != null ? (SearchBean)request.getSession().getAttribute("searchBean"): new SearchBean();
+        User user = (User) adminService.getAbstractBaseEntityByString(Constants.USER, "userName", Utils.getLoggedUserName());
+
+        int opt = request.getParameter("opt") != null ? Integer.parseInt(request.getParameter("opt")) :searchBean.getOpt();
+        int purchaseReturn = 0;
+        int unposted = 0;
+        if(opt == 0){
+            logger.debug("----- :this is a purchase report");
+
+        }else if(opt == 1){
+            logger.debug("----- :this is a purchase Return report");
+            purchaseReturn = 1;
+            unposted = 0;
+        }else if(opt == 2 ){
+            logger.debug("----- :this is a unposted purchase report");
+            purchaseReturn = 0;
+            unposted = 1;
+        }else if(opt == 3 ){
+            logger.debug("----- :this is a unposted purchase return report");
+            purchaseReturn = 1;
+            unposted = 1;
+        }
+        logger.debug("SMNLOG:searchBean:"+searchBean);
+        List totalSaleList = new ArrayList();
+        try{
+            if ((Utils.isInRole(Role.ROLE_ADMIN.getLabel()) || Utils.isInRole(Role.ROLE_SUPER_ADMIN.getLabel()))) {
+                if(Utils.isEmpty(searchBean.getFromDateStr()))
+                    searchBean.setFromDateStr(Utils.getStringFromDate(Constants.DATE_FORMAT, new Date()));
+                Date fmDate = Utils.startOfDate(Utils.getDateFromString(Constants.DATE_FORMAT, searchBean.getFromDateStr()));
+                Date tDate = !Utils.isEmpty(searchBean.getToDateStr()) ? Utils.endOfDate(Utils.getDateFromString(Constants.DATE_FORMAT, searchBean.getToDateStr())) : null;
+                logger.debug("SMNLOG:FromDate:"+fmDate+" toDate:"+tDate);
+                if(searchBean.getUserList() == null || (searchBean.getUserList() != null && searchBean.getUserList().size() < 1)){
+                    List<User> userList = adminService.getAllUserList();
+                    searchBean.setUserList(userList);
+                }
+                totalSaleList = adminJdbcService.getTotalPurchaseByDateAndUserId(fmDate, tDate, searchBean.getUserId() != null ? searchBean.getUserId() : 0, purchaseReturn, unposted);
+                logger.debug("SMNLOG:totalSaleList:"+totalSaleList);
+                searchBean.setOpt(opt);
+
+                searchBean.setTotalPurchaseList(totalSaleList);
+                model.addAttribute("userId", searchBean.getUserId());
+                model.addAttribute("searchBean", searchBean);
+                return "common/purchaseReport";
+            }else{
+                Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("accessDenied.AccessDeniedMessage"));
+                return "redirect:./landingPage.do";
+            }
+        }catch(Exception e){
+            logger.debug("SMNLOG:ERROR: Purchase report:"+e);
+            Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("accessDenied.AccessDeniedMessage"));
+            return "redirect:./landingPage.do";
+        }
+    }
+
+    @RequestMapping(value = "/*/purchaseReport.do", method = RequestMethod.POST)
+    public String purchaseReportPost(HttpServletRequest request, @ModelAttribute("searchBean") SearchBean searchBean) {
+        logger.debug("SMNLOG:: Purchase Report POST Controller::");
+        logger.debug("SMNLOG:searchBean:"+searchBean);
+        request.getSession().setAttribute("searchBean",searchBean);
+        return "redirect:./purchaseReport.do";
     }
 
 }

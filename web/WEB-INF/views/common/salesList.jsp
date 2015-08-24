@@ -37,7 +37,7 @@
                                 <a href="./upsertSales.do" class="btn btn-primary" style="width: 98%;">New Sales</a>
                             </c:if>
                             <c:if test="${opt == 1}">
-                                <a href="./upsertSalesReturn.do" class="btn btn-primary" style="width: 98%;">New Sales Return</a>
+                                <a href="./upsertSales.do?salesReturn=1" class="btn btn-primary" style="width: 98%;">New Sales Return</a>
                             </c:if>
 
                         </div>

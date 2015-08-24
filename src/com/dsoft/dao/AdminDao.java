@@ -71,4 +71,6 @@ public interface AdminDao {
     List<Settings> getSettingsList() throws Exception;
     int getProductEntitySize(Double limitQty) throws Exception;
     List<Sales> getUnpostedSalesListByUserId(Long userId) throws Exception;
+
+
 }

@@ -51,7 +51,7 @@
                     </div>
                     <div class="col-lg-6">
 
-                        <div class="form-group">
+                       <%-- <div class="form-group">
                             <label><spring:message code="product.form.type"/></label>
                             <form:select path="productType.id" cssClass="form-control">
                                 <option value=""></option>
@@ -86,7 +86,7 @@
                                     </c:choose>
                                 </c:forEach>
                             </form:select>
-                        </div>
+                        </div>--%>
 
                         <div class="form-group">
                             <label><spring:message code="productGroup.form.name"/></label>

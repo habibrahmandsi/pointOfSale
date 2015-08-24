@@ -1,13 +1,13 @@
 $(document).ready(function () {
 
-    if (typeof salesId != "undefined" && salesId > 0) {
+    /*if (typeof salesId != "undefined" && salesId > 0) {
         $("#salesForm").find("div.leftPanelDiv").remove();
         $("#salesForm").find("div.salesLineItemsDiv").removeClass("col-lg-8").addClass("col-lg-12");
         $("#salesForm").find("input").attr("disabled", true);
         $("#salesForm").find("img").remove();
         $("#salesForm").find("button").remove();
         $(".unpostedSaleLnk").remove();
-    } else {
+    } else {*/
         $("#salesForm").find("input").attr("autocomplete", "off");
         $(".productName").focus();
         makeTabularAutoComplete(".productName", './getProductsForAutoComplete.do', function (data) {
@@ -20,6 +20,31 @@ $(document).ready(function () {
         $(document).on("keyup", '.discount input', function () {
             console.log("SMNLOG:discount changed");
             reCalculateSalesTotal();
+            var sId = +$("#saleId").val();
+            var discount = +$(this).val();
+            var grandTotal = +$(".salesLineItemsDiv table tfoot tr td.grandTotal").find("label").text();
+            var salesReturn = 0;
+            if("true".indexOf($("#salesReturn").val()) > -1){
+                salesReturn = 1;
+            }
+
+            $.ajax({
+                url: './updateSalesDiscounts.do?'
+                + 'sId=' + sId + '&totalPrice=' + grandTotal + '&discount=' + discount + '&salesReturn=' + salesReturn,
+                type: 'get',
+                data: {},
+                success: function (result) {
+                    console.log('result:' + result);
+                    if ("true".indexOf(result) > -1) {
+                        deleteRowOrFullTable(that);
+                        indexingSales();
+                    } else {
+                        console.log("SMNLOG:Failed update Sales Discounts:");
+                    }
+                }
+            });
+
+
         });
 
         $(document).on("keyup", '.qunatityInput', function () {
@@ -33,6 +58,10 @@ $(document).ready(function () {
 
             console.log("SMNLOG:quantity:" + quantity + " salesRate:" + salesRate + " lineTotal:" + lineTotal);
 
+            var salesReturn = 0;
+            if("true".indexOf($("#salesReturn").val()) > -1){
+                salesReturn = 1;
+            }
             var serialNo = +$(".salesLineItemsDiv table tbody tr").length + 1;
             var discount = +$(".salesLineItemsDiv table tfoot tr td.discount").find("input").val();
             var subTotal = findTotal();
@@ -70,7 +99,8 @@ $(document).ready(function () {
             console.log("SMNLOG:------>grandTotal:" + grandTotal + " discount:" + discount);
 
             var url = './addSalesItems.do?sId=' + sId + '&pId=' + pId + '&qty=' + quantity + '&pRate=' + pRate
-                + '&sRate=' + salesRate + '&totalPrice=' + lineTotal + '&sItemId=' + sItemId + "&onUpdateTxt=" + onUpdateTxt + "&grandTotal=" + grandTotal + "&discount=" + discount;
+                + '&sRate=' + salesRate + '&totalPrice=' + lineTotal + '&sItemId=' + sItemId + "&onUpdateTxt="
+                + onUpdateTxt + "&grandTotal=" + grandTotal + "&discount=" + discount+"&salesReturn="+salesReturn;
 
 
             ajaxCallToSaveLineItems(url, sId, function (data) {
@@ -148,6 +178,11 @@ $(document).ready(function () {
                 $(".productName").val("");
                 $(".productName").focus();
             } else {
+                var salesReturn = 0;
+                if("true".indexOf($("#salesReturn").val()) > -1){
+                    salesReturn = 1;
+                }
+
                 var table = '<table class="table table-striped">'
                     + '<thead>'
                     + '<th  style="width:5%">Sl #</th>'
@@ -167,8 +202,12 @@ $(document).ready(function () {
                     + '</tfoot>'
                     + '</table>'
                     + '</br>'
-                    + '<div style="text-align: right;"><button class="btn btn-danger" type="reset">Cancel</button>&nbsp;'
-                    + '<button class="btn btn-success salesSave" type="button">Sales</button></div>';
+                    + '<div style="text-align: right;"><button class="btn btn-danger" type="reset">Cancel</button>&nbsp;';
+
+                if(salesReturn == 0)
+                    table +=  '<button class="btn btn-success salesSave" type="button">Sales</button></div>';
+                else
+                    table += '<button class="btn btn-success salesSave" type="button">Sales Return</button></div>';
 
 
                 if ($(".salesLineItemsDiv").find("table").length > 0) {
@@ -177,6 +216,8 @@ $(document).ready(function () {
                     console.log("SMNLOG:Table NOT EXIST");
                     $($(".salesLineItemsDiv")).append(table);
                 }
+
+
 
 
                 var salesRate = +$(".salesRateInput").val();
@@ -225,7 +266,8 @@ $(document).ready(function () {
                 } else {
                     console.log("SMNLOG:------------- ROW NOT EXIST SO AJAX CALLING--------------");
                     var url = './addSalesItems.do?sId=' + sId + '&pId=' + pId + '&qty=' + quantity + '&pRate=' + pRate
-                        + '&sRate=' + salesRate + '&totalPrice=' + lineTotal + '&sItemId=' + sItemId + "&onUpdateTxt=" + onUpdateTxt + "&grandTotal=" + grandTotal + "&discount=" + discount;
+                        + '&sRate=' + salesRate + '&totalPrice=' + lineTotal + '&sItemId=' + sItemId + "&onUpdateTxt="
+                        + onUpdateTxt + "&grandTotal=" + grandTotal + "&discount=" + discount+"&salesReturn="+salesReturn;
 
                     ajaxCallToSaveLineItems(url, sId, function (data, sId) {
                         if (!"false".indexOf(data) > -1) {
@@ -250,6 +292,8 @@ $(document).ready(function () {
                             $(".salesLineItemsDiv").find("table").find("tbody").append(row);
                             reCalculateSalesTotal();
                             $(".productName").val("");
+                            $(".qty").val("");
+                            $(".salesRateInput").val("");
                             $(".productName").focus();
                             /* for indexing */
                             indexingSales();
@@ -310,7 +354,7 @@ $(document).ready(function () {
 
         });
 
-    }
+    //}
 
 
     /*    var previousCompanyValue = "";

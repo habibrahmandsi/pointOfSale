@@ -8,8 +8,11 @@
 %>
 <title><spring:message code="purchase.header"/></title>
 
-<script src="<%= contextPath %>/resources/js/typeahead.bundle.js" type="text/javascript"></script>
+
+<%--<script src="<%= contextPath %>/resources/js/typeahead.bundle.js" type="text/javascript"></script>--%>
+<script src="<%= contextPath %>/resources/js/jquery.typeahead.min.js" type="text/javascript"></script>
 <script src="<%= contextPath %>/resources/js/common/purchase.js" type="text/javascript"></script>
+<link rel="stylesheet" type="text/css" href="<%= contextPath %>/resources/css/jquery.typeahead.css"/>
 
 <!-- ==================== COMMON ELEMENTS ROW ==================== -->
 
@@ -29,7 +32,7 @@
             </div>
             <div class="panel-body">
                 <div class="row">
-                    <div class="col-lg-3 leftPanelDiv">
+                    <div class="col-lg-4 leftPanelDiv" style="padding-right: 0px;padding-left: 6px;">
 
                        <%-- <div class="form-group">
                             <label><spring:message code="company.form.name"/></label>
@@ -40,13 +43,27 @@
 
                         </div>
 --%>
-                        <div class="form-group">
+                       <%-- <div class="form-group">
                             <label><spring:message code="product.form.name"/></label>
 
                             <div class="col-lg-12 noLeftRightPadding">
                                 <input type="text" class="form-control productName"/>
                             </div>
-                        </div>
+                        </div>--%>
+
+                           <div class="form-group">
+                               <label><spring:message code="product.form.name"/></label>
+                               <div class="col-lg-12 noLeftRightPadding">
+                                   <div class="typeahead-container">
+                                       <div class="typeahead-field">
+                                     <span class="typeahead-query">
+                                     <input class="productName" type="search" autocomplete="off">
+                                     </span>
+                                       </div>
+                                   </div>
+                               </div>
+                           </div>
+
 
                         <div class="form-group">
                             <label><spring:message code="product.form.purchaseRate"/></label>
@@ -67,7 +84,7 @@
 
                     </div>
                     <!-- /.row (nested) -->
-                    <div class="col-lg-9 purchaseLineItemsDiv">
+                    <div class="col-lg-8 purchaseLineItemsDiv">
                         <c:if test="${not empty purchase.purchaseItemList}">
                             <table class="table table-striped">
                                 <thead>

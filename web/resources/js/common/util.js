@@ -229,22 +229,25 @@ function makeTabularAutoComplete(inputIdOrClass,url, callback){
         maxItem: 20,
         order: "asc",
         dynamic: true,
-        group: [true, '<table  class="table headerSuggestions table-striped"><thead><tr><td style="width:150px;">PRODUCT NAME</td><td style="width:60px;">SALE RATE</td>'
-        +'<td style="width:60px;">QTY.</td></tr></thead><tbody>'],
+        group: [true, '<table  class="table headerSuggestions table-striped"><thead><tr><td style="width:120px;">PRODUCT NAME</td><td style="width:30px;">MRP</td>'
+        +'<td style="width:30px;">QTY.</td><td style="width:100px;">COMPANY</td></tr></thead><tbody>'],
         delay: 0,
         backdrop: {
             "background-color": "#fff"
         },
             template:  '<table  class="table table-striped"><tbody>'
             + '<tr id="{{productId}}">'
-            + '<td style="width:150px">'
+            + '<td style="width:120px">'
             + '{{productName}}'
             + '</td>'
-            + '<td style="width:60px">'
+            + '<td style="width:30px">'
                 + '{{saleRate}}'
             + '</td>'
-            + '<td style="width:60px">'
+            + '<td style="width:30px">'
                 + '{{totalQuantity}}'
+            + '</td>'
+             + '<td style="width:100px">'
+                + '{{companyName}}'
             + '</td>'
             + '</tr>'
             + '</tbody>'
@@ -256,7 +259,8 @@ function makeTabularAutoComplete(inputIdOrClass,url, callback){
                     "productId": 1,
                     "productName": "test medicine",
                     "saleRate": "0.0",
-                    "totalQuantity": "0"
+                    "totalQuantity": "0",
+                    "companyName": ""
                 }],
                 url: [{
                     type: "GET",
@@ -380,6 +384,167 @@ function makeTabularAutoComplete(inputIdOrClass,url, callback){
         debug: true
     });
     $(".typeahead-filter-button").remove();*/
+
+}
+
+function makeTabularAutoCompleteForPurchase(inputIdOrClass,url, callback){
+    $(inputIdOrClass).typeahead({
+        minLength: 2,
+        maxItem: 20,
+        order: "asc",
+        dynamic: true,
+        group: [true, '<table  class="table headerSuggestions table-striped"><thead><tr><td style="width:120px;">PRODUCT NAME</td><td style="width:30px;">MRP</td>'
+        +'<td style="width:30px;">QTY.</td><td style="width:100px;">COMPANY</td></tr></thead><tbody>'],
+        delay: 0,
+        backdrop: {
+            "background-color": "#fff"
+        },
+        template:  '<table  class="table table-striped"><tbody>'
+        + '<tr id="{{productId}}">'
+        + '<td style="width:120px">'
+        + '{{productName}}'
+        + '</td>'
+        + '<td style="width:30px">'
+        + '{{saleRate}}'
+        + '</td>'
+        + '<td style="width:30px">'
+        + '{{totalQuantity}}'
+        + '</td>'
+        + '<td style="width:100px">'
+        + '{{companyName}}'
+        + '</td>'
+        + '</tr>'
+        + '</tbody>'
+        + '</table>',
+        source: {
+            user: {
+                display: "productName",
+                data: [{
+                    "productId": 1,
+                    "productName": "test medicine",
+                    "saleRate": "0.0",
+                    "totalQuantity": "0",
+                    "companyName": ""
+                }],
+                url: [{
+                    type: "GET",
+                    url: url,
+
+                    data: {
+                        sSearch: "{{query}}"
+                    },
+                    callback: {
+                        done: function (data) {
+                            for (var i = 0; i < data.data.productList.length; i++) {
+                                if (data.data.productList[i].saleRate == 0) {
+                                    data.data.productList[i].saleRate = '0';
+                                    //console.log("SMNLOG:saleRate =0");
+                                }
+                                if (data.data.productList[i].totalQuantity == 0) {
+                                    data.data.productList[i].totalQuantity = '0';
+                                    //console.log("SMNLOG:totalQuantity =0");
+                                }
+
+                            }
+                            return data;
+                        }
+                    }
+                }, "data.productList"]
+            }
+        },
+        callback: {
+            onClick: function (node, a, item, event) {
+                // You can do a simple window.location of the item.href
+                if(typeof callback === 'function'){
+                    callback(item);
+                }
+
+            },
+            onClickAfter: function (node, a, item, event) {
+
+                console.log("SMNLOG:end----------------");
+                    event.preventDefault();
+                    console.log("SMNLOG:******* item ****"+JSON.stringify(item));
+                    $(".purchaseRateInput").val(+item.purchaseRate);
+                    $(".saleRateInput").val(+item.saleRate);
+                    $(".purchaseRateInput").focus();
+            },
+            onSendRequest: function (node, query) {
+                //console.log('request is sent, perhaps add a loading animation?')
+            },
+            onReceiveRequest: function (node, query) {
+                //console.log('request is received, stop the loading animation?')
+            }
+        },
+        debug: true
+    });
+
+    /*    $(inputIdOrClass).typeahead({
+     minLength: 1,
+     order: "asc",
+     group: [true, '<table  class="table table-striped"><thead><tr><td style="width:150px;">Product name</td><td style="width:60px;">Sale Rate</td>'
+     +'<td style="width:60px;">Qty.</td></tr></thead><tbody>'],
+     groupMaxItem: 6,
+     hint: true,
+     dynamic: true,
+     delay: 1,
+     template:  '<table  class="table table-striped"><tbody>'
+     + '<tr id="{{productId}}">'
+     + '<td style="width:150px">'
+     + '{{productName}}'
+     + '</td>'
+     + '<td style="width:60px">'
+     //+ '{{sale_rate}}'
+     + '</td>'
+     + '<td style="width:60px">'
+     //+ '{{total_quantity}}'
+     + '</td>'
+     + '</tr>'
+     + '</tbody>'
+     + '</table>',
+     source: {
+     productList: {
+     display: "username",
+     href: "https://www.github.com/{{username}}",
+     data: [{
+     "productId": 415849,
+     "productName": "an inserted user that is not inside the database",
+     "sale_rate": "https://avatars3.githubusercontent.com/u/415849",
+     "total_quantity":  " <small style='color: #777'>(contributor)</small>"
+     }],
+     url: [{
+     type: "GET",
+     url: url,
+
+     data: {
+     sSearch: "{{query}}"
+     },
+     callback: {
+     done: function (data) {
+     return data;
+     }
+     }
+     }, "data.productList"]
+
+     }
+     },
+     callback: {
+     onClick: function (node, a, item, event) {
+
+     // You can do a simple window.location of the item.href
+     alert(JSON.stringify(item));
+
+     },
+     onSendRequest: function (node, query) {
+     console.log('request is sent, perhaps add a loading animation?')
+     },
+     onReceiveRequest: function (node, query) {
+     console.log('request is received, stop the loading animation?')
+     }
+     },
+     debug: true
+     });
+     $(".typeahead-filter-button").remove();*/
 
 }
 function getRoundNDigits(number, nDigits){

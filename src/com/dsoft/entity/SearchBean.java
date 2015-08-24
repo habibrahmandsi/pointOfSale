@@ -19,6 +19,7 @@ public class SearchBean {
     private List totalSaleList;
     private List totalIncomeList;
     private int opt;
+    private List totalPurchaseList;
 
 
     public String getFromDateStr() {
@@ -77,6 +78,14 @@ public class SearchBean {
         this.totalSaleList = totalSaleList;
     }
 
+    public List getTotalIncomeList() {
+        return totalIncomeList;
+    }
+
+    public void setTotalIncomeList(List totalIncomeList) {
+        this.totalIncomeList = totalIncomeList;
+    }
+
     public int getOpt() {
         return opt;
     }
@@ -85,12 +94,12 @@ public class SearchBean {
         this.opt = opt;
     }
 
-    public List getTotalIncomeList() {
-        return totalIncomeList;
+    public List getTotalPurchaseList() {
+        return totalPurchaseList;
     }
 
-    public void setTotalIncomeList(List totalIncomeList) {
-        this.totalIncomeList = totalIncomeList;
+    public void setTotalPurchaseList(List totalPurchaseList) {
+        this.totalPurchaseList = totalPurchaseList;
     }
 
     @Override
@@ -105,6 +114,7 @@ public class SearchBean {
                 ", totalSaleList=" + totalSaleList +
                 ", totalIncomeList=" + totalIncomeList +
                 ", opt=" + opt +
+                ", totalPurchaseList=" + totalPurchaseList +
                 '}';
     }
 }

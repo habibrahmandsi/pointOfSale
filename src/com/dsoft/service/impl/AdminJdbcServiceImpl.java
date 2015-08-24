@@ -81,12 +81,12 @@ public class AdminJdbcServiceImpl implements AdminJdbcService {
     }
 
    @Override
-    public Map<String, Object> getSales(Integer start, Integer length, String sortColName, String sortType, String searchKey, int salesReturn) throws Exception {
-        return adminJdbcDao.getSales(start, length, sortColName, sortType, searchKey, salesReturn);
+    public Map<String, Object> getSales(Integer start, Integer length, String sortColName, String sortType, String searchKey,Long userId, int salesReturn,int unposted) throws Exception {
+        return adminJdbcDao.getSales(start, length, sortColName, sortType, searchKey,userId, salesReturn, unposted);
     }
 
-    public int getSalesCount(int salesReturn) throws Exception{
-        return adminJdbcDao.getSalesCount(salesReturn);
+    public int getSalesCount(Long userId,int salesReturn,int unposted) throws Exception{
+        return adminJdbcDao.getSalesCount(userId,salesReturn, unposted);
     }
 
    public int getPurchaseCount(int purchaseReturn) throws Exception{
@@ -133,5 +133,24 @@ public class AdminJdbcServiceImpl implements AdminJdbcService {
         return adminJdbcDao.getTotalIncomeByDateAndUserId(fromDate, toDate, userId, salesReturn, unposted);
     }
 
+    public Map getLatestPurchaseItemByProductId(Long productId) throws Exception{
+        return adminJdbcDao.getLatestPurchaseItemByProductId(productId);
+    }
 
+    @Override
+    public List getTotalPurchaseByDateAndUserId(Date fromDate, Date toDate, Long userId,int purchaseReturn,int unposted) throws Exception{
+        return adminJdbcDao.getTotalPurchaseByDateAndUserId(fromDate, toDate, userId, purchaseReturn, unposted);
+    }
+
+
+
+    @Override
+    public   Map<String, Object> getPurchaseReport(Integer start, Integer length, String sortColName, String sortType, String searchKey, int purchaseReturn, Date fromDate, Date toDate, Long userId,int unposted) throws Exception{
+        return adminJdbcDao.getPurchaseReport(start, length, sortColName, sortType, searchKey, purchaseReturn, fromDate, toDate, userId, unposted);
+    }
+
+    @Override
+    public int getPurchaseReportCount(String searchKey, int salesReturn, Date fromDate, Date toDate, Long userId,int unposted) throws Exception{
+        return adminJdbcDao.getPurchaseReportCount(searchKey, salesReturn, fromDate, toDate, userId,unposted);
+    }
 }

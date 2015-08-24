@@ -7,11 +7,10 @@
 <%
     final String contextPath = request.getContextPath();
 %>
-<title><spring:message code="sale.report.header"/></title>
+<title><spring:message code="purchase.report.header"/></title>
 
-<script src="<%= contextPath %>/resources/js/common/saleReport.js"  type="text/javascript"></script>
+<script src="<%= contextPath %>/resources/js/common/purchaseReport.js"  type="text/javascript"></script>
 <script src="<%= contextPath %>/resources/js/d3js/d3.v3.min.js"  type="text/javascript"></script>
-
 <!-- ==================== COMMON ELEMENTS ROW ==================== -->
 
 <!-- /.row -->
@@ -20,13 +19,13 @@
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <c:if test="${searchBean.opt == 0}">
-                        <spring:message code="sale.report.header"/>
+                        <spring:message code="purchase.report.header"/>
                     </c:if>
                     <c:if test="${searchBean.opt == 1}">
-                        <spring:message code="sale.return.report.header"/>
+                        <spring:message code="purchase.return.report.header"/>
                     </c:if>
                     <c:if test="${searchBean.opt == 2}">
-                        <spring:message code="unposted.sales.header"/>
+                        <spring:message code="unposted.purchase.header"/>
                     </c:if>
                     <c:if test="${searchBean.opt == 3}">
                         <spring:message code="unposted.sales.return.header"/>
@@ -84,7 +83,7 @@
                                     code="button.serch"/></button>
                         </div>
                         <div class="col-lg-5">
-                            <c:if test="${not empty searchBean.totalSaleList}">
+                            <c:if test="${not empty searchBean.totalPurchaseList}">
                                 <table class="table table-striped salesTotalByUser">
                                     <thead>
                                     <tr>
@@ -97,14 +96,14 @@
                                     </thead>
                                     <tbody>
                                     <c:set var="total" value="${0}"/>
-                                    <c:forEach items="${searchBean.totalSaleList}" var="data" varStatus="idx">
-                                        <c:set var="total" value="${total + data.totalSaleAmount}" />
+                                    <c:forEach items="${searchBean.totalPurchaseList}" var="data" varStatus="idx">
+                                        <c:set var="total" value="${total + data.totalPurchaseAmount}" />
                                         <c:set var="totalDis" value="${totalDis + data.totalDiscount}" />
                                         <tr>
                                             <td style="min-width: 10px;">${idx.index+1}</td>
                                             <td>${data.userName}</td>
                                             <td style="text-align: right"><fmt:formatNumber type="number" value="${data.totalDiscount}" minFractionDigits="${maxFractionNum}" maxFractionDigits="${maxFractionNum}" /></td>
-                                            <td style="text-align: right"><fmt:formatNumber type="number" value="${data.totalSaleAmount}" minFractionDigits="${maxFractionNum}" maxFractionDigits="${maxFractionNum}" /></td>
+                                            <td style="text-align: right"><fmt:formatNumber type="number" value="${data.totalPurchaseAmount}" minFractionDigits="${maxFractionNum}" maxFractionDigits="${maxFractionNum}" /></td>
                                             <td style="padding-left:5px;min-width: 10px;"><div class="legentRect"></div></td>
                                         </tr>
                                     </c:forEach>
@@ -120,7 +119,7 @@
 
                         <div class="col-lg-3">
                             <div id="chartByUserTotalSales"></div>
-                            <c:if test="${not empty searchBean.totalSaleList}"><p class="chartDesc">N.B. This is a donut chart showing percentage by users.</p></c:if>
+                            <c:if test="${not empty searchBean.totalPurchaseList}"><p class="chartDesc">N.B. This is a donut chart showing percentage by users.</p></c:if>
 
                         </div>
 
@@ -130,7 +129,7 @@
                     <br>
                     <div class="row">
                         <div class="col-lg-12 unpostedSalesWrapperDiv">
-                            <table id="salesReportList" class="table table-striped table-hover dataTable">
+                            <table id="purchaseReportList" class="table table-striped table-hover dataTable">
                             </table>
 
                         </div>
@@ -146,8 +145,8 @@
             var userIdFromBean = +'${searchBean.userId}';
             var opt = +'${searchBean.opt}';
             var donutChartData = [
-                    <c:forEach items="${searchBean.totalSaleList}" var="data" varStatus="idx">
-                    {"label":'${data.userName}',"count":'${data.totalSaleAmount}'}
+                    <c:forEach items="${searchBean.totalPurchaseList}" var="data" varStatus="idx">
+                    {"label":'${data.userName}',"count":'${data.totalPurchaseAmount}'}
                     <c:if test="${!idx.last}">,</c:if>
                     </c:forEach>
 

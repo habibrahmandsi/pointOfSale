@@ -19,7 +19,7 @@ $(document).ready(function() {
     $('#dp1-1').datepicker();
     $('#dp1-2').datepicker();
 
-    url =  "./getSaleReport.do"
+    url =  "./getPurchaseReport.do"
     +"?fromDate="+$("#fromDate").val()
     +"&toDate="+$("#toDate").val()
     +"&opt="+opt;
@@ -53,24 +53,28 @@ $(document).ready(function() {
             "aoColumns": [
 
 
-                {"sTitle": "Invoice No", "mData": "sales_token_no", "bSortable": true},
-                {"sTitle": "Sales Date", "mData": null, "bSortable": true, "render": function (data) {
-                    var date= new Date(data.sales_date);
+                {"sTitle": "Invoice No", "mData": "purchase_token_no", "bSortable": true},
+                {"sTitle": "Purchase Date", "mData": null, "bSortable": true, "render": function (data) {
+                    var date= new Date(data.purchase_date);
                     return  getDateForTableView(date)
 
                 }
                 },
                 {"sTitle": "Product Name", "mData": "productName", "bSortable": true},
                 {"sTitle": "Company Name", "mData": "companyName", "bSortable": true},
-                {"sTitle": "PRate", "mData": "sItemPRate", "bSortable": true},
-                {"sTitle": "SRate", "mData": "sItemSaleRate", "bSortable": true},
-                {"sTitle": "Qty", "mData": "saleItemQty", "bSortable": true},
-                {"sTitle": "Total", "mData": "sItemTotalPrice", "bSortable": true},
-                {"sTitle": "Sold By", "mData": "userName", "bSortable": true},
+                {"sTitle": "PRate", "mData": "pItemPRate", "bSortable": true},
+                {"sTitle": "SRate", "mData": "pItemSaleRate", "bSortable": true},
+                {"sTitle": "Qty", "mData": "purchaseItemQty", "bSortable": true},
+                {"sTitle": "Total", "mData": null, "bSortable": true, "render": function (data) {
+                    return  getRoundNDigits(data.pItemTotalPrice,globalRoundDigits);
+
+                }
+                },
+                {"sTitle": "Purchased By", "mData": "userName", "bSortable": true},
             ]
         } );
     }
-    initializeDataTable("#salesReportList", url)
+    initializeDataTable("#purchaseReportList", url)
     $(".dataTables_filter").find("input").focus();
 
 

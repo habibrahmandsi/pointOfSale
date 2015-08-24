@@ -29,6 +29,9 @@ public class PurchaseItem {
     @Column(name = "purchase_rate")
     private Double purchaseRate;
 
+    @Column(name = "sale_rate")
+    private Double saleRate;
+
     @Column(name = "total_price")
     private Double totalPrice;
 
@@ -78,20 +81,20 @@ public class PurchaseItem {
         this.purchaseRate = purchaseRate;
     }
 
+    public Double getSaleRate() {
+        return saleRate;
+    }
+
+    public void setSaleRate(Double saleRate) {
+        this.saleRate = saleRate;
+    }
+
     public Double getTotalPrice() {
         return totalPrice;
     }
 
     public void setTotalPrice(Double totalPrice) {
         this.totalPrice = totalPrice;
-    }
-
-    public Double getPrevQuantity() {
-        return prevQuantity;
-    }
-
-    public void setPrevQuantity(Double prevQuantity) {
-        this.prevQuantity = prevQuantity;
     }
 
     public Double getRestQuantity() {
@@ -102,6 +105,14 @@ public class PurchaseItem {
         this.restQuantity = restQuantity;
     }
 
+    public Double getPrevQuantity() {
+        return prevQuantity;
+    }
+
+    public void setPrevQuantity(Double prevQuantity) {
+        this.prevQuantity = prevQuantity;
+    }
+
     @Override
     public String toString() {
         return "PurchaseItem{" +
@@ -110,6 +121,7 @@ public class PurchaseItem {
                 ", product=" + product +
                 ", quantity=" + quantity +
                 ", purchaseRate=" + purchaseRate +
+                ", saleRate=" + saleRate +
                 ", totalPrice=" + totalPrice +
                 ", restQuantity=" + restQuantity +
                 ", prevQuantity=" + prevQuantity +

@@ -47,6 +47,14 @@
 <script>
 
     $(document).ready(function() {
+        $("#login_password").keypress(function (event) {
+            //console.log("SMNLOG:writting in qty");
+            var keycode = (event.keyCode ? event.keyCode : event.which);
+            if (keycode == '13') {
+                $('#loginForm').submit();
+            }
+        });
+
         $('.login').click(function(e){
             e.preventDefault();
             $('#loginForm').submit();

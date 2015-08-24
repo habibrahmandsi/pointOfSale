@@ -28,13 +28,13 @@ public class Product extends AbstractBaseEntity{
     @JoinColumn(name="product_group_id")
     private ProductGroup productGroup;
 
-    @ManyToOne
+   /* @ManyToOne
     @JoinColumn(name="product_type_id")
     private ProductType productType;
 
     @ManyToOne
     @JoinColumn(name="unit_of_measure_id")
-    private UnitOfMeasure unitOfMeasure;
+    private UnitOfMeasure unitOfMeasure;*/
 
     @Column(name = "total_quantity")
     private Double totalQuantity;
@@ -86,7 +86,7 @@ public class Product extends AbstractBaseEntity{
         this.productGroup = productGroup;
     }
 
-    public ProductType getProductType() {
+/*    public ProductType getProductType() {
         return productType;
     }
 
@@ -100,7 +100,7 @@ public class Product extends AbstractBaseEntity{
 
     public void setUnitOfMeasure(UnitOfMeasure unitOfMeasure) {
         this.unitOfMeasure = unitOfMeasure;
-    }
+    }*/
 
     public Double getTotalQuantity() {
         return totalQuantity;
@@ -134,8 +134,8 @@ public class Product extends AbstractBaseEntity{
                 ", saleRate=" + saleRate +
                 ", company=" + company +
                 ", productGroup=" + productGroup +
-                ", productType=" + productType +
-                ", unitOfMeasure=" + unitOfMeasure +
+//                ", productType=" + productType +
+//                ", unitOfMeasure=" + unitOfMeasure +
                 ", totalQuantity=" + totalQuantity +
                 '}';
     }

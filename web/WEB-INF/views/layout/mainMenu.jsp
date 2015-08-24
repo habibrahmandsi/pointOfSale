@@ -13,9 +13,9 @@
 <nav class="navbar-default navbar-static-side" role="navigation">
     <div class="sidebar-collapse">
         <ul class="nav" id="side-menu">
-           <%-- <security:authorize access="hasAnyRole(
-            '${superAdmin}','${adminUser}','${CreateSales}','${SalesInfo}','${DeleteSales}','${SalesReturn}','${DeleteSalesReturn}','${CreatePurchase}','${PurchaseInfo}','${DeletePurchase}','${PurchaseReturnInfo}','${DeletePurchaseReturn}')">
---%>
+            <%-- <security:authorize access="hasAnyRole(
+             '${superAdmin}','${adminUser}','${CreateSales}','${SalesInfo}','${DeleteSales}','${SalesReturn}','${DeleteSalesReturn}','${CreatePurchase}','${PurchaseInfo}','${DeletePurchase}','${PurchaseReturnInfo}','${DeletePurchaseReturn}')">
+ --%>
             <li>
                 <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> <spring:message code="menu.salesAndPurchase"/><span
                         class="fa arrow"></span></a>
@@ -24,30 +24,35 @@
                         <a href="./upsertSales.do"><i class="fa fa-money fa-fw"></i>
                             &nbsp;<spring:message code="menu.sales"/></a>
                     </li>
-                     <li>
-                        <a href="./salesList.do"><i class="fa fa-money fa-fw"></i>&nbsp;<spring:message code="menu.sales.information"/></a>
-                    </li>
-<%--
                     <li>
-                        <a href="flot.html"><i class="fa fa-upload fa-fw"></i>&nbsp;<spring:message code="menu.sales.return"/></a>
-                    </li>
---%>
-                    <li>
-                        <a href="./salesReturnList.do?opt=1"><i class="fa fa-upload fa-fw"></i>&nbsp;<spring:message code="sales.return.list.header"/></a>
+                        <a href="./salesList.do?opt=0"><i class="fa fa-money fa-fw"></i>&nbsp;<spring:message
+                                code="menu.sales.information"/></a>
                     </li>
                     <li>
-                        <a href="./upsertPurchase.do"><i class="fa fa-table fa-fw"></i>&nbsp;<spring:message code="menu.purchase"/></a>
+                        <a href="./upsertSales.do?salesReturn=1"><i class="fa fa-upload fa-fw"></i>&nbsp;<spring:message
+                                code="menu.sales.return"/></a>
+                    </li>
+                    <li>
+                        <a href="./salesReturnList.do?opt=1"><i class="fa fa-upload fa-fw"></i>&nbsp;<spring:message
+                                code="sales.return.list.header"/></a>
+                    </li>
+                    <li>
+                        <a href="./upsertPurchase.do"><i class="fa fa-table fa-fw"></i>&nbsp;<spring:message
+                                code="menu.purchase"/></a>
                     </li>
 
                     <li>
-                        <a href="./purchaseList.do"><i class="fa fa-table fa-fw"></i>&nbsp;<spring:message code="purchase.list.header"/></a>
+                        <a href="./purchaseList.do"><i class="fa fa-table fa-fw"></i>&nbsp;<spring:message
+                                code="purchase.list.header"/></a>
                     </li>
 
                     <li>
-                        <a href="./upsertPurchase.do?purchaseReturn=1"><i class="fa fa-upload fa-fw"></i>&nbsp;<spring:message code="menu.purchase.return"/></a>
+                        <a href="./upsertPurchase.do?purchaseReturn=1"><i
+                                class="fa fa-upload fa-fw"></i>&nbsp;<spring:message code="menu.purchase.return"/></a>
                     </li>
-                      <li>
-                        <a href="./purchaseReturnList.do?opt=1"><i class="fa fa-upload fa-fw"></i>&nbsp;<spring:message code="menu.purchase.return.list"/></a>
+                    <li>
+                        <a href="./purchaseReturnList.do?opt=1"><i class="fa fa-upload fa-fw"></i>&nbsp;<spring:message
+                                code="menu.purchase.return.list"/></a>
                     </li>
                 </ul>
                 <!-- /.nav-second-level -->
@@ -72,41 +77,56 @@
                         <a href="./productList.do"><spring:message code="product.list.header"/></a>
                     </li>
                     <li>
-                        <a href="./productGroupList.do"><spring:message code="menu.administration.new.productGroup"/></a>
+                        <a href="./productGroupList.do"><spring:message
+                                code="menu.administration.new.productGroup"/></a>
                     </li>
                     <li>
                         <a href="./productTypeList.do"><spring:message code="menu.administration.new.productType"/></a>
                     </li>
                     <li>
-                        <a href="./unitOfMeasureList.do"><spring:message code="menu.administration.new.unitOfMeasure"/></a>
+                        <a href="./unitOfMeasureList.do"><spring:message
+                                code="menu.administration.new.unitOfMeasure"/></a>
                     </li>
                 </ul>
                 <!-- /.nav-second-level -->
             </li>
-               <li>
-                   <a href="tables.html"><i class="fa fa-table fa-fw"></i> <spring:message code="menu.reporting"/>
-                       <span class="fa arrow"></span>
-                   </a>
+            <li>
+                <a href="tables.html"><i class="fa fa-table fa-fw"></i> <spring:message code="menu.reporting"/>
+                    <span class="fa arrow"></span>
+                </a>
 
-                   <ul class="nav nav-second-level">
-                      <%-- <li>
-                           <a href="./unpostedSale.do"><spring:message code="menu.reporting.unposted.sale"/></a>
-                       </li>--%>
-                       <li>
-                           <a href="./saleReport.do?opt=0"><spring:message code="menu.reporting.sale"/></a>
-                       </li>
-                       <li>
-                           <a href="./saleReport.do?opt=1"><spring:message code="menu.reporting.sale.return"/></a>
-                       </li>
+                <ul class="nav nav-second-level">
                     <li>
-                           <a href="./saleReport.do?opt=2"><spring:message code="menu.reporting.unposted.sale"/></a>
-                       </li>
-                   <li>
-                           <a href="./incomeReport.do"><spring:message code="income.report.header"/></a>
-                       </li>
-                   </ul>
-                   <!-- /.nav-second-level -->
-               </li>
+                        <a href="./purchaseReport.do?opt=0"><spring:message code="purchase.report.header"/></a>
+                    </li>
+                    <li>
+                        <a href="./purchaseReport.do?opt=1"><spring:message code="purchase.return.report.header"/></a>
+                    </li>
+                    <li>
+                        <a href="./purchaseReport.do?opt=2"><spring:message code="purchase.unposted.report.header"/></a>
+                    </li>
+                    <li>
+                        <a href="./saleReport.do?opt=0"><spring:message code="menu.reporting.sale"/></a>
+                    </li>
+                    <li>
+                        <a href="./saleReport.do?opt=1"><spring:message code="menu.reporting.sale.return"/></a>
+                    </li>
+                    <li>
+                        <a href="./saleReport.do?opt=2"><spring:message code="menu.reporting.unposted.sale"/></a>
+                    </li>
+                    <li>
+                        <a href="./saleReport.do?opt=3"><spring:message code="menu.reporting.unposted.sale.return"/></a>
+                    </li>
+                    <li>
+                        <a href="./incomeReport.do"><spring:message code="income.report.header"/></a>
+                    </li>
+                    <li>
+                        <a href="./incomeReport.do?opt=3"><spring:message code="menu.reporting.sale"/> as a chart</a>
+                    </li>
+                </ul>
+
+                <!-- /.nav-second-level -->
+            </li>
         </ul>
         <!-- /#side-menu -->
     </div>

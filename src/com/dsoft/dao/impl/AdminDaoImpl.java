@@ -1,14 +1,17 @@
 package com.dsoft.dao.impl;
 
 import com.dsoft.dao.AdminDao;
+import com.dsoft.dao.AdminJdbcDao;
 import com.dsoft.entity.*;
 import com.dsoft.util.Constants;
 import com.dsoft.util.Utils;
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -44,7 +47,8 @@ public class AdminDaoImpl implements AdminDao {
 
     @Override
     public List<User> getAllUserList() {
-        return hibernateTemplate.find("FROM User WHERE role != ?", Role.ROLE_SUPER_ADMIN.getLabel());
+        return hibernateTemplate.find("FROM User");
+//        return hibernateTemplate.find("FROM User WHERE role != ?", Role.ROLE_SUPER_ADMIN.getLabel());
     }
 
     @Override
@@ -199,6 +203,7 @@ public class AdminDaoImpl implements AdminDao {
 
     public void saveOrUpdatePurchase(Purchase purchase) throws Exception {
         hibernateTemplate.saveOrUpdate(purchase);
+        Map pItem;
         Product product;
         List<PurchaseItem> purchaseItemList = purchase.getPurchaseItemList() != null ? purchase.getPurchaseItemList() : new ArrayList<PurchaseItem>();
         if (!Utils.isEmpty(purchaseItemList)) {
@@ -210,7 +215,11 @@ public class AdminDaoImpl implements AdminDao {
                     purchaseItem.setRestQuantity(purchaseItem.getQuantity()); //initially this two are equals
                     saveObject(purchaseItem);
                 }
-                product = purchaseItem.getProduct();
+                product = this.getProduct(purchaseItem.getProduct().getId());
+                product.setPurchaseRate(purchaseItem.getPurchaseRate());
+                product.setSaleRate(purchaseItem.getSaleRate());
+                this.updateObject(product); // to update purchase rate and sale rate
+
                 logger.debug("SMNLOG:PrevQuantity" + purchaseItem.getPrevQuantity() + " current Qty:" + purchaseItem.getQuantity());
                 if (purchaseItem.getPrevQuantity() > purchaseItem.getQuantity() || purchaseItem.getPrevQuantity() < purchaseItem.getQuantity()) {
                     this.updateProductQuantity(product.getId(), purchaseItem.getQuantity() - purchaseItem.getPrevQuantity());
@@ -551,5 +560,4 @@ public class AdminDaoImpl implements AdminDao {
         return null;*/
 
     }
-
 }

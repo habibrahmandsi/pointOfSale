@@ -11,6 +11,7 @@
 
 <script src="<%= contextPath %>/resources/js/common/incomeReport.js"  type="text/javascript"></script>
 
+
 <!-- ==================== COMMON ELEMENTS ROW ==================== -->
 
 <!-- /.row -->
@@ -107,7 +108,7 @@
                                         </tr>
                                     </c:forEach>
                                     <tr>
-                                        <td></td>'
+                                        <td></td>
                                         <td class="italicFont">Total: </td>
                                         <td class="italicFont grandTotal"><label><fmt:formatNumber type="number" value="${totalPurchase}" minFractionDigits="${maxFractionNum}" maxFractionDigits="${maxFractionNum}" /></label></td>
                                         <td class="italicFont grandTotal"><label><fmt:formatNumber type="number" value="${totalSale}" minFractionDigits="${maxFractionNum}" maxFractionDigits="${maxFractionNum}" /></label></td>
