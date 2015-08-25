@@ -120,9 +120,6 @@
                     <li>
                         <a href="./incomeReport.do"><spring:message code="income.report.header"/></a>
                     </li>
-                    <li>
-                        <a href="./incomeReport.do?opt=3"><spring:message code="menu.reporting.sale"/> as a chart</a>
-                    </li>
                 </ul>
 
                 <!-- /.nav-second-level -->

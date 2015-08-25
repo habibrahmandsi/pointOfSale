@@ -856,7 +856,7 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
     }
 
     @Override
-    public List getTotalSaleByDateAndUserId(Date fromDate, Date toDate, Long userId,int salesReturn,int unposted) throws Exception{
+    public List getTotalSaleByDateAndUserId(Date fromDate, Date toDate, Long userId,int salesReturn,int unposted,int groupByDateOrUser) throws Exception{
         logger.debug("SMNLOG:fromDate:"+fromDate+" toDate:"+toDate+" userId:"+userId+" salesReturn:"+salesReturn);
         String sql = "SELECT SUM(si.total_price) totalSaleAmount,SUM(s.discount) totalDiscount,u.name userName "
                 + "FROM sales s "
@@ -865,12 +865,17 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
                 + "LEFT JOIN company c ON(p.company_id = c.id) "
                 + "LEFT JOIN user u ON(u.id = s.sale_by_id) WHERE s.sale_return = ? AND s.unposted=?";
 
+        if(groupByDateOrUser == 1)// 0 = group by user and 1= group by date
+            sql = sql.replace("SELECT","SELECT DATE_FORMAT(s.sales_date, '%m/%d/%Y') sales_date,");
 
         sql = sql + " AND s.sales_date >= ? AND s.sales_date <= ? ";
         if(userId > 0){
             sql = sql + " AND s.sale_by_id = ? ";
         }
+        if(groupByDateOrUser == 0)// 0 = group by user and 1= group by date
         sql +=" GROUP BY u.name ";
+        else
+        sql +=" GROUP BY DATE_FORMAT(s.sales_date,\"%m/%d/%Y\") ";
 
         logger.debug("SMNLOG:sql:" + sql);
         List paramList = new ArrayList();
@@ -933,7 +938,7 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
     }
 
     @Override
-    public List getTotalIncomeByDateAndUserId(Date fromDate, Date toDate, Long userId,int salesReturn,int unposted) throws Exception{
+    public List getTotalIncomeByDateAndUserId(Date fromDate, Date toDate, Long userId,int salesReturn,int unposted,int groupByDateOrUser) throws Exception{
         logger.debug("SMNLOG:fromDate:"+fromDate+" toDate:"+toDate+" userId:"+userId+" salesReturn:"+salesReturn);
         String sql = "SELECT SUM(si.total_price) totalSaleAmount,SUM(si.total_purchase_price) totalPurchasePrice,"
                 + "SUM(si.benefit) benefit, SUM(s.discount) totalDiscount, u.name userName "
@@ -943,12 +948,17 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
                 + "LEFT JOIN company c ON(p.company_id = c.id) "
                 + "LEFT JOIN user u ON(u.id = s.sale_by_id) WHERE si.benefit IS NOT NULL AND s.sale_return = ? AND s.unposted=?";
 
+        if(groupByDateOrUser == 1)// 0 = group by user and 1= group by date
+            sql = sql.replace("SELECT","SELECT s.sales_date,");
 
         sql = sql + " AND s.sales_date >= ? AND s.sales_date <= ? ";
         if(userId > 0){
             sql = sql + " AND s.sale_by_id = ? ";
         }
-        sql +=" GROUP BY u.name ";
+        if(groupByDateOrUser == 0)// 0 = group by user and 1= group by date
+            sql +=" GROUP BY u.name ";
+        else
+            sql +=" GROUP BY DATE_FORMAT(s.sales_date,\"%m/%d/%Y\") ";
 
         logger.debug("SMNLOG:sql:" + sql);
         List paramList = new ArrayList();
@@ -989,7 +999,7 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
     }
 
     @Override
-    public List getTotalPurchaseByDateAndUserId(Date fromDate, Date toDate, Long userId,int purchaseReturn,int unposted) throws Exception{
+    public List getTotalPurchaseByDateAndUserId(Date fromDate, Date toDate, Long userId,int purchaseReturn,int unposted,int groupByDateOrUser) throws Exception{
         logger.debug("SMNLOG:fromDate:"+fromDate+" toDate:"+toDate+" userId:"+userId+" purchaseReturn:"+purchaseReturn+" unposted:"+unposted);
         String sql = "SELECT SUM(pi.total_price) totalPurchaseAmount,"
                 + "SUM(pr.discount) totalDiscount, u.name userName "
@@ -999,12 +1009,17 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
                 + "LEFT JOIN company c ON(p.company_id = c.id) "
                 + "LEFT JOIN user u ON(u.id = pr.purchase_by_id) WHERE pr.purchase_return = ? AND pr.unposted=?";
 
+        if(groupByDateOrUser == 1)// 0 = group by user and 1= group by date
+            sql = sql.replace("SELECT","SELECT pr.purchase_date,");
 
         sql = sql + " AND pr.purchase_date >= ? AND pr.purchase_date <= ? ";
         if(userId > 0){
             sql = sql + " AND pr.purchase_by_id = ? ";
         }
-        sql +=" GROUP BY u.name ";
+        if(groupByDateOrUser == 0)// 0 = group by user and 1= group by date
+            sql +=" GROUP BY u.name ";
+        else
+            sql +=" GROUP BY DATE_FORMAT(pr.purchase_date,\"%m/%d/%Y\") ";
 
         logger.debug("SMNLOG:sql:" + sql);
         List paramList = new ArrayList();

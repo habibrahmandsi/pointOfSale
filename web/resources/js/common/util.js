@@ -220,8 +220,26 @@ function calculateTotal(table, calculateFrom) {
 
 }*/
 function getDateForTableView(date){
+    var h = +date.getHours();
+    var m = date.getMinutes();
+    var s = date.getSeconds();
+    var amOrPm = "AM";
+
+    if(h >= 0 && h<= 11)
+        amOrPm = "AM";
+    else
+        amOrPm = "PM";
+
+    if(h > 12){
+        h = h-12;
+    }
+    return  date.getDate() + "/" +(date.getMonth()+1) + "/" + date.getFullYear()+ " "+h+":"+m+":"+s+" "+amOrPm
+}
+
+function getDateAsFormatted(date){
     return  date.getDate() + "/" +(date.getMonth()+1) + "/" + date.getFullYear()
 }
+
 
 function makeTabularAutoComplete(inputIdOrClass,url, callback){
     $(inputIdOrClass).typeahead({

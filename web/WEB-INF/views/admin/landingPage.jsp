@@ -39,7 +39,7 @@
     <!-- /.col-lg-12 -->
 </div>
 <script>
-    var limitQty = '${settings.stockLimitAlarmQty}';
+     limitQty = +'${settings.stockLimitAlarmQty}';
     var expireDateAlarmDay = '${settings.expireDateAlarmDay}';
 </script>
 <!-- /.row -->

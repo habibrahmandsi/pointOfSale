@@ -2,13 +2,13 @@ $(document).ready(function () {
 
     if(typeof purchaseId != "undefined" && purchaseId > 0){
         $("#purchaseForm").find("div.leftPanelDiv").remove();
-        $("#purchaseForm").find("div.purchaseLineItemsDiv").removeClass("col-lg-9").addClass("col-lg-12");
+        $("#purchaseForm").find("div.purchaseLineItemsDiv").removeClass("col-lg-8").addClass("col-lg-12");
         $("#purchaseForm").find("input").attr("disabled",true);
         $("#purchaseForm").find("img").remove();
         $("#purchaseForm").find("button").remove();
     }else {
+        resetPurchaseForm();
         $("#purchaseForm").find("input").attr("autocomplete", "off");
-
         /* AutoComplete */
         $('.productName').on('typeahead:selected', function (evt, itemObject) {
             console.log('i am in updater' + JSON.stringify(itemObject));
@@ -37,6 +37,19 @@ $(document).ready(function () {
             console.log("SMNLOG:this is call back:" + JSON.stringify(data));
             productObject = data
             console.log("SMNLOG:product id:" + productObject.productId);
+        });
+
+        $(document).on("keyup", '.productName', function () {
+            $(document).find(".typeahead-result").find("ul.typeahead-list").find("li").each(function(){
+                var qty = +$(this).find("table tbody tr td:nth-child(3)").html();
+                var stockLimitAlarmQty = limitQty;
+                console.log("SMNLOG:"+qty+" stockLimitAlarmQty:"+stockLimitAlarmQty);
+                if(qty <= stockLimitAlarmQty){
+                    $(this).find("table").addClass("blink_me");
+                }
+
+            });
+
         });
 
         $(document).on("keyup", '.discount input', function () {
@@ -93,6 +106,12 @@ $(document).ready(function () {
         $(document).on('click', ".purchaseSave", function (event) {
             console.log("SMNLOG:Save clicked");
             $("#purchaseForm").submit();
+        });
+
+        $(document).on('click', ".deletePurchase", function (event) {
+            console.log("SMNLOG:deletePurchase clicked");
+            $(".purchaseLineItemsDiv").html("");
+            resetPurchaseForm();
         });
 
         function indexingPurchase() {
@@ -165,7 +184,7 @@ $(document).ready(function () {
                 + '</tfoot>'
                 + '</table>'
                 + '</br>'
-                + '<div style="text-align: right;"><button class="btn btn-danger" type="reset">Cancel</button>&nbsp;'
+                + '<div style="text-align: right;"><button class="btn btn-danger deletePurchase" type="reset">Cancel</button>&nbsp;'
                 + '<button class="btn btn-success purchaseSave" type="button">'+buttonName+'</button></div>';
 
 
@@ -210,10 +229,7 @@ $(document).ready(function () {
 
 
             reCalculatePurchaseTotal();
-
-            $(".productName").val("");
-            $(".productName").focus();
-
+            resetPurchaseForm();
             /* for indexing */
             indexingPurchase();
             e.preventDefault();
@@ -258,33 +274,13 @@ $(document).ready(function () {
         });
     }
 
-    /*    var previousCompanyValue = "";
-     $(".companyName").keyup(function(){
-     var cName = $(this).val();
-
-     console.log("SMNLOG:changed detected:"+cName+" previousCompanyValue:"+previousCompanyValue);
-     if(cName.length > previousCompanyValue.length){
-     console.log("SMNLOG:Typing...");
-     if(cName.length ==1){
-     console.log("SMNLOG:Calling service...");
-     $.ajax({
-     url: makeAjaxUrlForTypeAhead('./getCompanys.do',0,cName),
-     type: 'get',
-     data: {},
-     success: function (data) {
-     var dataList = data.aaData;
-     console.log('dataList:'+JSON.stringify(dataList));
-     makeAutoComplete('.companyName',dataList,"name",'name');
-     $(".companyName").focus();
-
-     }
-     });
-     }
-     }else{
-     console.log("SMNLOG:Deleting...");
-     }
-     previousCompanyValue = cName;
-     });*/
+  function resetPurchaseForm(){
+      $(".productName").val("");
+      $(".purchaseRateInput").val("");
+      $(".saleRateInput").val("");
+      $(".qty").val("");
+      $(".productName").focus();
+  }
 
 })
 

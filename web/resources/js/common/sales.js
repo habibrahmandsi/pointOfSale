@@ -1,20 +1,33 @@
 $(document).ready(function () {
 
-    /*if (typeof salesId != "undefined" && salesId > 0) {
+    if (typeof unposted != "undefined" && "false".indexOf(unposted) > -1) {
         $("#salesForm").find("div.leftPanelDiv").remove();
         $("#salesForm").find("div.salesLineItemsDiv").removeClass("col-lg-8").addClass("col-lg-12");
         $("#salesForm").find("input").attr("disabled", true);
         $("#salesForm").find("img").remove();
         $("#salesForm").find("button").remove();
         $(".unpostedSaleLnk").remove();
-    } else {*/
+    } else {
         $("#salesForm").find("input").attr("autocomplete", "off");
-        $(".productName").focus();
+        resetSaleForm();
         makeTabularAutoComplete(".productName", './getProductsForAutoComplete.do', function (data) {
             console.log("SMNLOG:this is call back:" + JSON.stringify(data));
             productObject = data
             console.log("SMNLOG:product id:" + productObject.productId);
             $(".salesRateInput").val(productObject.saleRate);
+        });
+
+        $(document).on("keyup", '.productName', function () {
+        $(document).find(".typeahead-result").find("ul.typeahead-list").find("li").each(function(){
+            var qty = +$(this).find("table tbody tr td:nth-child(3)").html();
+            var stockLimitAlarmQty = limitQty;
+            console.log("SMNLOG:"+qty+" stockLimitAlarmQty:"+stockLimitAlarmQty);
+           if(qty <= stockLimitAlarmQty){
+               $(this).find("table").addClass("blink_me");
+           }
+
+        });
+
         });
 
         $(document).on("keyup", '.discount input', function () {
@@ -116,6 +129,12 @@ $(document).ready(function () {
             $("#salesForm").submit();
         });
 
+         $(document).on('click', ".salesDelete", function (event) {
+            console.log("SMNLOG:Save clicked");
+             var saleId = +$("#saleId").val();
+             window.location = "./deleteSales.do?salesId="+saleId;
+        });
+
         function indexingSales() {
             $(".salesLineItemsDiv table tbody tr").each(function () {
                 var index = $(this).index();
@@ -175,8 +194,7 @@ $(document).ready(function () {
             if (typeof productObject.totalQuantity != 'undefined' && productObject.totalQuantity <= 0) {
                 alert("Quantity is empty.Please purchase first !");
                 event.preventDefault();
-                $(".productName").val("");
-                $(".productName").focus();
+                resetSaleForm();
             } else {
                 var salesReturn = 0;
                 if("true".indexOf($("#salesReturn").val()) > -1){
@@ -202,7 +220,7 @@ $(document).ready(function () {
                     + '</tfoot>'
                     + '</table>'
                     + '</br>'
-                    + '<div style="text-align: right;"><button class="btn btn-danger" type="reset">Cancel</button>&nbsp;';
+                    + '<div style="text-align: right;"><button class="btn btn-danger salesDelete" type="reset">Cancel</button>&nbsp;';
 
                 if(salesReturn == 0)
                     table +=  '<button class="btn btn-success salesSave" type="button">Sales</button></div>';
@@ -291,10 +309,7 @@ $(document).ready(function () {
 
                             $(".salesLineItemsDiv").find("table").find("tbody").append(row);
                             reCalculateSalesTotal();
-                            $(".productName").val("");
-                            $(".qty").val("");
-                            $(".salesRateInput").val("");
-                            $(".productName").focus();
+                            resetSaleForm();
                             /* for indexing */
                             indexingSales();
                         }
@@ -354,7 +369,90 @@ $(document).ready(function () {
 
         });
 
-    //}
+
+        /* My All Report details */
+
+        var opt = 0; //  0 or sale report, 1 for sale return, 2 for unposted sale, 3 for unposted sale return
+        var fromDate = getDateAsFormatted(new Date());
+        var toDate = $("#toDate").val();
+
+        var url =  "./getSaleReport.do"
+            +"?fromDate="+fromDate
+            +"&userId="+userId
+            +"&opt="+opt;
+
+        /* My Sale Report details */
+
+        console.log("SMNLOG:initial fromDate:"+fromDate+" toDate:"+toDate+" userId:"+userId);
+
+        function initializeDataTable(classOrId, url){
+           $(classOrId).dataTable({
+                "aLengthMenu": [[5, 10, 15, -1], [5, 10, 15, "All"]],
+                "iDisplayLength": 10,
+                "bProcessing": true,
+                "bServerSide": true,
+                "bJQueryUI": true,
+                "bAutoWidth":true,
+                "bDestroy": true,
+                //"bRetrieve": true,
+                "sPaginationType": "simple_numbers", // you can also give here 'simple','simple_numbers','full','full_numbers'
+                "oLanguage": {
+                    "sSearch": "Search:"
+                },
+                "sAjaxSource": url
+                ,
+                //"fnServerData": fnDataTablesPipeline,
+                "aoColumns": [
+
+
+                    {"sTitle": "Invoice No", "mData": "sales_token_no", "bSortable": true},
+                    {"sTitle": "Sales Date", "mData": null, "bSortable": true, "render": function (data) {
+                        var date= new Date(data.sales_date);
+                        return  getDateForTableView(date)
+
+                    }
+                    },
+                    {"sTitle": "Product Name", "mData": "productName", "bSortable": true},
+                    {"sTitle": "Company Name", "mData": "companyName", "bSortable": true},
+                    {"sTitle": "PRate", "mData": "sItemPRate", "bSortable": true},
+                    {"sTitle": "MRP", "mData": "sItemSaleRate", "bSortable": true},
+                    {"sTitle": "Qty", "mData": "saleItemQty", "bSortable": true},
+                    {"sTitle": "Discount", "mData": "discount", "bSortable": true},
+                    {"sTitle": "Total", "mData": "sItemTotalPrice", "bSortable": true},
+                    {"sTitle": "Sold By", "mData": "userName", "bSortable": true},
+                ]
+            } );
+
+        }
+        initializeDataTable("#salesReportList", url);
+
+        /* My Sale Retutn Report details */
+        opt = 1;
+        url =  "./getSaleReport.do"
+        +"?fromDate="+fromDate
+        +"&userId="+userId
+        +"&opt="+opt;
+
+        initializeDataTable("#salesReturnReportList", url);
+
+
+       /* My unposted  Sale Report details*/
+        opt = 2;
+        url =  "./getSaleReport.do"
+        +"?fromDate="+fromDate
+        +"&userId="+userId
+        +"&opt="+opt;
+        initializeDataTable("#unpostedSalesReportList", url);
+
+       /*  My unposted  Sale Return Report details */
+        opt = 3;
+        url =  "./getSaleReport.do"
+        +"?fromDate="+fromDate
+        +"&userId="+userId
+        +"&opt="+opt;
+        initializeDataTable("#unpostedSalesReturnReportList", url);
+
+    }
 
 
     /*    var previousCompanyValue = "";
@@ -384,6 +482,13 @@ $(document).ready(function () {
      }
      previousCompanyValue = cName;
      });*/
+
+    function resetSaleForm(){
+        $(".productName").val("");
+        $(".salesRateInput").val("");
+        $(".qty").val("");
+        $(".productName").focus();
+    }
 
     function ajaxCallToSaveLineItems(url, sId, callBack) {
         console.log("SMNLOG:url:" + url);

@@ -9,8 +9,13 @@
 %>
 <title><spring:message code="sale.report.header"/></title>
 
+<link rel="stylesheet" type="text/css" href="<%= contextPath %>/resources/css/tipsy.css"/>
+<link rel="stylesheet" type="text/css" href="<%= contextPath %>/resources/css/lineChart.css"/>
+
 <script src="<%= contextPath %>/resources/js/common/saleReport.js"  type="text/javascript"></script>
 <script src="<%= contextPath %>/resources/js/d3js/d3.v3.min.js"  type="text/javascript"></script>
+<script src="<%= contextPath %>/resources/js/d3js/tipsy.js"></script>
+<script src="<%= contextPath %>/resources/js/common/lineChart.js"></script>
 
 <!-- ==================== COMMON ELEMENTS ROW ==================== -->
 
@@ -130,6 +135,8 @@
                     <br>
                     <div class="row">
                         <div class="col-lg-12 unpostedSalesWrapperDiv">
+                            <div id="annualYieldsChart" class="d3charts"></div>
+                            <br>
                             <table id="salesReportList" class="table table-striped table-hover dataTable">
                             </table>
 
@@ -152,7 +159,22 @@
                     </c:forEach>
 
             ]
+
+                var data = [
+                    <c:forEach items="${searchBean.dateWiseGroupByList}" var="data" varStatus="idx">
+                    {"date": '${data.sales_date}',"totalCounts":+'${data.totalSaleAmount}'}
+                    <c:if test="${!idx.last}">,</c:if>
+                    </c:forEach>
+
+            ]
+            var lineChartData = [
+                {
+                    "id":"1",
+                    "values":data
+                }
+            ]
             console.log("SMNLOG:********** donutChartData:"+JSON.stringify(donutChartData));
+            console.log("SMNLOG:********** lineChartData:"+JSON.stringify(lineChartData));
             console.log("SMNLOG:********** userIdFromBean:"+userIdFromBean);
             console.log("SMNLOG:********** opt:"+opt);
         </script>

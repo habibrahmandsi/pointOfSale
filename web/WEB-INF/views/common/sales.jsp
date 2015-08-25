@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%
     final String contextPath = request.getContextPath();
@@ -21,6 +22,7 @@
     <form:form action="./upsertSales.do" method="post" id="salesForm" commandName="sales">
         <form:hidden path="id" id="saleId"/>
         <form:hidden path="salesReturn" id="salesReturn"/>
+        <form:hidden path="unposted" id="unposted"/>
 
     <div class="col-lg-12 zeroPaddingForm">
         <div class="panel panel-default">
@@ -32,6 +34,12 @@
                     <spring:message code="sales.header"/> Form
 
                 </c:if>
+
+
+                <label style="float: right;color:#205eff" class="italicFont">
+                My Today's Sale Total = <fmt:formatNumber type="number" value="${totalSaleByUser}" minFractionDigits="${maxFractionNum}" maxFractionDigits="${maxFractionNum}" />
+                </label>
+                <div style="clear: both"></div>
             </div>
             <div class="panel-body">
                 <div class="row">
@@ -170,38 +178,77 @@
                     </div>
                 </div>
                 <!-- /.panel-body -->
+                <div class="row" style="padding-top: 20px;">
+                    <div class="col-lg-4 zeroPaddingForm">
+                        <c:if test="${sales.salesReturn == false}">
+                            <a href="./upsertSales.do" class="btn btn-primary btn-block unpostedSaleLnk" >New Sale</a>
+                        </c:if>
+                        <c:if test="${sales.salesReturn == true}">
+                            <a href="./upsertSales.do?salesReturn=1" class="btn btn-primary btn-block unpostedSaleLnk" >New Sale Return</a>
+                        </c:if>
+                    </div>
+                    <div class="col-lg-4 zeroPaddingForm"></div>
+                    <div class="col-lg-4 zeroPaddingForm">
+                        <c:if test="${sales.salesReturn == false}">
+                            <a href="./unpostedSale.do?userId=${sales.user.id}&opt=2" class="btn btn-primary btn-block unpostedSaleLnk" >My Un-posted Sale</a>
+                        </c:if>
+                        <c:if test="${sales.salesReturn == true}">
+                            <a href="./unpostedSale.do?userId=${sales.user.id}&opt=3" class="btn btn-primary btn-block unpostedSaleLnk" >My Un-posted Sale Return</a>
+                        </c:if>
+                    </div>
+
+                </div>
+                <div class="row" style="padding-top: 40px;">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#sale" data-toggle="tab">Today's Sale</a></li>
+                    <li><a href="#saleReturn" data-toggle="tab">Today's Sale Return</a></li>
+                    <li><a href="#unpostedSale" data-toggle="tab">Today's Un-posted Sale</a></li>
+                    <li><a href="#unpostedSaleeturn" data-toggle="tab">Today's Un-posted Sale Return</a></li>
+                </ul>
+                <div id="myTabContent" class="tab-content">
+
+                    <div class="tab-pane fade active in" id="sale">
+                        <br>
+                        <table id="salesReportList" class="table table-striped table-hover dataTable">
+                        </table>
+                        <br>
+                    </div>
+
+                    <div class="tab-pane fade" id="saleReturn">
+                        <br>
+                            <table id="salesReturnReportList" class="table table-striped table-hover dataTable">
+                        </table>
+                        <br>
+                    </div>
+                    <div class="tab-pane fade" id="unpostedSale">
+                        <br>
+                        <table id="unpostedSalesReportList" class="table table-striped table-hover dataTable">
+                        </table>
+                        <br>
+                    </div>
+                    <div class="tab-pane fade" id="unpostedSaleeturn">
+                        <br>
+                        <table id="unpostedSalesReturnReportList" class="table table-striped table-hover dataTable">
+                        </table>
+                        <br>
+                    </div>
+                </div>
+
+             </div><%--end of second row--%>
             </div>
             <!-- /.panel -->
         </div>
-        <div class="row">
-            <div class="col-lg-4 zeroPaddingForm">
-                <c:if test="${sales.salesReturn == false}">
-                    <a href="./upsertSales.do" class="btn btn-primary btn-block unpostedSaleLnk" >New Sale</a>
-                </c:if>
-                <c:if test="${sales.salesReturn == true}">
-                    <a href="./upsertSales.do?salesReturn=1" class="btn btn-primary btn-block unpostedSaleLnk" >New Sale Return</a>
-                </c:if>
-            </div>
-            <div class="col-lg-4 zeroPaddingForm"></div>
-            <div class="col-lg-4 zeroPaddingForm">
-                <c:if test="${sales.salesReturn == false}">
-                    <a href="./unpostedSale.do?userId=${sales.user.id}&opt=2" class="btn btn-primary btn-block unpostedSaleLnk" >My Un-posted Sale</a>
-                </c:if>
-                <c:if test="${sales.salesReturn == true}">
-                    <a href="./unpostedSale.do?userId=${sales.user.id}&opt=3" class="btn btn-primary btn-block unpostedSaleLnk" >My Un-posted Sale Return</a>
-                </c:if>
-            </div>
 
-        </div>
-
-
-
-
-        <!-- /.col-lg-12 -->
+      <!-- /.col-lg-12 -->
     </div>
     </form:form>
     <script>
+        var limitQty = +"${limitQty}";
         var salesId = +"${salesId}";
+        var unposted = "${sales.unposted}";
+        var userId = "${sales.user.id}";
+        console.log("SMNLOG:unposted:" + unposted+" userId :"+userId);
+        console.log("SMNLOG:limitQty:" + limitQty);
         console.log("SMNLOG:salesId:" + salesId);
     </script>
     <!-- /.row -->

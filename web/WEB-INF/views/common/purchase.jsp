@@ -20,7 +20,7 @@
 <!-- /.row -->
 <div class="row">
     <form:form action="./upsertPurchase.do" method="post" id="purchaseForm" commandName="purchase">
-        <form:hidden path="id"/>
+        <form:hidden path="id" id="purchaseId"/>
             <form:hidden path="purchaseReturn"/>
             <form:hidden path="unposted"/>
 
@@ -202,9 +202,10 @@
     </div>
     </form:form>
         <script>
+            var limitQty = +"${limitQty}";
             var purchaseId = "${purchase.id}";
             var purchaseReturn = "${purchase.purchaseReturn}";
-            console.log("SMNLOG:purchaseId:"+purchaseId+" purchaseReturn:"+purchaseReturn);
+            console.log("SMNLOG:purchaseId:"+purchaseId+" purchaseReturn:"+purchaseReturn+" limitQty:"+limitQty);
         </script>
     <!-- /.row -->
     <!-- ==================== END OF COMMON ELEMENTS ROW ==================== -->

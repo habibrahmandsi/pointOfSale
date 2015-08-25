@@ -4,14 +4,17 @@
 <%@ page import="com.dsoft.util.Constants" %>
 <%@ page import="com.dsoft.entity.Role" %>
 <%@ page import="com.dsoft.service.AdminService" %>
+<%@ page import="com.dsoft.entity.Settings" %>
 <%@taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring" %>
 <%@ taglib prefix="security" uri="http://www.springframework.org/security/tags" %>
 <%
     final String contextPath = request.getContextPath();
     final String loggedUserName = (String)request.getSession().getAttribute("loggedUserName");
+    final Settings settings = request.getSession().getAttribute("settings") != null? (Settings)request.getSession().getAttribute("settings"): new Settings();
 %>
 
+<c:set var="limitQty" value="<%=settings.getStockLimitAlarmQty()%>" scope="session"/>
 <c:set var="maxFractionNum" value="<%=Constants.TWO_DECIMAL_GLOBAL_ROUND%>" scope="session"/>
 <c:set var="loggedUserName" value="<%=loggedUserName%>" scope="session"/>
 <c:set var="dateFormateForJstlTag" value="<%=Constants.DATE_FORMAT%>" scope="session"/>

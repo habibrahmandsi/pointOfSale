@@ -7,6 +7,7 @@ import com.dsoft.util.Constants;
 import com.dsoft.util.Utils;
 import com.dsoft.validation.UserValidation;
 import org.apache.log4j.Logger;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -185,7 +186,7 @@ public class LoginController {  // to handle login related task
             e.printStackTrace();
             logger.error(":: ERROR: error to load settings list:: " + e);
         }
-
+        request.getSession().setAttribute("settings",settings);
         model.addAttribute("settings", settings);
 
         return "admin/landingPage";

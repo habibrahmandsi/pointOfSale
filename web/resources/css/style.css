@@ -11,8 +11,9 @@ Write custom css here
 }
 
 .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
-    padding: 0px;
+    padding: 2px;
     font-size: 13px;
+    /*padding-left: 5px;*/
 }
 
 .table td:last-child img {
@@ -117,6 +118,7 @@ table.dataTable thead > tr > th {
     font-style: italic;
     font-weight: 700;
     text-align: right;
+    padding-right: 5px !important;
 }
 .panel-heading{
     font-weight: 700;
@@ -191,19 +193,20 @@ margin-bottom: 0px;
 
 .blink_me {
     -webkit-animation-name: blinker;
-    -webkit-animation-duration: 1s;
+    -webkit-animation-duration: 2s;
     -webkit-animation-timing-function: linear;
     -webkit-animation-iteration-count: infinite;
 
     -moz-animation-name: blinker;
-    -moz-animation-duration: 1s;
+    -moz-animation-duration: 2s;
     -moz-animation-timing-function: linear;
     -moz-animation-iteration-count: infinite;
 
     animation-name: blinker;
-    animation-duration: 1s;
+    animation-duration: 2s;
     animation-timing-function: linear;
     animation-iteration-count: infinite;
+    color: #FF0000;
 }
 
 @-moz-keyframes blinker {
@@ -224,3 +227,28 @@ margin-bottom: 0px;
     100% { opacity: 1.0; }
 }
 
+#searchBean .form-group{
+    margin-bottom: 2px;
+}
+
+.data-point {
+    fill: #fff;
+    stroke: steelblue;
+    stroke-width: 2;
+    opacity: 1;
+}
+#myTabContent{
+    padding: 10px;
+}
+.colorRed{
+    color: #FF0000;
+}
+.colorGreen{
+    color: #2bbcff;
+}
+.colorBlue{
+    color: #3f34ff;
+}
+.colorPurple{
+    color: #ff8100;
+}

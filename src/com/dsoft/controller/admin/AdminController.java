@@ -1574,7 +1574,9 @@ public class AdminController {
             Utils.setErrorMessage(request, opt == 1 ? Utils.getMessageBundlePropertyValue("purchase.return.delete.failed.msg") :
                     Utils.getMessageBundlePropertyValue("purchase.delete.failed.msg"));
         }
-        if (opt == 1)
+        if(opt == 0)
+            return "redirect:./upsertPurchase.do";
+        else if (opt == 1)
             return "redirect:./purchaseReturnList.do";
 
         return "redirect:./purchaseList.do";
@@ -1741,6 +1743,9 @@ public class AdminController {
         logger.error("********* upsert Sales view controller *********");
         Sales sales = new Sales();
         List<SalesItem> salesItemList = null;
+        List totalSaleByUser = null;
+        User user = null;
+        Map map = new HashMap();
         List<Sales> salesList = new ArrayList<Sales>();
         Long salesId = request.getParameter("salesId") != null ? Long.parseLong(request.getParameter("salesId")) : 0;
         int salesReturn = request.getParameter("salesReturn") != null ? Integer.parseInt(request.getParameter("salesReturn")) : 0;
@@ -1771,7 +1776,7 @@ public class AdminController {
 
                 logger.debug("SMNLOG:------- Saving sales as unposted ---------------");
 
-                User user = (User) adminService.getAbstractBaseEntityByString(Constants.USER, "userName", Utils.getLoggedUserName());
+                user = (User) adminService.getAbstractBaseEntityByString(Constants.USER, "userName", Utils.getLoggedUserName());
 
                 logger.debug("SMNLOG:------- first to check empty unposted sales---------------");
                 salesList = adminService.getUnpostedSalesListByUserId(user.getId());
@@ -1799,15 +1804,20 @@ public class AdminController {
                 adminService.saveOrUpdateObject(sales);
                 logger.debug("SMNLOG:-------2 sales id:" + sales.getId());
             }
+            Date fmDate = Utils.startOfDate(new Date());
+            totalSaleByUser = adminJdbcService.getTotalSaleByDateAndUserId(fmDate, null, user != null ? user.getId() : 0, salesReturn, 0, 0);
+            logger.debug("SMNLOG:-------totalSaleByUser:" + totalSaleByUser);
         } catch (Exception e) {
             e.printStackTrace();
             logger.debug("ERROR:" + e);
 
         }
-
-
         sales.setSalesItemList(salesItemList);
         model.addAttribute("sales", sales);
+        if(totalSaleByUser != null && totalSaleByUser.size() > 0){
+             map = (Map)totalSaleByUser.get(0);
+        }
+        model.addAttribute("totalSaleByUser", map.get("totalSaleAmount") != null ? map.get("totalSaleAmount"): "0.0");
         model.addAttribute("salesId", salesId);
         return "common/sales";
     }
@@ -2028,7 +2038,9 @@ public class AdminController {
             else
                 Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("sales.delete.failed.msg"));
         }
-        if (opt == 1)
+        if(opt == 0)
+            return "redirect:./upsertSales.do";
+        else if (opt == 1)
             return "redirect:./salesReturnList.do";
         else if (opt == 2)
             return "redirect:./unpostedSale.do";
@@ -2485,13 +2497,13 @@ public class AdminController {
         logger.info("********* Get Sale Report List Ajax Controller *********");
         DataModelBean dataModelBean = new DataModelBean();
         /* this params is for dataTables */
-        String[] tableColumns = "sales_token_no,sales_date,p.name,c.name,si.purchase_rate,si.sales_rate,si.quantity,sItemTotalPrice,userName".split(",");
+        String[] tableColumns = "sales_token_no,sales_date,p.name,c.name,si.purchase_rate,si.sales_rate,si.quantity,sItemTotalPrice,discount,userName".split(",");
         int start = request.getParameter(Constants.IDISPLAY_START) != null ? Integer.parseInt(request.getParameter(Constants.IDISPLAY_START)) : 0;
         int length = request.getParameter(Constants.IDISPLAY_LENGTH) != null ? Integer.parseInt(request.getParameter(Constants.IDISPLAY_LENGTH)) : 5;
         int sEcho = request.getParameter(Constants.sEcho) != null ? Integer.parseInt(request.getParameter(Constants.sEcho)) : 0;
-        int iSortColIndex = request.getParameter(Constants.iSortCOL) != null ? Integer.parseInt(request.getParameter(Constants.iSortCOL)) : 0;
+        int iSortColIndex = request.getParameter(Constants.iSortCOL) != null ? Integer.parseInt(request.getParameter(Constants.iSortCOL)) : 1;
         String searchKey = request.getParameter(Constants.sSearch) != null ? request.getParameter(Constants.sSearch) : "";
-        String sortType = request.getParameter(Constants.sortType) != null ? request.getParameter(Constants.sortType) : "asc";
+        String sortType = request.getParameter(Constants.sortType) != null ? request.getParameter(Constants.sortType) : "desc";
         String fromDate = request.getParameter("fromDate") != null ? request.getParameter("fromDate") : "";
         String toDate = request.getParameter("toDate") != null ? request.getParameter("toDate") : "";
         Long userId = request.getParameter("userId") != null ? Long.parseLong(request.getParameter("userId")) : 0;
@@ -2675,6 +2687,7 @@ public class AdminController {
         }
         logger.debug("SMNLOG:searchBean:"+searchBean);
         List totalSaleList = new ArrayList();
+        List totalSaleListForChart = new ArrayList();
         try{
             if ((Utils.isInRole(Role.ROLE_ADMIN.getLabel()) || Utils.isInRole(Role.ROLE_SUPER_ADMIN.getLabel()))) {
                 if(Utils.isEmpty(searchBean.getFromDateStr()))
@@ -2686,11 +2699,15 @@ public class AdminController {
                     List<User> userList = adminService.getAllUserList();
                     searchBean.setUserList(userList);
                 }
-
-                totalSaleList = adminJdbcService.getTotalSaleByDateAndUserId( fmDate, tDate, searchBean.getUserId() != null? searchBean.getUserId(): 0,salesReturn,unposted);
+                int groupByDateOrUser = 0;
+//              0 = group by user and 1= group by date
+                totalSaleList = adminJdbcService.getTotalSaleByDateAndUserId( fmDate, tDate, searchBean.getUserId() != null? searchBean.getUserId(): 0,salesReturn,unposted,groupByDateOrUser);
+                groupByDateOrUser = 1;
+                totalSaleListForChart = adminJdbcService.getTotalSaleByDateAndUserId( fmDate, tDate, searchBean.getUserId() != null? searchBean.getUserId(): 0,salesReturn,unposted,groupByDateOrUser);
                 logger.debug("SMNLOG:totalSaleList:" + totalSaleList);
                 searchBean.setOpt(opt);
                 searchBean.setTotalSaleList(totalSaleList);
+                searchBean.setDateWiseGroupByList(totalSaleListForChart);
                 model.addAttribute("userId", searchBean.getUserId());
                 model.addAttribute("searchBean", searchBean);
                 return "common/saleReport";
@@ -2734,6 +2751,7 @@ public class AdminController {
         }
         logger.debug("SMNLOG:searchBean:"+searchBean);
         List totalIncomeList = new ArrayList();
+        List totalIncomeListGroupByDate = new ArrayList();
         try{
             if ((Utils.isInRole(Role.ROLE_ADMIN.getLabel()) || Utils.isInRole(Role.ROLE_SUPER_ADMIN.getLabel()))) {
 
@@ -2747,12 +2765,16 @@ public class AdminController {
                     List<User> userList = adminService.getAllUserList();
                     searchBean.setUserList(userList);
                 }
-
-                totalIncomeList = adminJdbcService.getTotalIncomeByDateAndUserId(fmDate, tDate, searchBean.getUserId() != null ? searchBean.getUserId() : 0, salesReturn, unposted);
+                int groupByDateOrUser = 0;
+//              0 = group by user and 1= group by date
+                totalIncomeList = adminJdbcService.getTotalIncomeByDateAndUserId(fmDate, tDate, searchBean.getUserId() != null ? searchBean.getUserId() : 0, salesReturn, unposted,groupByDateOrUser);
+                groupByDateOrUser = 1;
+                totalIncomeListGroupByDate = adminJdbcService.getTotalIncomeByDateAndUserId(fmDate, tDate, searchBean.getUserId() != null ? searchBean.getUserId() : 0, salesReturn, unposted,groupByDateOrUser);
 
                 logger.debug("SMNLOG:totalIncomeList:" + totalIncomeList);
                 searchBean.setOpt(opt);
                 searchBean.setTotalIncomeList(totalIncomeList);
+                searchBean.setDateWiseGroupByList(totalIncomeListGroupByDate);
 
                 model.addAttribute("searchBean", searchBean);
                 return "common/incomeReport";
@@ -2797,6 +2819,7 @@ public class AdminController {
         }
         logger.debug("SMNLOG:searchBean:"+searchBean);
         List totalIncomeList = new ArrayList();
+        List totalIncomeListGroupByDate = new ArrayList();
         try{
             if ((Utils.isInRole(Role.ROLE_ADMIN.getLabel()) || Utils.isInRole(Role.ROLE_SUPER_ADMIN.getLabel()))) {
 
@@ -2810,12 +2833,16 @@ public class AdminController {
                     List<User> userList = adminService.getAllUserList();
                     searchBean.setUserList(userList);
                 }
-
-                totalIncomeList = adminJdbcService.getTotalIncomeByDateAndUserId(fmDate, tDate, searchBean.getUserId() != null ? searchBean.getUserId() : 0, salesReturn, unposted);
+                int groupByDateOrUser = 0;
+//              0 = group by user and 1= group by date
+                totalIncomeList = adminJdbcService.getTotalIncomeByDateAndUserId(fmDate, tDate, searchBean.getUserId() != null ? searchBean.getUserId() : 0, salesReturn, unposted,groupByDateOrUser);
+                groupByDateOrUser = 1;
+                totalIncomeListGroupByDate = adminJdbcService.getTotalIncomeByDateAndUserId(fmDate, tDate, searchBean.getUserId() != null ? searchBean.getUserId() : 0, salesReturn, unposted,groupByDateOrUser);
 
                 logger.debug("SMNLOG:totalIncomeList:" + totalIncomeList);
                 searchBean.setOpt(opt);
                 searchBean.setTotalIncomeList(totalIncomeList);
+                searchBean.setDateWiseGroupByList(totalIncomeListGroupByDate);
 
                 model.addAttribute("searchBean", searchBean);
                 return "common/incomeReport";
@@ -2895,6 +2922,7 @@ public class AdminController {
         }
         logger.debug("SMNLOG:searchBean:"+searchBean);
         List totalSaleList = new ArrayList();
+        List totalPurchaseListGroupByDate = new ArrayList();
         try{
             if ((Utils.isInRole(Role.ROLE_ADMIN.getLabel()) || Utils.isInRole(Role.ROLE_SUPER_ADMIN.getLabel()))) {
                 if(Utils.isEmpty(searchBean.getFromDateStr()))
@@ -2906,10 +2934,15 @@ public class AdminController {
                     List<User> userList = adminService.getAllUserList();
                     searchBean.setUserList(userList);
                 }
-                totalSaleList = adminJdbcService.getTotalPurchaseByDateAndUserId(fmDate, tDate, searchBean.getUserId() != null ? searchBean.getUserId() : 0, purchaseReturn, unposted);
+                int groupByDateOrUser = 0;
+//              0 = group by user and 1= group by date
+
+                totalSaleList = adminJdbcService.getTotalPurchaseByDateAndUserId(fmDate, tDate, searchBean.getUserId() != null ? searchBean.getUserId() : 0, purchaseReturn, unposted,groupByDateOrUser);
+                groupByDateOrUser = 1;
+                totalPurchaseListGroupByDate = adminJdbcService.getTotalPurchaseByDateAndUserId(fmDate, tDate, searchBean.getUserId() != null ? searchBean.getUserId() : 0, purchaseReturn, unposted,groupByDateOrUser);
                 logger.debug("SMNLOG:totalSaleList:"+totalSaleList);
                 searchBean.setOpt(opt);
-
+                searchBean.setDateWiseGroupByList(totalPurchaseListGroupByDate);
                 searchBean.setTotalPurchaseList(totalSaleList);
                 model.addAttribute("userId", searchBean.getUserId());
                 model.addAttribute("searchBean", searchBean);

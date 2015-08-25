@@ -20,6 +20,7 @@ public class SearchBean {
     private List totalIncomeList;
     private int opt;
     private List totalPurchaseList;
+    private List dateWiseGroupByList;
 
 
     public String getFromDateStr() {
@@ -102,6 +103,14 @@ public class SearchBean {
         this.totalPurchaseList = totalPurchaseList;
     }
 
+    public List getDateWiseGroupByList() {
+        return dateWiseGroupByList;
+    }
+
+    public void setDateWiseGroupByList(List dateWiseGroupByList) {
+        this.dateWiseGroupByList = dateWiseGroupByList;
+    }
+
     @Override
     public String toString() {
         return "SearchBean{" +
@@ -115,6 +124,7 @@ public class SearchBean {
                 ", totalIncomeList=" + totalIncomeList +
                 ", opt=" + opt +
                 ", totalPurchaseList=" + totalPurchaseList +
+                ", dateWiseGroupByList=" + dateWiseGroupByList +
                 '}';
     }
 }

@@ -119,8 +119,8 @@ public class AdminJdbcServiceImpl implements AdminJdbcService {
     }
 
     @Override
-    public List getTotalSaleByDateAndUserId(Date fromDate, Date toDate, Long userId,int salesReturn,int unposted) throws Exception{
-        return adminJdbcDao.getTotalSaleByDateAndUserId(fromDate, toDate, userId,salesReturn,unposted);
+    public List getTotalSaleByDateAndUserId(Date fromDate, Date toDate, Long userId,int salesReturn,int unposted,int groupByDateOrUser) throws Exception{
+        return adminJdbcDao.getTotalSaleByDateAndUserId(fromDate, toDate, userId,salesReturn,unposted,groupByDateOrUser);
     }
 
     @Override
@@ -129,8 +129,8 @@ public class AdminJdbcServiceImpl implements AdminJdbcService {
     }
 
     @Override
-    public List getTotalIncomeByDateAndUserId(Date fromDate, Date toDate, Long userId,int salesReturn,int unposted) throws Exception{
-        return adminJdbcDao.getTotalIncomeByDateAndUserId(fromDate, toDate, userId, salesReturn, unposted);
+    public List getTotalIncomeByDateAndUserId(Date fromDate, Date toDate, Long userId,int salesReturn,int unposted,int groupByDateOrUser) throws Exception{
+        return adminJdbcDao.getTotalIncomeByDateAndUserId(fromDate, toDate, userId, salesReturn, unposted,groupByDateOrUser);
     }
 
     public Map getLatestPurchaseItemByProductId(Long productId) throws Exception{
@@ -138,8 +138,8 @@ public class AdminJdbcServiceImpl implements AdminJdbcService {
     }
 
     @Override
-    public List getTotalPurchaseByDateAndUserId(Date fromDate, Date toDate, Long userId,int purchaseReturn,int unposted) throws Exception{
-        return adminJdbcDao.getTotalPurchaseByDateAndUserId(fromDate, toDate, userId, purchaseReturn, unposted);
+    public List getTotalPurchaseByDateAndUserId(Date fromDate, Date toDate, Long userId,int purchaseReturn,int unposted,int groupByDateOrUser) throws Exception{
+        return adminJdbcDao.getTotalPurchaseByDateAndUserId(fromDate, toDate, userId, purchaseReturn, unposted,groupByDateOrUser);
     }
 
 

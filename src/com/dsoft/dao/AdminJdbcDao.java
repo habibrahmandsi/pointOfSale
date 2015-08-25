@@ -37,14 +37,14 @@ public interface AdminJdbcDao {
 
     Map<String, Object> getSalesReport(Integer start, Integer length, String sortColName, String sortType, String searchKey, int salesReturn, Date fromDate, Date toDate, Long userId,int unposted) throws Exception ;
     int getSalesReportCount(String searchKey, int salesReturn, Date fromDate, Date toDate, Long userId,int unposted) throws Exception;
-    List getTotalSaleByDateAndUserId(Date fromDate, Date toDate, Long userId,int salesReturn,int unposted) throws Exception;
+    List getTotalSaleByDateAndUserId(Date fromDate, Date toDate, Long userId,int salesReturn,int unposted,int groupByDateOrUser) throws Exception;
 
     int getIncomeReportCount(String searchKey, int salesReturn, Date fromDate, Date toDate, Long userId,int unposted) throws Exception;
-    List getTotalIncomeByDateAndUserId(Date fromDate, Date toDate, Long userId,int salesReturn,int unposted) throws Exception;
+    List getTotalIncomeByDateAndUserId(Date fromDate, Date toDate, Long userId,int salesReturn,int unposted,int groupByDateOrUser) throws Exception;
 
     Map getLatestPurchaseItemByProductId(Long productId) throws Exception;
 
-    List getTotalPurchaseByDateAndUserId(Date fromDate, Date toDate, Long userId,int purchaseReturn,int unposted) throws Exception;
+    List getTotalPurchaseByDateAndUserId(Date fromDate, Date toDate, Long userId,int purchaseReturn,int unposted,int groupByDateOrUser) throws Exception;
 
     Map<String, Object> getPurchaseReport(Integer start, Integer length, String sortColName, String sortType, String searchKey, int purchaseReturn, Date fromDate, Date toDate, Long userId,int unposted) throws Exception ;
     int getPurchaseReportCount(String searchKey, int purchaseReturn, Date fromDate, Date toDate, Long userId,int unposted) throws Exception;
