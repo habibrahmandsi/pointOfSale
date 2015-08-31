@@ -1,6 +1,7 @@
 package com.dsoft.dao;
 
 import com.dsoft.entity.*;
+import com.dsoft.service.AdminJdbcService;
 
 import java.util.Date;
 import java.util.List;
@@ -72,5 +73,5 @@ public interface AdminDao {
     int getProductEntitySize(Double limitQty) throws Exception;
     List<Sales> getUnpostedSalesListByUserId(Long userId) throws Exception;
 
-
+    Long savePurchaseItemAsPurchaseReturn(AdminJdbcService adminJdbcService, Product product, Double qty) throws Exception;
 }

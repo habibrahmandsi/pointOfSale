@@ -26,7 +26,7 @@
 
                         <table id="limitedStockProductList" class="table table-striped table-hover dataTable">
                         </table>
-
+                        <a href="./clearAllData.do" class="btn btn-primary" style="width: 98%;">Clear All Data</a>
                     </div>
                     <!-- /.col-lg-6 (nested) -->
                 </div>

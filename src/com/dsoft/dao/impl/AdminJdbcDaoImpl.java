@@ -242,7 +242,7 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
                 + "LEFT JOIN product_type pt ON(pt.id = p.product_type_id) "
                 + "LEFT JOIN unit_of_measure uom ON(uom.id = p.unit_of_measure_id) WHERE 1=1 ";
 
-        logger.debug("SMNLOG: searchKey:" + searchKey + " length:" + length+" limitQty:"+limitQty);
+        logger.debug("SMNLOG: searchKey:" + searchKey + " length:" + length + " limitQty:" + limitQty);
 
         if (!Utils.isEmpty(searchKey)) {
             sql = sql + " AND (p.name LIKE ? "
@@ -255,7 +255,7 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
                     + "OR p.total_quantity LIKE ? ) "
             ;
         }
-        if(limitQty != null && limitQty > 0)
+        if (limitQty != null && limitQty > 0)
             sql = sql + " AND p.total_quantity <= ? ";
 
         sql = sql + " ORDER BY " + sortColName + " " + sortType + " LIMIT ?, ? ";
@@ -271,7 +271,7 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
             paramList.add(searchKey + "%");
             paramList.add(searchKey + "%");
         }
-        if(limitQty != null && limitQty > 0)
+        if (limitQty != null && limitQty > 0)
             paramList.add(limitQty);
 
 
@@ -528,7 +528,7 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
     }
 
     @Override
-    public Map<String, Object> getSales(Integer start, Integer length, String sortColName, String sortType, String searchKey,Long userId, int salesReturn,int unposted) throws Exception {
+    public Map<String, Object> getSales(Integer start, Integer length, String sortColName, String sortType, String searchKey, Long userId, int salesReturn, int unposted) throws Exception {
         Map<String, Object> result = new HashMap();
         String sql = "SELECT s.*, u.name userName "
                 + "FROM sales s "
@@ -543,7 +543,7 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
                     + " OR discount LIKE ? "
                     + " OR u.name LIKE ? ";
         }
-        if(userId > 0){
+        if (userId > 0) {
             sql = sql + " AND s.sale_by_id = ? ";
         }
         sql = sql + " ORDER BY " + sortColName + " " + sortType + " LIMIT ?, ? ";
@@ -558,7 +558,7 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
             paramList.add(searchKey + "%");
             paramList.add(searchKey + "%");
         }
-        if(userId > 0){
+        if (userId > 0) {
             paramList.add(userId);
         }
         paramList.add(start);
@@ -578,10 +578,10 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
         return result;
     }
 
-    public int getSalesCount(Long userId,int salesReturn,int unposted) throws Exception {
-        String sql = "SELECT COUNT(*) FROM sales WHERE total_amount > 0 AND sale_return=" + salesReturn+" AND unposted = "+unposted;
-        if(userId > 0)
-            sql += " AND sale_by_id="+userId;
+    public int getSalesCount(Long userId, int salesReturn, int unposted) throws Exception {
+        String sql = "SELECT COUNT(*) FROM sales WHERE total_amount > 0 AND sale_return=" + salesReturn + " AND unposted = " + unposted;
+        if (userId > 0)
+            sql += " AND sale_by_id=" + userId;
 
         return jdbcTemplate.queryForInt(sql);
     }
@@ -655,12 +655,12 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
                     + " OR u.name LIKE ? ";
         }
 
-        if(fromDate != null && toDate != null){
+        if (fromDate != null && toDate != null) {
             sql = sql + " AND s.sales_date >= ? AND s.sales_date <= ? ";
-        }else if(fromDate != null && toDate == null)
+        } else if (fromDate != null && toDate == null)
             sql = sql + " AND s.sales_date = ? ";
 
-        if(userId > 0){
+        if (userId > 0) {
             sql = sql + " AND s.sale_by_id = ? ";
         }
 
@@ -676,13 +676,13 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
             paramList.add(searchKey + "%");
             paramList.add(searchKey + "%");
         }
-        if(fromDate != null && toDate != null){
+        if (fromDate != null && toDate != null) {
             paramList.add(fromDate);
             paramList.add(toDate);
-        }else if(fromDate != null && toDate == null)
+        } else if (fromDate != null && toDate == null)
             paramList.add(fromDate);
 
-        if(userId > 0){
+        if (userId > 0) {
             paramList.add(userId);
         }
 
@@ -703,7 +703,7 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
         return result;
     }
 
-    public int getUnpostedSalesCount(int salesReturn, Date fromDate, Date toDate, Long userId, int unposted) throws Exception{
+    public int getUnpostedSalesCount(int salesReturn, Date fromDate, Date toDate, Long userId, int unposted) throws Exception {
         String sql = "SELECT COUNT(*) "
                 + "FROM sales s "
                 + "LEFT JOIN user u ON(u.id = s.sale_by_id) WHERE s.sale_return = ? AND unposted = ? ";
@@ -711,7 +711,7 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
 
         sql = sql + " AND s.sales_date >= ? AND s.sales_date <= ? ";
 
-        if(userId > 0){
+        if (userId > 0) {
             sql = sql + " AND s.sale_by_id = ? ";
         }
 
@@ -719,28 +719,28 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
         paramList.add(salesReturn);
         paramList.add(unposted);
 
-        if(fromDate != null && toDate != null){
+        if (fromDate != null && toDate != null) {
             paramList.add(fromDate);
             paramList.add(toDate);
-        }else if(fromDate != null && toDate == null){
+        } else if (fromDate != null && toDate == null) {
             paramList.add(fromDate);
             paramList.add(Utils.endOfDate(fromDate));
         }
-        if(userId > 0){
+        if (userId > 0) {
             paramList.add(userId);
         }
 
         logger.debug("SMNLOG:sql:" + sql);
 
-        return jdbcTemplate.queryForInt(sql,paramList.toArray());
+        return jdbcTemplate.queryForInt(sql, paramList.toArray());
     }
 
 
     @Override
-    public Map<String, Object> getSalesReport(Integer start, Integer length, String sortColName, String sortType, String searchKey, int salesReturn, Date fromDate, Date toDate, Long userId,int unposted) throws Exception{
+    public Map<String, Object> getSalesReport(Integer start, Integer length, String sortColName, String sortType, String searchKey, int salesReturn, Date fromDate, Date toDate, Long userId, int unposted) throws Exception {
         Map<String, Object> result = new HashMap();
 
-        String sql = this.getSaleReportSql(sortColName, sortType, searchKey,fromDate, toDate, userId);
+        String sql = this.getSaleReportSql(sortColName, sortType, searchKey, fromDate, toDate, userId);
         List paramList = new ArrayList();
         paramList.add(salesReturn);
         paramList.add(unposted);
@@ -756,18 +756,18 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
             paramList.add(searchKey + "%");
         }
 
-        if(fromDate != null && toDate != null){
+        if (fromDate != null && toDate != null) {
             paramList.add(fromDate);
             paramList.add(toDate);
-        }else if(fromDate != null && toDate == null){
+        } else if (fromDate != null && toDate == null) {
             paramList.add(fromDate);
             paramList.add(Utils.endOfDate(fromDate));
         }
 
-        if(userId > 0){
+        if (userId > 0) {
             paramList.add(userId);
         }
-        if(!Utils.isEmpty(sortColName)){
+        if (!Utils.isEmpty(sortColName)) {
             paramList.add(start);
             paramList.add(length);
         }
@@ -786,7 +786,7 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
         return result;
     }
 
-    public static String getSaleReportSql(String sortColName, String sortType, String searchKey,Date fromDate, Date toDate, Long userId){
+    public static String getSaleReportSql(String sortColName, String sortType, String searchKey, Date fromDate, Date toDate, Long userId) {
         String sql = "SELECT s.*,si.quantity saleItemQty, si.purchase_rate sItemPRate, si.sales_rate sItemSaleRate "
                 + ",si.total_price sItemTotalPrice, u.name userName,p.name productName,c.name companyName "
                 + "FROM sales s "
@@ -806,25 +806,25 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
                     + " OR c.name LIKE ?"
                     + " OR u.name LIKE ?)";
         }
-        if(fromDate != null)
-        sql = sql + " AND s.sales_date >= ? AND s.sales_date <= ? ";
+        if (fromDate != null)
+            sql = sql + " AND s.sales_date >= ? AND s.sales_date <= ? ";
 
-        if(userId > 0){
+        if (userId > 0) {
             sql = sql + " AND s.sale_by_id = ? ";
         }
-        if(!Utils.isEmpty(sortColName))
-        sql = sql + " ORDER BY " + sortColName + " " + sortType + " LIMIT ?, ? ";
+        if (!Utils.isEmpty(sortColName))
+            sql = sql + " ORDER BY " + sortColName + " " + sortType + " LIMIT ?, ? ";
         return sql;
     }
 
 
     @Override
-    public int getSalesReportCount(String searchKey, int salesReturn, Date fromDate, Date toDate, Long userId,int unposted) throws Exception{
-        String sql = this.getSaleReportSql("", "", searchKey,fromDate, toDate, userId);
+    public int getSalesReportCount(String searchKey, int salesReturn, Date fromDate, Date toDate, Long userId, int unposted) throws Exception {
+        String sql = this.getSaleReportSql("", "", searchKey, fromDate, toDate, userId);
         sql = sql.substring(sql.indexOf("FROM"));
-        logger.debug("SMNLOG:sql 11:"+sql);
-        sql = "SELECT COUNT(*) "+sql;
-        logger.debug("SMNLOG:sql 22:"+sql);
+        logger.debug("SMNLOG:sql 11:" + sql);
+        sql = "SELECT COUNT(*) " + sql;
+        logger.debug("SMNLOG:sql 22:" + sql);
         List paramList = new ArrayList();
         paramList.add(salesReturn);
         paramList.add(unposted);
@@ -840,15 +840,15 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
             paramList.add(searchKey + "%");
         }
 
-        if(fromDate != null && toDate != null){
+        if (fromDate != null && toDate != null) {
             paramList.add(fromDate);
             paramList.add(toDate);
-        }else if(fromDate != null && toDate == null){
+        } else if (fromDate != null && toDate == null) {
             paramList.add(fromDate);
             paramList.add(Utils.endOfDate(fromDate));
         }
 
-        if(userId > 0){
+        if (userId > 0) {
             paramList.add(userId);
         }
         logger.debug("SMNLOG:sql:" + sql);
@@ -856,57 +856,79 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
     }
 
     @Override
-    public List getTotalSaleByDateAndUserId(Date fromDate, Date toDate, Long userId,int salesReturn,int unposted,int groupByDateOrUser) throws Exception{
-        logger.debug("SMNLOG:fromDate:"+fromDate+" toDate:"+toDate+" userId:"+userId+" salesReturn:"+salesReturn);
-        String sql = "SELECT SUM(si.total_price) totalSaleAmount,SUM(s.discount) totalDiscount,u.name userName "
+    public List getTotalSaleByDateAndUserId(Date fromDate, Date toDate, Long userId, int salesReturn, int unposted, int groupByDateOrUser) throws Exception {
+        logger.debug("SMNLOG:fromDate:" + fromDate + " toDate:" + toDate + " userId:" + userId + " salesReturn:" + salesReturn);
+        String sql = "SELECT SUM(si.total_price) totalSaleAmount,ns.nsDiscount totalDiscount,u.name userName "
                 + "FROM sales s "
                 + "JOIN sales_item si ON(s.id = si.sales_id) "
+                + "LEFT JOIN (select ss.id, SUM(ss.discount) nsDiscount FROM sales ss "
+                + "WHERE ss.sale_return = ? AND ss.unposted=? "
+                + "AND ss.sales_date >= ? AND ss.sales_date <= ? "
+                + (userId > 0 ? "AND ss.sale_by_id = ?" : "")
+                + " GROUP BY ss.sale_by_id "
+                + " ) ns "
+                + "ON(ns.id = s.id) "
                 + "JOIN product p ON(p.id = si.product_id) "
                 + "LEFT JOIN company c ON(p.company_id = c.id) "
                 + "LEFT JOIN user u ON(u.id = s.sale_by_id) WHERE s.sale_return = ? AND s.unposted=?";
 
-        if(groupByDateOrUser == 1)// 0 = group by user and 1= group by date
-            sql = sql.replace("SELECT","SELECT DATE_FORMAT(s.sales_date, '%m/%d/%Y') sales_date,");
+        if (groupByDateOrUser == 1)// 0 = group by user and 1= group by date
+            sql = sql.replace("SELECT", "SELECT DATE_FORMAT(s.sales_date, '%m/%d/%Y') sales_date,");
 
         sql = sql + " AND s.sales_date >= ? AND s.sales_date <= ? ";
-        if(userId > 0){
+        if (userId > 0) {
             sql = sql + " AND s.sale_by_id = ? ";
         }
-        if(groupByDateOrUser == 0)// 0 = group by user and 1= group by date
-        sql +=" GROUP BY u.name ";
+        if (groupByDateOrUser == 0)// 0 = group by user and 1= group by date
+            sql += " GROUP BY s.sale_by_id ";
         else
-        sql +=" GROUP BY DATE_FORMAT(s.sales_date,\"%m/%d/%Y\") ";
+            sql += " GROUP BY DATE_FORMAT(s.sales_date,\"%m/%d/%Y\") ";
 
-        logger.debug("SMNLOG:sql:" + sql);
+        logger.debug("SMNLOG:getTotalSaleByDateAndUserId: sql:" + sql);
         List paramList = new ArrayList();
+        /* inner query param */
+        paramList.add(salesReturn);
+        paramList.add(unposted);
+        if (fromDate != null && toDate != null) {
+            paramList.add(fromDate);
+            paramList.add(toDate);
+        } else if (fromDate != null && toDate == null) {
+            paramList.add(fromDate);
+            paramList.add(Utils.endOfDate(fromDate));
+        }
+        if (userId > 0) {
+            paramList.add(userId);
+        }
+        /* inner query param ends*/
+
         paramList.add(salesReturn);
         paramList.add(unposted);
 
-        if(fromDate != null && toDate != null){
+        if (fromDate != null && toDate != null) {
             paramList.add(fromDate);
             paramList.add(toDate);
-        }else if(fromDate != null && toDate == null){
+        } else if (fromDate != null && toDate == null) {
             paramList.add(fromDate);
             paramList.add(Utils.endOfDate(fromDate));
         }
 
-        if(userId > 0){
+        if (userId > 0) {
             paramList.add(userId);
         }
 
         List list = jdbcTemplate.queryForList(sql, paramList.toArray());
-        if(list != null && list.size() > 0)
+        if (list != null && list.size() > 0)
             return list;
         return null;
     }
 
     @Override
-    public int getIncomeReportCount(String searchKey, int salesReturn, Date fromDate, Date toDate, Long userId,int unposted) throws Exception{
-        String sql = this.getSaleReportSql("", "", searchKey,fromDate, toDate, userId);
+    public int getIncomeReportCount(String searchKey, int salesReturn, Date fromDate, Date toDate, Long userId, int unposted) throws Exception {
+        String sql = this.getSaleReportSql("", "", searchKey, fromDate, toDate, userId);
         sql = sql.substring(sql.indexOf("FROM"));
-        logger.debug("SMNLOG:sql 11:"+sql);
-        sql = "SELECT COUNT(*) "+sql;
-        logger.debug("SMNLOG:sql 22:"+sql);
+        logger.debug("SMNLOG:sql 11:" + sql);
+        sql = "SELECT COUNT(*) " + sql;
+        logger.debug("SMNLOG:sql 22:" + sql);
         List paramList = new ArrayList();
         paramList.add(salesReturn);
         paramList.add(unposted);
@@ -922,15 +944,15 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
             paramList.add(searchKey + "%");
         }
 
-        if(fromDate != null && toDate != null){
+        if (fromDate != null && toDate != null) {
             paramList.add(fromDate);
             paramList.add(toDate);
-        }else if(fromDate != null && toDate == null){
+        } else if (fromDate != null && toDate == null) {
             paramList.add(fromDate);
             paramList.add(Utils.endOfDate(fromDate));
         }
 
-        if(userId > 0){
+        if (userId > 0) {
             paramList.add(userId);
         }
         logger.debug("SMNLOG:sql:" + sql);
@@ -938,47 +960,68 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
     }
 
     @Override
-    public List getTotalIncomeByDateAndUserId(Date fromDate, Date toDate, Long userId,int salesReturn,int unposted,int groupByDateOrUser) throws Exception{
-        logger.debug("SMNLOG:fromDate:"+fromDate+" toDate:"+toDate+" userId:"+userId+" salesReturn:"+salesReturn);
+    public List getTotalIncomeByDateAndUserId(Date fromDate, Date toDate, Long userId, int salesReturn, int unposted, int groupByDateOrUser) throws Exception {
+        logger.debug("SMNLOG:fromDate:" + fromDate + " toDate:" + toDate + " userId:" + userId + " salesReturn:" + salesReturn);
         String sql = "SELECT SUM(si.total_price) totalSaleAmount,SUM(si.total_purchase_price) totalPurchasePrice,"
-                + "SUM(si.benefit) benefit, SUM(s.discount) totalDiscount, u.name userName "
+                + "SUM(si.benefit) benefit, ns.nsDiscount totalDiscount, u.name userName "
                 + "FROM sales s "
                 + "JOIN sales_item si ON(s.id = si.sales_id) "
+                + "LEFT JOIN (select ss.id, SUM(ss.discount) nsDiscount FROM sales ss "
+                + "WHERE ss.sale_return = ? AND ss.unposted=? "
+                + "AND ss.sales_date >= ? AND ss.sales_date <= ? "
+                + (userId > 0 ? "AND ss.sale_by_id = ?" : "")
+                + " GROUP BY ss.sale_by_id "
+                + " ) ns "
+                + "ON(ns.id = s.id) "
                 + "JOIN product p ON(p.id = si.product_id) "
                 + "LEFT JOIN company c ON(p.company_id = c.id) "
                 + "LEFT JOIN user u ON(u.id = s.sale_by_id) WHERE si.benefit IS NOT NULL AND s.sale_return = ? AND s.unposted=?";
 
-        if(groupByDateOrUser == 1)// 0 = group by user and 1= group by date
-            sql = sql.replace("SELECT","SELECT s.sales_date,");
+        if (groupByDateOrUser == 1)// 0 = group by user and 1= group by date
+            sql = sql.replace("SELECT", "SELECT s.sales_date,");
 
         sql = sql + " AND s.sales_date >= ? AND s.sales_date <= ? ";
-        if(userId > 0){
+        if (userId > 0) {
             sql = sql + " AND s.sale_by_id = ? ";
         }
-        if(groupByDateOrUser == 0)// 0 = group by user and 1= group by date
-            sql +=" GROUP BY u.name ";
+        if (groupByDateOrUser == 0)// 0 = group by user and 1= group by date
+            sql += " GROUP BY u.name ";
         else
-            sql +=" GROUP BY DATE_FORMAT(s.sales_date,\"%m/%d/%Y\") ";
+            sql += " GROUP BY DATE_FORMAT(s.sales_date,\"%m/%d/%Y\") ";
 
         logger.debug("SMNLOG:sql:" + sql);
         List paramList = new ArrayList();
+          /* inner query param */
+        paramList.add(salesReturn);
+        paramList.add(unposted);
+        if (fromDate != null && toDate != null) {
+            paramList.add(fromDate);
+            paramList.add(toDate);
+        } else if (fromDate != null && toDate == null) {
+            paramList.add(fromDate);
+            paramList.add(Utils.endOfDate(fromDate));
+        }
+        if (userId > 0) {
+            paramList.add(userId);
+        }
+        /* inner query param ends*/
         paramList.add(salesReturn);
         paramList.add(unposted);
 
-        if(fromDate != null && toDate != null){
+        if (fromDate != null && toDate != null) {
             paramList.add(fromDate);
             paramList.add(toDate);
-        }else if(fromDate != null && toDate == null){
+        } else if (fromDate != null && toDate == null) {
             paramList.add(fromDate);
             paramList.add(Utils.endOfDate(fromDate));
         }
 
-        if(userId > 0){
+        if (userId > 0) {
             paramList.add(userId);
         }
 
         List list = jdbcTemplate.queryForList(sql, paramList.toArray());
-        if(list != null && list.size() > 0)
+        if (list != null && list.size() > 0)
             return list;
         return null;
     }
@@ -991,62 +1034,98 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
         param.add(productId);
 
         List list = jdbcTemplate.queryForList(sql, param.toArray());
-        if(list != null && list.size() > 0) {
-            return (Map)list.get(0);
+        if (list != null && list.size() > 0) {
+            return (Map) list.get(0);
         }
         return null;
 
     }
 
     @Override
-    public List getTotalPurchaseByDateAndUserId(Date fromDate, Date toDate, Long userId,int purchaseReturn,int unposted,int groupByDateOrUser) throws Exception{
-        logger.debug("SMNLOG:fromDate:"+fromDate+" toDate:"+toDate+" userId:"+userId+" purchaseReturn:"+purchaseReturn+" unposted:"+unposted);
+    public List getTotalPurchaseByDateAndUserId(Date fromDate, Date toDate, Long userId, int purchaseReturn, int unposted, int groupByDateOrUser, Long companyId) throws Exception {
+        logger.debug("SMNLOG:fromDate:" + fromDate + " toDate:" + toDate + " userId:" + userId + " purchaseReturn:" + purchaseReturn + " unposted:" + unposted);
         String sql = "SELECT SUM(pi.total_price) totalPurchaseAmount,"
-                + "SUM(pr.discount) totalDiscount, u.name userName "
+                + "ns.prrDiscount totalDiscount, u.name userName "
                 + "FROM purchase pr "
                 + "JOIN purchase_item pi ON(pr.id = pi.purchase_id) "
+                + "LEFT JOIN (select prr.id, SUM(prr.discount) prrDiscount FROM purchase prr "
+                + "JOIN purchase_item ppi ON(prr.id = ppi.purchase_id) "
+                + "JOIN product pp ON(pp.id = ppi.product_id) "
+                + "JOIN company cc ON(pp.company_id = cc.id) "
+                + "WHERE prr.purchase_return = ? AND prr.unposted=? "
+                + "AND prr.purchase_date >= ? AND prr.purchase_date <= ? "
+                + (userId > 0 ? "AND prr.purchase_by_id = ?" : "")
+                + (companyId > 0 ? "AND cc.id = ?" : "")
+                + " GROUP BY prr.purchase_by_id "
+                + " ) ns "
+                + "ON(ns.id = pr.id) "
                 + "JOIN product p ON(p.id = pi.product_id) "
-                + "LEFT JOIN company c ON(p.company_id = c.id) "
+                + "JOIN company c ON(p.company_id = c.id) "
                 + "LEFT JOIN user u ON(u.id = pr.purchase_by_id) WHERE pr.purchase_return = ? AND pr.unposted=?";
 
-        if(groupByDateOrUser == 1)// 0 = group by user and 1= group by date
-            sql = sql.replace("SELECT","SELECT pr.purchase_date,");
+        if (groupByDateOrUser == 1)// 0 = group by user and 1= group by date
+            sql = sql.replace("SELECT", "SELECT DATE_FORMAT(pr.purchase_date, '%m/%d/%Y') purchase_date,");
 
         sql = sql + " AND pr.purchase_date >= ? AND pr.purchase_date <= ? ";
-        if(userId > 0){
+
+        if (userId > 0) {
             sql = sql + " AND pr.purchase_by_id = ? ";
         }
-        if(groupByDateOrUser == 0)// 0 = group by user and 1= group by date
-            sql +=" GROUP BY u.name ";
+
+        if (companyId > 0) {
+            sql = sql + " AND c.id = ? ";
+        }
+
+        if (groupByDateOrUser == 0)// 0 = group by user and 1= group by date
+            sql += " GROUP BY u.name ";
         else
-            sql +=" GROUP BY DATE_FORMAT(pr.purchase_date,\"%m/%d/%Y\") ";
+            sql += " GROUP BY DATE_FORMAT(pr.purchase_date,\"%m/%d/%Y\") ";
 
         logger.debug("SMNLOG:sql:" + sql);
         List paramList = new ArrayList();
+          /* inner query param */
+        paramList.add(purchaseReturn);
+        paramList.add(unposted);
+        if (fromDate != null && toDate != null) {
+            paramList.add(fromDate);
+            paramList.add(toDate);
+        } else if (fromDate != null && toDate == null) {
+            paramList.add(fromDate);
+            paramList.add(Utils.endOfDate(fromDate));
+        }
+        if (userId > 0) {
+            paramList.add(userId);
+        }
+        if (companyId > 0) {
+            paramList.add(userId);
+        }
+        /* inner query param ends*/
         paramList.add(purchaseReturn);
         paramList.add(unposted);
 
-        if(fromDate != null && toDate != null){
+        if (fromDate != null && toDate != null) {
             paramList.add(fromDate);
             paramList.add(toDate);
-        }else if(fromDate != null && toDate == null){
+        } else if (fromDate != null && toDate == null) {
             paramList.add(fromDate);
             paramList.add(Utils.endOfDate(fromDate));
         }
 
-        if(userId > 0){
+        if (userId > 0) {
             paramList.add(userId);
         }
-
+        if (companyId > 0) {
+            paramList.add(companyId);
+        }
         List list = jdbcTemplate.queryForList(sql, paramList.toArray());
-        if(list != null && list.size() > 0)
+        if (list != null && list.size() > 0)
             return list;
         return null;
     }
 
 
     @Override
-    public   Map<String, Object> getPurchaseReport(Integer start, Integer length, String sortColName, String sortType, String searchKey, int purchaseReturn, Date fromDate, Date toDate, Long userId,int unposted) throws Exception{
+    public Map<String, Object> getPurchaseReport(Integer start, Integer length, String sortColName, String sortType, String searchKey, int purchaseReturn, Date fromDate, Date toDate, Long userId, int unposted) throws Exception {
         Map<String, Object> result = new HashMap();
 
         String sql = this.getPurchaseReportSql(sortColName, sortType, searchKey, fromDate, toDate, userId);
@@ -1065,18 +1144,18 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
             paramList.add(searchKey + "%");
         }
 
-        if(fromDate != null && toDate != null){
+        if (fromDate != null && toDate != null) {
             paramList.add(fromDate);
             paramList.add(toDate);
-        }else if(fromDate != null && toDate == null){
+        } else if (fromDate != null && toDate == null) {
             paramList.add(fromDate);
             paramList.add(Utils.endOfDate(fromDate));
         }
 
-        if(userId > 0){
+        if (userId > 0) {
             paramList.add(userId);
         }
-        if(!Utils.isEmpty(sortColName)){
+        if (!Utils.isEmpty(sortColName)) {
             paramList.add(start);
             paramList.add(length);
         }
@@ -1096,12 +1175,12 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
     }
 
     @Override
-    public int getPurchaseReportCount(String searchKey, int purchaseReturn, Date fromDate, Date toDate, Long userId,int unposted) throws Exception{
+    public int getPurchaseReportCount(String searchKey, int purchaseReturn, Date fromDate, Date toDate, Long userId, int unposted) throws Exception {
         String sql = this.getPurchaseReportSql("", "", searchKey, fromDate, toDate, userId);
         sql = sql.substring(sql.indexOf("FROM"));
-        logger.debug("SMNLOG:sql 11:"+sql);
-        sql = "SELECT COUNT(*) "+sql;
-        logger.debug("SMNLOG:sql 22:"+sql);
+        logger.debug("SMNLOG:sql 11:" + sql);
+        sql = "SELECT COUNT(*) " + sql;
+        logger.debug("SMNLOG:sql 22:" + sql);
         List paramList = new ArrayList();
         paramList.add(purchaseReturn);
         paramList.add(unposted);
@@ -1117,22 +1196,22 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
             paramList.add(searchKey + "%");
         }
 
-        if(fromDate != null && toDate != null){
+        if (fromDate != null && toDate != null) {
             paramList.add(fromDate);
             paramList.add(toDate);
-        }else if(fromDate != null && toDate == null){
+        } else if (fromDate != null && toDate == null) {
             paramList.add(fromDate);
             paramList.add(Utils.endOfDate(fromDate));
         }
 
-        if(userId > 0){
+        if (userId > 0) {
             paramList.add(userId);
         }
         logger.debug("SMNLOG:sql:" + sql);
         return jdbcTemplate.queryForInt(sql, paramList.toArray());
     }
 
-    public static String getPurchaseReportSql(String sortColName, String sortType, String searchKey,Date fromDate, Date toDate, Long userId){
+    public static String getPurchaseReportSql(String sortColName, String sortType, String searchKey, Date fromDate, Date toDate, Long userId) {
         String sql = "SELECT pr.*,pi.quantity purchaseItemQty, pi.purchase_rate pItemPRate, pi.sale_rate pItemSaleRate "
                 + ",pi.total_price pItemTotalPrice, u.name userName,p.name productName,c.name companyName "
                 + "FROM purchase pr "
@@ -1152,16 +1231,139 @@ public class AdminJdbcDaoImpl implements AdminJdbcDao {
                     + " OR c.name LIKE ?"
                     + " OR u.name LIKE ?)";
         }
-        if(fromDate != null)
+        if (fromDate != null)
             sql = sql + " AND pr.purchase_date >= ? AND pr.purchase_date <= ? ";
 
-        if(userId > 0){
+        if (userId > 0) {
             sql = sql + " AND pr.purchase_by_id = ? ";
         }
-        if(!Utils.isEmpty(sortColName))
+        if (!Utils.isEmpty(sortColName))
             sql = sql + " ORDER BY " + sortColName + " " + sortType + " LIMIT ?, ? ";
         return sql;
     }
 
+    public void clearAllData() throws Exception {
+        jdbcTemplate.update("DELETE FROM purchase_item WHERE id >0");
+        jdbcTemplate.update("DELETE FROM purchase WHERE id >0");
+        jdbcTemplate.update("DELETE FROM sales_item WHERE id >0");
+        jdbcTemplate.update("DELETE FROM sales WHERE id >0");
+        jdbcTemplate.update("UPDATE product set total_quantity = 0 WHERE id >0");
+    }
+
+    public Map getStockTotal(Date today, int purchaseReturn, int unposted) throws Exception {
+        String sql = "SELECT SUM(purchase_rate*rest_quantity) tpRate,"
+                + "SUM(sale_rate*rest_quantity) mrpRate "
+                + "FROM purchase pr "
+                + "LEFT JOIN purchase_item pi ON(pi.purchase_id = pr.id) "
+                + "WHERE pr.purchase_return = ? AND pr.unposted = ? ";
+
+        List paramList = new ArrayList();
+        paramList.add(purchaseReturn);
+        paramList.add(unposted);
+
+        Map map = jdbcTemplate.queryForMap(sql,paramList.toArray());
+        if (map != null) {
+            return map;
+        }
+        return null;
+
+    }
+
+    public Map<String, Object> getStockReportDetails(Integer start, Integer length, String sortColName, String sortType, String searchKey, Long productId, Long companyId) throws Exception {
+        Map<String, Object> result = new HashMap();
+        String sql = this.getStockReportSql(sortColName, sortType, searchKey, productId, companyId);
+
+        List paramList = new ArrayList();
+        if (productId > 0)
+            paramList.add(productId);
+        if (companyId > 0)
+            paramList.add(companyId);
+
+
+        if (!Utils.isEmpty(searchKey)) {
+            paramList.add(searchKey + "%");
+            paramList.add(searchKey + "%");
+            paramList.add(searchKey + "%");
+//            paramList.add(searchKey + "%");
+//            paramList.add(searchKey + "%");
+            paramList.add(searchKey + "%");
+            paramList.add(searchKey + "%");
+            paramList.add(searchKey + "%");
+        }
+        if (!Utils.isEmpty(sortColName)) {
+            paramList.add(start);
+            paramList.add(length);
+        }
+        logger.debug("SMNLOG:sql:" + sql);
+        List list = jdbcTemplate.queryForList(sql, paramList.toArray());
+//        logger.debug("SMNLOG:list:"+list);
+
+        result.put("data", list);
+        if (list != null && list.size() > 0)
+            result.put("total", list.size());
+        else
+            result.put("total", 0);
+
+
+        return result;
+    }
+
+    public static String getStockReportSql(String sortColName, String sortType, String searchKey, Long productId, Long companyId) {
+        String sql = "SELECT pi.quantity purchaseItemQty, pi.purchase_rate pItemPRate, "
+                + "pi.sale_rate pItemSaleRate,pi.rest_quantity rest_quantity, "
+                + "(pi.purchase_rate*pi.rest_quantity) tpRate, "
+                + "(pi.sale_rate*pi.rest_quantity) mrpRate, "
+                + "p.name productName,c.name companyName "
+                + "FROM purchase pr "
+                + "LEFT JOIN purchase_item pi ON(pi.purchase_id = pr.id) "
+                + "JOIN product p ON(p.id = pi.product_id) "
+//                + "LEFT JOIN company c ON(p.company_id = c.id) WHERE rest_quantity > 0 AND pr.purchase_return = 0";
+                + "LEFT JOIN company c ON(p.company_id = c.id) WHERE pr.purchase_return = 0";
+
+        if (productId > 0)
+            sql += " AND p.id = ? ";
+        if (companyId > 0)
+            sql += " AND c.id = ? ";
+
+        if (!Utils.isEmpty(searchKey)) {
+            sql = sql + " AND (pi.quantity LIKE ?"
+                    + " OR pi.sale_rate LIKE ?"
+                    + " OR pi.purchase_rate LIKE ?"
+                    + " OR pi.total_price LIKE ?"
+                    + " OR p.name LIKE ?"
+                    + " OR c.name LIKE ?)";
+        }
+
+        if (!Utils.isEmpty(sortColName))
+            sql = sql + " ORDER BY " + sortColName + " " + sortType + " LIMIT ?, ? ";
+
+        return sql;
+    }
+
+    @Override
+    public int getStockReportCount(String searchKey, Long productId, Long companyId) throws Exception {
+        String sql = this.getStockReportSql("", "", searchKey, productId, companyId);
+        sql = sql.substring(sql.indexOf("FROM"));
+        sql = "SELECT COUNT(*) " + sql;
+        logger.debug("SMNLOG:sql:" + sql);
+        List paramList = new ArrayList();
+        if (productId > 0)
+            paramList.add(productId);
+        if (companyId > 0)
+            paramList.add(companyId);
+
+
+        if (!Utils.isEmpty(searchKey)) {
+            paramList.add(searchKey + "%");
+            paramList.add(searchKey + "%");
+            paramList.add(searchKey + "%");
+            paramList.add(searchKey + "%");
+            paramList.add(searchKey + "%");
+            paramList.add(searchKey + "%");
+        }
+
+        logger.debug("SMNLOG:sql:" + sql);
+        return jdbcTemplate.queryForInt(sql, paramList.toArray());
+    }
 
 }

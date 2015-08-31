@@ -76,5 +76,5 @@ public interface AdminService {
     int getProductEntitySize(Double limitQty) throws Exception;
     List<Sales> getUnpostedSalesListByUserId(Long userId) throws Exception;
 
-
+    Long savePurchaseItemAsPurchaseReturn(AdminJdbcService adminJdbcService, Product product, Double qty) throws Exception;
 }

@@ -2,6 +2,7 @@ package com.dsoft.service.impl;
 
 import com.dsoft.dao.AdminDao;
 import com.dsoft.entity.*;
+import com.dsoft.service.AdminJdbcService;
 import com.dsoft.service.AdminService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -203,28 +204,30 @@ public class AdminServiceImpl implements AdminService {
         return adminDao.getSalesItem(id);
     }
 
-    public void deleteSalesReturnItem(List<SalesItem> salesItemList) throws Exception{
-         adminDao.deleteSalesReturnItem(salesItemList);
+    public void deleteSalesReturnItem(List<SalesItem> salesItemList) throws Exception {
+        adminDao.deleteSalesReturnItem(salesItemList);
     }
 
 
-    public List<PurchaseItem> getPurchaseItemList(Long productId) throws Exception{
+    public List<PurchaseItem> getPurchaseItemList(Long productId) throws Exception {
         return adminDao.getPurchaseItemList(productId);
     }
 
-   public List<Settings> getSettingsList() throws Exception{
+    public List<Settings> getSettingsList() throws Exception {
         return adminDao.getSettingsList();
     }
 
-   public int getProductEntitySize(Double limitQty) throws Exception{
+    public int getProductEntitySize(Double limitQty) throws Exception {
         return adminDao.getProductEntitySize(limitQty);
     }
 
 
-   public List<Sales> getUnpostedSalesListByUserId(Long userId) throws Exception{
+    public List<Sales> getUnpostedSalesListByUserId(Long userId) throws Exception {
         return adminDao.getUnpostedSalesListByUserId(userId);
     }
 
-
+    public Long savePurchaseItemAsPurchaseReturn(AdminJdbcService adminJdbcService, Product product, Double qty) throws Exception {
+        return adminDao.savePurchaseItemAsPurchaseReturn(adminJdbcService, product, qty);
+    }
 
 }

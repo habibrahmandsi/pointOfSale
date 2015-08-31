@@ -43,9 +43,13 @@ public interface AdminJdbcService {
     List getTotalIncomeByDateAndUserId(Date fromDate, Date toDate, Long userId,int salesReturn,int unposted,int groupByDateOrUser) throws Exception;
     Map getLatestPurchaseItemByProductId(Long productId) throws Exception;
 
-    List getTotalPurchaseByDateAndUserId(Date fromDate, Date toDate, Long userId,int purchaseReturn,int unposted,int groupByDateOrUser) throws Exception;
+    List getTotalPurchaseByDateAndUserId(Date fromDate, Date toDate, Long userId,int purchaseReturn,int unposted,int groupByDateOrUser,Long companyId) throws Exception;
 
     Map<String, Object> getPurchaseReport(Integer start, Integer length, String sortColName, String sortType, String searchKey, int purchaseReturn, Date fromDate, Date toDate, Long userId,int unposted) throws Exception ;
     int getPurchaseReportCount(String searchKey, int purchaseReturn, Date fromDate, Date toDate, Long userId,int unposted) throws Exception;
 
+    void clearAllData() throws Exception;
+    Map getStockTotal(Date today, int purchaseReturn,int unposted) throws Exception;
+    Map<String, Object> getStockReportDetails(Integer start, Integer length, String sortColName, String sortType, String searchKey, Long productId, Long companyId) throws Exception;
+    int getStockReportCount(String searchKey,Long productId, Long companyId) throws Exception;
 }

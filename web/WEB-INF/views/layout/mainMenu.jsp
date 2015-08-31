@@ -117,6 +117,9 @@
                     <li>
                         <a href="./saleReport.do?opt=3"><spring:message code="menu.reporting.unposted.sale.return"/></a>
                     </li>
+                     <li>
+                        <a href="./stockReport.do"><spring:message code="menu.reporting.stock"/></a>
+                    </li>
                     <li>
                         <a href="./incomeReport.do"><spring:message code="income.report.header"/></a>
                     </li>

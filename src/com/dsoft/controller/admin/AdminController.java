@@ -1036,6 +1036,7 @@ public class AdminController {
         Product product = new Product();
         ProductGroup productGroup = new ProductGroup();
         Company company = new Company();
+        ProductKey productKey = new ProductKey();
 
         logger.debug("product Group Bulk Upload post start.....");
 
@@ -1184,7 +1185,7 @@ public class AdminController {
             // return "redirect:./superAdmin.do";
         }
         logger.debug("SMNLOG:adding productGroupList to model" + productGroupList.size());
-
+        model.addAttribute("productKey",productKey);
         return "admin/superAdmin";
     }
 
@@ -1846,7 +1847,7 @@ public class AdminController {
                         logger.debug("## -- pid:"+salesItem.getProduct().getId()+" Qty:"+salesItem.getQuantity());
                         if(sales.getSalesReturn()){ // add an sales item for sale return
                             logger.debug("SMNLOG:-----------add an sales item for sale return --------------");
-
+                            adminService.savePurchaseItemAsPurchaseReturn(adminJdbcService, salesItem.getProduct(), salesItem.getQuantity());
                         }else{
                             if(updatePurchaseItem(salesItem.getProduct().getId(), salesItem.getQuantity(), salesItem)){
                                 logger.debug("SMNLOG:----------- updatePurchaseItem in Li --------------SUCCESS");
@@ -2111,6 +2112,7 @@ public class AdminController {
         logger.debug("SMNLOG:: sales::" + sales);
         boolean status = false;
         Long salesId = sales.getId();
+        List <SalesItem> salesItemList = new ArrayList<SalesItem>();
         try {
             logger.debug("SMNLOG:: salesId:: " + salesId);
             //if(user.getJoiningDate() == null)user.setJoiningDate(new Date());
@@ -2122,6 +2124,7 @@ public class AdminController {
             sales.setSalesReturn(true); // As this is for sales return
             sales.setUnposted(false);
             status = adminService.saveOrUpdateSalesReturn(sales);
+
             if (status == false) {
                 Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("sales.nothing.save.msg"));
                 return "redirect:./salesReturnList.do";
@@ -2934,12 +2937,19 @@ public class AdminController {
                     List<User> userList = adminService.getAllUserList();
                     searchBean.setUserList(userList);
                 }
+                 if(searchBean.getCompanyList() == null || (searchBean.getCompanyList() != null && searchBean.getCompanyList().size() < 1)){
+                    List companyList = adminJdbcService.getCompanyList("");
+                    searchBean.setCompanyList(companyList);
+                }
                 int groupByDateOrUser = 0;
 //              0 = group by user and 1= group by date
 
-                totalSaleList = adminJdbcService.getTotalPurchaseByDateAndUserId(fmDate, tDate, searchBean.getUserId() != null ? searchBean.getUserId() : 0, purchaseReturn, unposted,groupByDateOrUser);
+                totalSaleList = adminJdbcService.getTotalPurchaseByDateAndUserId(fmDate, tDate, searchBean.getUserId() != null ? searchBean.getUserId() : 0,
+                        purchaseReturn, unposted,groupByDateOrUser,searchBean.getCompanyId() != null ? searchBean.getCompanyId() : 0);
                 groupByDateOrUser = 1;
-                totalPurchaseListGroupByDate = adminJdbcService.getTotalPurchaseByDateAndUserId(fmDate, tDate, searchBean.getUserId() != null ? searchBean.getUserId() : 0, purchaseReturn, unposted,groupByDateOrUser);
+                totalPurchaseListGroupByDate = adminJdbcService.getTotalPurchaseByDateAndUserId(fmDate, tDate,
+                        searchBean.getUserId() != null ? searchBean.getUserId() : 0, purchaseReturn, unposted,groupByDateOrUser
+                        ,searchBean.getCompanyId() != null ? searchBean.getCompanyId() : 0);
                 logger.debug("SMNLOG:totalSaleList:"+totalSaleList);
                 searchBean.setOpt(opt);
                 searchBean.setDateWiseGroupByList(totalPurchaseListGroupByDate);
@@ -2965,6 +2975,149 @@ public class AdminController {
         request.getSession().setAttribute("searchBean",searchBean);
         return "redirect:./purchaseReport.do";
     }
+
+    @RequestMapping(value = "/*/clearAllData.do", method = RequestMethod.GET)
+    public String clearAllData(HttpServletRequest request,Model model) {
+        logger.debug("***************** clear All Data GET Controller ****************");
+        User user = (User) adminService.getAbstractBaseEntityByString(Constants.USER, "userName", Utils.getLoggedUserName());
+        try {
+        if ((Utils.isInRole(Role.ROLE_ADMIN.getLabel()) || Utils.isInRole(Role.ROLE_SUPER_ADMIN.getLabel()))) {
+            logger.debug("**** clearing All Data .. ***");
+                adminJdbcService.clearAllData();
+            Utils.setGreenMessage(request,"All Data is clear now !!!!!!!!!!!!! ");
+
+        }
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.debug("SMNLOG:ERROR CLEAR DATA:"+e);
+            Utils.setErrorMessage(request, "Failed to clear Data. Try again");
+        }
+        return "redirect:./landingPage.do";
+    }
+
+    @RequestMapping(value = "/*/stockReport.do", method = RequestMethod.GET)
+    public String stockReportView(HttpServletRequest request, Model model) {
+        logger.debug("******  Stock Report controller ********* ");
+        SearchBean searchBean = request.getSession().getAttribute("searchBean") != null ? (SearchBean)request.getSession().getAttribute("searchBean"): new SearchBean();
+//        int opt = request.getParameter("opt") != null ? Integer.parseInt(request.getParameter("opt")) :searchBean.getOpt();
+
+        logger.debug("SMNLOG:searchBean:"+searchBean);
+        Map totalStock = new HashMap();
+        Map totalStockReturn = new HashMap();
+        int purchaseReturn = 0;
+        int unposted = 0;
+        List totalIncomeListGroupByDate = new ArrayList();
+        try{
+            if ((Utils.isInRole(Role.ROLE_ADMIN.getLabel()) || Utils.isInRole(Role.ROLE_SUPER_ADMIN.getLabel()))) {
+
+                if(Utils.isEmpty(searchBean.getFromDateStr()))
+                    searchBean.setFromDateStr(Utils.getStringFromDate(Constants.DATE_FORMAT, new Date()));
+
+                Date fmDate = Utils.startOfDate(Utils.getDateFromString(Constants.DATE_FORMAT, searchBean.getFromDateStr()));
+                Date tDate = !Utils.isEmpty(searchBean.getToDateStr()) ? Utils.endOfDate(Utils.getDateFromString(Constants.DATE_FORMAT, searchBean.getToDateStr())) : null;
+                logger.debug("SMNLOG:FromDate:"+fmDate+" toDate:"+tDate);
+                if(searchBean.getUserList() == null || (searchBean.getUserList() != null && searchBean.getUserList().size() < 1)){
+                    List<User> userList = adminService.getAllUserList();
+                    searchBean.setUserList(userList);
+                }
+                totalStock = adminJdbcService.getStockTotal(fmDate, purchaseReturn,unposted);
+                purchaseReturn = 1;
+                totalStockReturn = adminJdbcService.getStockTotal(fmDate, purchaseReturn,unposted);
+
+                logger.debug("SMNLOG:totalStock:" + totalStock+" totalStockReturn:"+totalStockReturn);
+                if(totalStock != null){
+                    Double tpRateFromTotalStock = totalStock.get("tpRate") != null ? (Double)totalStock.get("tpRate"):0;
+                    Double tpRateFromTotalStockReturn = totalStockReturn.get("tpRate") != null ? (Double)totalStockReturn.get("tpRate"):0;
+
+                    Double mrpRateFromTotalStock = totalStock.get("mrpRate") != null ? (Double)totalStock.get("mrpRate"):0;
+                    Double mrpRateFromTotalStockReturn = totalStockReturn.get("mrpRate") != null ? (Double)totalStockReturn.get("mrpRate"):0;
+
+                    searchBean.setTpRate(tpRateFromTotalStock);
+                    searchBean.setTpRateReturn(tpRateFromTotalStockReturn);
+                    searchBean.setMrpRate(mrpRateFromTotalStock);
+                    searchBean.setMrpRateReturn(mrpRateFromTotalStockReturn);
+
+                    searchBean.setTpRateTotal(tpRateFromTotalStock - tpRateFromTotalStockReturn);
+                    searchBean.setMrpRateTotal(mrpRateFromTotalStock - mrpRateFromTotalStockReturn);
+                }
+                model.addAttribute("searchBean", searchBean);
+                return "common/stockReport";
+            }else{
+                Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("accessDenied.AccessDeniedMessage"));
+                return "redirect:./landingPage.do";
+            }
+        }catch(Exception e){
+            logger.debug("SMNLOG:ERROR: Sale report:"+e);
+            Utils.setErrorMessage(request, Utils.getMessageBundlePropertyValue("accessDenied.AccessDeniedMessage"));
+            return "redirect:./landingPage.do";
+        }
+    }
+
+    @RequestMapping(value = "/*/stockReport.do", method = RequestMethod.POST)
+    public String stockReportPost(HttpServletRequest request, @ModelAttribute("searchBean") SearchBean searchBean, Model model) {
+        logger.debug("SMNLOG:: Stock Report POST Controller::");
+        logger.debug("SMNLOG:searchBean:"+searchBean);
+        request.getSession().setAttribute("searchBean",searchBean);
+        return "redirect:./stockReport.do";
+    }
+
+    @RequestMapping(value = "/*/getStockReport.do", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    DataModelBean getStockReport(HttpServletRequest request) throws Exception {
+        logger.info("********* Get Stock Report List Ajax Controller *********");
+        DataModelBean dataModelBean = new DataModelBean();
+        /* this params is for dataTables */
+        String[] tableColumns = "p.name,c.name,purchaseItemQty,pItemPRate,pItemSaleRate,rest_quantity,tpRate,mrpRate".split(",");
+        int start = request.getParameter(Constants.IDISPLAY_START) != null ? Integer.parseInt(request.getParameter(Constants.IDISPLAY_START)) : 0;
+        int length = request.getParameter(Constants.IDISPLAY_LENGTH) != null ? Integer.parseInt(request.getParameter(Constants.IDISPLAY_LENGTH)) : 5;
+        int sEcho = request.getParameter(Constants.sEcho) != null ? Integer.parseInt(request.getParameter(Constants.sEcho)) : 0;
+        int iSortColIndex = request.getParameter(Constants.iSortCOL) != null ? Integer.parseInt(request.getParameter(Constants.iSortCOL)) : 0;
+        String searchKey = request.getParameter(Constants.sSearch) != null ? request.getParameter(Constants.sSearch) : "";
+        String sortType = request.getParameter(Constants.sortType) != null ? request.getParameter(Constants.sortType) : "asc";
+        Long productId = request.getParameter("productId") != null ? Long.parseLong(request.getParameter("productId")) : 0;
+        Long companyId = request.getParameter("companyId") != null ? Long.parseLong(request.getParameter("companyId")) : 0;
+
+        String sortColName = "";
+        logger.debug("SMNLOG:iSortColIndex:" + iSortColIndex + " sortType:" + sortType + " searchKey:" + searchKey);
+        sortColName = tableColumns[iSortColIndex];
+        logger.debug("SMNLOG:sortColName:" + sortColName);
+
+        int purchaseReturn = 0;
+        int unposted = 0;
+
+        Map<String, Object> userDataMap;
+        try {
+            int totalRecords = adminJdbcService.getStockReportCount(searchKey,productId,companyId);
+            logger.debug("SMNLOG: totalRecords:" + totalRecords);
+            if (length < 0) {
+                userDataMap = adminJdbcService.getStockReportDetails(start, totalRecords, sortColName, sortType, searchKey, productId,companyId);
+            } else {
+                userDataMap = adminJdbcService.getStockReportDetails(start, length, sortColName, sortType, searchKey, productId, companyId);
+            }
+
+                /*
+                * DataModelBean is a bean of Data table to
+                * handle data Table search, paginatin operation very simply
+                */
+            dataModelBean.setAaData((List) userDataMap.get("data"));
+            if (!Utils.isEmpty(searchKey)) {
+                dataModelBean.setiTotalDisplayRecords((Integer) userDataMap.get("total"));
+            } else {
+                dataModelBean.setiTotalDisplayRecords(totalRecords);
+            }
+            dataModelBean.setiTotalRecords(totalRecords);
+            dataModelBean.setsEcho(sEcho);
+            dataModelBean.setiDisplayStart(start);
+            dataModelBean.setiDisplayLength(totalRecords);
+
+        } catch (Exception ex) {
+            logger.error(":: ERROR:: Failed to load Stock Report details data:: " + ex);
+        }
+
+        return dataModelBean;
+    }
+
 
 }
 

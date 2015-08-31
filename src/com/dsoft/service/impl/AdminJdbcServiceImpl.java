@@ -138,8 +138,8 @@ public class AdminJdbcServiceImpl implements AdminJdbcService {
     }
 
     @Override
-    public List getTotalPurchaseByDateAndUserId(Date fromDate, Date toDate, Long userId,int purchaseReturn,int unposted,int groupByDateOrUser) throws Exception{
-        return adminJdbcDao.getTotalPurchaseByDateAndUserId(fromDate, toDate, userId, purchaseReturn, unposted,groupByDateOrUser);
+    public List getTotalPurchaseByDateAndUserId(Date fromDate, Date toDate, Long userId,int purchaseReturn,int unposted,int groupByDateOrUser,Long companyId) throws Exception{
+        return adminJdbcDao.getTotalPurchaseByDateAndUserId(fromDate, toDate, userId, purchaseReturn, unposted,groupByDateOrUser,companyId);
     }
 
 
@@ -151,6 +151,25 @@ public class AdminJdbcServiceImpl implements AdminJdbcService {
 
     @Override
     public int getPurchaseReportCount(String searchKey, int salesReturn, Date fromDate, Date toDate, Long userId,int unposted) throws Exception{
-        return adminJdbcDao.getPurchaseReportCount(searchKey, salesReturn, fromDate, toDate, userId,unposted);
+        return adminJdbcDao.getPurchaseReportCount(searchKey, salesReturn, fromDate, toDate, userId, unposted);
     }
+
+    @Override
+    public  void clearAllData() throws Exception{
+        adminJdbcDao.clearAllData();
+    }
+
+    @Override
+    public Map getStockTotal(Date today, int purchaseReturn,int unposted) throws Exception{
+        return adminJdbcDao.getStockTotal(today, purchaseReturn, unposted);
+    }
+
+    public Map<String, Object> getStockReportDetails(Integer start, Integer length, String sortColName, String sortType, String searchKey, Long productId, Long companyId) throws Exception{
+        return adminJdbcDao.getStockReportDetails(start, length, sortColName, sortType, searchKey, productId, companyId);
+    }
+
+    public int getStockReportCount(String searchKey,Long productId, Long companyId) throws Exception{
+        return adminJdbcDao.getStockReportCount(searchKey,productId,companyId);
+    }
+
 }

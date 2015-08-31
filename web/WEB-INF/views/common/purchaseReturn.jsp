@@ -53,7 +53,7 @@
                                             <form:input path="purchaseItemList[${k.index}].prevQuantity"
                                                         cssClass="prevQuantity hidden"/>
                                         </td>
-                                        <td> ${purchaseItem.product.name}&nbsp; ${purchaseItem.product.unitOfMeasure.name}&nbsp;${purchaseItem.product.productType.name}</td>
+                                        <td> ${purchaseItem.product.name}</td>
                                         <td> ${purchaseItem.product.company.name}</td>
                                         <td> ${purchaseItem.purchaseRate} <form:input
                                                 path="purchaseItemList[${k.index}].purchaseRate"

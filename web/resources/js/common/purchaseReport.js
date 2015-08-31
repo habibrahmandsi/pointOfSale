@@ -18,11 +18,21 @@ $(document).ready(function() {
 
     $('#dp1-1').datepicker();
     $('#dp1-2').datepicker();
+    $('.crossBtn').click(function(){
+        console.log("crossBtn is clickrd !!");
+        $(this).closest("div").find("input").val("");
+    });
 
     url =  "./getPurchaseReport.do"
     +"?fromDate="+$("#fromDate").val()
     +"&toDate="+$("#toDate").val()
     +"&opt="+opt;
+
+    if(companyIdFromBean > 0){
+
+        url +=  "&sSearch="+$("#companyId").find("option:selected").html();
+
+    }
 
     var fromDate = $("#fromDate").val();
     var toDate = $("#toDate").val();
@@ -75,7 +85,15 @@ $(document).ready(function() {
         } );
     }
     initializeDataTable("#purchaseReportList", url)
-    $(".dataTables_filter").find("input").focus();
+    if(companyIdFromBean > 0){
+
+       /* setTimeout(function(){
+            console.log("SMNLOG:I am called..........");
+            $(".dataTables_filter").find("input").focus().click().val(""+$("#companyId").find("option:selected").html());
+            $(".dataTables_filter").find("input").focus().val("abc").change();
+        },1000);*/
+
+    }
 
 
     (function(d3) {
@@ -113,28 +131,28 @@ $(document).ready(function() {
                 return color(d.data.label);
             });
         /*var legend = svg.selectAll('.legend')                     // NEW
-            .data(color.domain())                                   // NEW
-            .enter()                                                // NEW
-            .append('g')                                            // NEW
-            .attr('class', 'legend')                                // NEW
-            .attr('transform', function(d, i) {                     // NEW
-                var height = legendRectSize + legendSpacing;          // NEW
-                var offset =  height * color.domain().length / 2;     // NEW
-                var horz = -2 * legendRectSize;                       // NEW
-                var vert = i * height - offset;                       // NEW
-                return 'translate(' + horz + ',' + vert + ')';        // NEW
-            });                                                     // NEW
-        legend.append('rect')                                     // NEW
-            .attr('width', legendRectSize)                          // NEW
-            .attr('height', legendRectSize)                         // NEW
-            .style('fill', color)                                   // NEW
-            .style('stroke', color);                                // NEW
+         .data(color.domain())                                   // NEW
+         .enter()                                                // NEW
+         .append('g')                                            // NEW
+         .attr('class', 'legend')                                // NEW
+         .attr('transform', function(d, i) {                     // NEW
+         var height = legendRectSize + legendSpacing;          // NEW
+         var offset =  height * color.domain().length / 2;     // NEW
+         var horz = -2 * legendRectSize;                       // NEW
+         var vert = i * height - offset;                       // NEW
+         return 'translate(' + horz + ',' + vert + ')';        // NEW
+         });                                                     // NEW
+         legend.append('rect')                                     // NEW
+         .attr('width', legendRectSize)                          // NEW
+         .attr('height', legendRectSize)                         // NEW
+         .style('fill', color)                                   // NEW
+         .style('stroke', color);                                // NEW
 
-        legend.append('text')                                     // NEW
-            .attr('x', legendRectSize + legendSpacing)              // NEW
-            .attr('y', legendRectSize - legendSpacing)              // NEW
-            .text(function(d,i) {
-                return d; });  */                     // NEW
+         legend.append('text')                                     // NEW
+         .attr('x', legendRectSize + legendSpacing)              // NEW
+         .attr('y', legendRectSize - legendSpacing)              // NEW
+         .text(function(d,i) {
+         return d; });  */                     // NEW
     })(window.d3);
 });
 

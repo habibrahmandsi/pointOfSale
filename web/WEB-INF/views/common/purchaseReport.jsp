@@ -9,8 +9,13 @@
 %>
 <title><spring:message code="purchase.report.header"/></title>
 
+<link rel="stylesheet" type="text/css" href="<%= contextPath %>/resources/css/tipsy.css"/>
+<link rel="stylesheet" type="text/css" href="<%= contextPath %>/resources/css/lineChart.css"/>
+
 <script src="<%= contextPath %>/resources/js/common/purchaseReport.js"  type="text/javascript"></script>
 <script src="<%= contextPath %>/resources/js/d3js/d3.v3.min.js"  type="text/javascript"></script>
+<script src="<%= contextPath %>/resources/js/d3js/tipsy.js"></script>
+<script src="<%= contextPath %>/resources/js/common/lineChart.js"></script>
 <!-- ==================== COMMON ELEMENTS ROW ==================== -->
 
 <!-- /.row -->
@@ -44,6 +49,23 @@
                                     <c:forEach items="${searchBean.userList}" var="pg">
                                         <c:choose>
                                             <c:when test="${pg.id == searchBean.userId}" >
+                                                <option value="${pg.id}" selected>${pg.name}</option>
+                                            </c:when>
+
+                                            <c:otherwise>
+                                                <option value="${pg.id}">${pg.name}</option>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </c:forEach>
+                                </form:select>
+                            </div>
+                            <div class="form-group">
+                                <label><spring:message code="company.header"/></label>
+                                <form:select path="companyId" id="companyId" cssClass="form-control">
+                                    <option value="0" selected> --- All --- </option>
+                                    <c:forEach items="${searchBean.companyList}" var="pg">
+                                        <c:choose>
+                                            <c:when test="${pg.id == searchBean.companyId}" >
                                                 <option value="${pg.id}" selected>${pg.name}</option>
                                             </c:when>
 
@@ -129,6 +151,8 @@
                     <br>
                     <div class="row">
                         <div class="col-lg-12 unpostedSalesWrapperDiv">
+                            <div id="annualYieldsChart" class="d3charts"></div>
+                            <br>
                             <table id="purchaseReportList" class="table table-striped table-hover dataTable">
                             </table>
 
@@ -143,6 +167,7 @@
             <!-- /.col-lg-12 -->
         <script>
             var userIdFromBean = +'${searchBean.userId}';
+            var companyIdFromBean = +'${searchBean.companyId}';
             var opt = +'${searchBean.opt}';
             var donutChartData = [
                     <c:forEach items="${searchBean.totalPurchaseList}" var="data" varStatus="idx">
@@ -151,8 +176,22 @@
                     </c:forEach>
 
             ]
+            var data = [
+                <c:forEach items="${searchBean.dateWiseGroupByList}" var="data" varStatus="idx">
+                {"date": '${data.purchase_date}',"totalCounts":+'${data.totalPurchaseAmount}'}
+                <c:if test="${!idx.last}">,</c:if>
+                </c:forEach>
+
+            ]
+            var lineChartData = [
+                {
+                    "id":"1",
+                    "values":data
+                }
+            ]
             console.log("SMNLOG:********** donutChartData:"+JSON.stringify(donutChartData));
-            console.log("SMNLOG:********** userIdFromBean:"+userIdFromBean);
+            console.log("SMNLOG:********** lineChartData:"+JSON.stringify(lineChartData));
+            console.log("SMNLOG:********** userIdFromBean:"+userIdFromBean+" companyIdFromBean:"+companyIdFromBean);
             console.log("SMNLOG:********** opt:"+opt);
         </script>
         </div>

@@ -45,6 +45,9 @@ public class SalesItem {
     @Column(name = "benefit")
     private Double benefit;
 
+    @Column(name = "purchase_item_id")
+    private Long purchaseItemId;
+
     @Transient
     private Double prevQuantity;
 
@@ -120,20 +123,28 @@ public class SalesItem {
         this.totalPurchaseDetails = totalPurchaseDetails;
     }
 
-    public Double getPrevQuantity() {
-        return prevQuantity;
-    }
-
-    public void setPrevQuantity(Double prevQuantity) {
-        this.prevQuantity = prevQuantity;
-    }
-
     public Double getBenefit() {
         return benefit;
     }
 
     public void setBenefit(Double benefit) {
         this.benefit = benefit;
+    }
+
+    public Long getPurchaseItemId() {
+        return purchaseItemId;
+    }
+
+    public void setPurchaseItemId(Long purchaseItemId) {
+        this.purchaseItemId = purchaseItemId;
+    }
+
+    public Double getPrevQuantity() {
+        return prevQuantity;
+    }
+
+    public void setPrevQuantity(Double prevQuantity) {
+        this.prevQuantity = prevQuantity;
     }
 
     @Override
@@ -149,6 +160,7 @@ public class SalesItem {
                 ", totalPurchasePrice=" + totalPurchasePrice +
                 ", totalPurchaseDetails='" + totalPurchaseDetails + '\'' +
                 ", benefit=" + benefit +
+                ", purchaseItemId=" + purchaseItemId +
                 ", prevQuantity=" + prevQuantity +
                 '}';
     }

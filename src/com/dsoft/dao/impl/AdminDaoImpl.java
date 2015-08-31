@@ -3,6 +3,8 @@ package com.dsoft.dao.impl;
 import com.dsoft.dao.AdminDao;
 import com.dsoft.dao.AdminJdbcDao;
 import com.dsoft.entity.*;
+import com.dsoft.service.AdminJdbcService;
+import com.dsoft.service.AdminService;
 import com.dsoft.util.Constants;
 import com.dsoft.util.Utils;
 import org.apache.log4j.Logger;
@@ -31,6 +33,9 @@ public class AdminDaoImpl implements AdminDao {
     private static Logger logger = Logger.getLogger(AdminDaoImpl.class);
 
     private HibernateTemplate hibernateTemplate;
+
+    @Autowired(required = true)
+    private AdminJdbcService adminJdbcService;
 
     @Autowired
     public void setSessionFactory(SessionFactory sessionFactory) {
@@ -432,19 +437,25 @@ public class AdminDaoImpl implements AdminDao {
         hibernateTemplate.save(sales);
         Product product;
         List<SalesItem> salesItemList = sales.getSalesItemList();
+        PurchaseItem purchaseItem = new PurchaseItem();
         int count = 0;
         if (!Utils.isEmpty(salesItemList)) {
             for (SalesItem salesItem : salesItemList) {
+                product = salesItem != null ? salesItem.getProduct(): new Product();
                 if (salesItem != null && salesItem.getId() != null && (salesItem.getPrevQuantity() > salesItem.getQuantity() || salesItem.getPrevQuantity() < salesItem.getQuantity())) {
                     logger.debug("SMNLOG:Sales return item should be saved");
+                    Long purchaseItemId = this.savePurchaseItemAsPurchaseReturn(adminJdbcService, product,salesItem.getQuantity());
                     salesItem.setId(null);// to add as a sales return
                     salesItem.setSales(sales);
+                    if(purchaseItemId != null && purchaseItemId > 0)
+                        salesItem.setPurchaseItemId(purchaseItemId);
+
                     saveObject(salesItem);
                 } else {
                     // salesItem.setSales(sales);
                     // saveObject(salesItem);
                 }
-                product = salesItem.getProduct();
+
                 logger.debug("SMNLOG:PrevQuantity" + salesItem.getPrevQuantity() + " current Qty:" + salesItem.getQuantity());
                 if (salesItem.getPrevQuantity() > salesItem.getQuantity() || salesItem.getPrevQuantity() < salesItem.getQuantity()) {
                     this.updateProductQuantity(product.getId(), salesItem.getQuantity()); // positive for return
@@ -506,7 +517,9 @@ public class AdminDaoImpl implements AdminDao {
                 if (salesItem != null && salesItem.getProduct() != null) {
                     this.updateProductQuantity(salesItem.getProduct().getId(), (-1) * salesItem.getQuantity());// as to subtract in total qty
                 }
-
+                if(salesItem.getPurchaseItemId() != null && salesItem.getPurchaseItemId() > 0){
+                    adminJdbcService.deleteEntityByAnyColValue("purchase_item","id",salesItem.getPurchaseItemId()+"");
+                }
                 this.deleteObject(salesItem);
             }
         }
@@ -559,5 +572,24 @@ public class AdminDaoImpl implements AdminDao {
         }
         return null;*/
 
+    }
+
+    public Long savePurchaseItemAsPurchaseReturn(AdminJdbcService adminJdbcService, Product product, Double qty) throws Exception {
+        PurchaseItem purchaseItem = new PurchaseItem();
+        Map map = adminJdbcService.getLatestPurchaseItemByProductId(product.getId());
+        if (map != null && product != null && product.getId() > 0) {
+            Double latestPRate = map.get("purchase_rate") != null ? (Double) map.get("purchase_rate") : 0;
+            Double latestSaleRate = map.get("sale_rate") != null ? (Double) map.get("sale_rate") : 0;
+            logger.debug("SMNLOG:latestPRate:" + latestPRate + " latestSaleRate" + latestSaleRate + " productId:" + product.getId());
+            purchaseItem.setQuantity(qty);
+            purchaseItem.setRestQuantity(qty);
+            purchaseItem.setPurchaseRate(latestPRate);
+            purchaseItem.setSaleRate(latestSaleRate);
+            purchaseItem.setTotalPrice(latestPRate*qty);
+            purchaseItem.setProduct(product);
+            this.saveObject(purchaseItem);
+            return purchaseItem.getId();
+        }
+        return null;
     }
 }
